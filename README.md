@@ -4,20 +4,17 @@
 
 > 간단한 한 줄 소개 – 프로젝트의 핵심 가치 또는 기능
 
-[![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)]()
-[![Xcode](https://img.shields.io/badge/Xcode-16.0-blue.svg)]()
-[![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 
 ---
 
 <br>
 
 ## 👥 멤버
-| 팀원 1 | 팀원 2 | 팀원 3 | 팀원 4 |
-|:------:|:------:|:------:|:------:|
-| 사진1 | 사진2 | 사진3 | 사진4 |
-| PL | FE | FE | FE |
-| [GitHub](깃허브 링크) | [GitHub](깃허브 링크) | [GitHub](깃허브 링크) | [GitHub](깃허브 링크) |
+| 노먼/박승태 | 팀원 2 | 팀원 3 | 팀원 4 | 팀원 5 |
+|:------:|:------:|:------:|:------:|:------:|
+| 사진1 | 사진2 | 사진3 | 사진4 | 사진5 |
+| PL | BE | BE | BE | BE |
+| [GitHub](https://github.com/iseevict) | [GitHub](깃허브 링크) | [GitHub](깃허브 링크) | [GitHub](깃허브 링크) | [GitHub](깃허브 링크) |
 
 <br>
 
@@ -29,22 +26,21 @@
 <br>
 
 ## 📆 프로젝트 기간
-- 전체 기간: `YYYY.MM.DD - YYYY.MM.DD`
-- 개발 기간: `YYYY.MM.DD - YYYY.MM.DD`
+- 전체 기간: `2025.06.30 - YYYY.MM.DD`
+- 개발 기간: `2025.06.30 - YYYY.MM.DD`
 
 <br>
 
 ## 🤔 요구사항
 For building and running the application you need:
 
-iOS 18.2 <br>
-Xcode 16.2 <br>
-Swift 6.0
+[![Java](https://img.shields.io/badge/Java-17-red.svg)]()
+[![SpringBoot](https://img.shields.io/badge/SpringBoot-3.3.13-green.svg)]()
 
 <br>
 
 ## ⚒️ 개발 환경
-* Front : SwiftUI
+* BackEnd : IntelliJ
 * 버전 및 이슈 관리 : Github, Github Issues
 * 협업 툴 : Discord, Notion
 
@@ -53,26 +49,23 @@ Swift 6.0
 ## 🔎 기술 스택
 ### Envrionment
 <div align="left">
-<img src="https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white" />
-<img src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white" />
-<img src="https://img.shields.io/badge/SPM-FA7343?style=for-the-badge&logo=swift&logoColor=white" />
-<img src="https://img.shields.io/badge/Fastlane-n?style=for-the-badge&logo=fastlane&logoColor=black" />
+<img src="https://img.shields.io/badge/AWS-FF9900?style=for-the-badge&logo=AmazonAWS&logoColor=white" />
+<img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=Linux&logoColor=black" /> 
+<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=Docker&logoColor=white" /> 
+<img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=Jenkins&logoColor=white" /> 
+<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white" />
 </div>
 
 ### Development
 <div align="left">
-<img src="https://img.shields.io/badge/Xcode-007ACC?style=for-the-badge&logo=Xcode&logoColor=white" />
-<img src="https://img.shields.io/badge/Firebase-DD2C00?style=for-the-badge&logo=Firebase&logoColor=white" />
-<img src="https://img.shields.io/badge/SwiftUI-42A5F5?style=for-the-badge&logo=swift&logoColor=white" />
-<img src="https://img.shields.io/badge/Alamofire-FF5722?style=for-the-badge&logo=swift&logoColor=white" />
-<img src="https://img.shields.io/badge/Moya-8A4182?style=for-the-badge&logo=swift&logoColor=white" />
-<img src="https://img.shields.io/badge/Kingfisher-0F92F3?style=for-the-badge&logo=swift&logoColor=white" />
-<img src="https://img.shields.io/badge/Combine-FF2D55?style=for-the-badge&logo=apple&logoColor=white" />
+<img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white" />
+<img src="https://img.shields.io/badge/Spring%20Boot-5FA04E?style=for-the-badge&logo=SpringBoot&logoColor=white" />
+<img src="https://img.shields.io/badge/JPA-D70F64?style=for-the-badge&logo=jakarta&logoColor=white" /> 
+<img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=MySQL&logoColor=white" /> 
 </div>
 
 ### Communication
 <div align="left">
-<img src="https://img.shields.io/badge/Miro-FFFC00.svg?style=for-the-badge&logo=Miro&logoColor=050038" />
 <img src="https://img.shields.io/badge/Notion-white.svg?style=for-the-badge&logo=Notion&logoColor=000000" />
 <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=Discord&logoColor=white" />
 <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white" />
@@ -94,14 +87,19 @@ Swift 6.0
 </table>
 
 ## 🔖 브랜치 컨벤션
-* `main` - 제품 출시 브랜치
-* `develop` - 출시를 위해 개발하는 브랜치
-* `feat/xx` - 기능 단위로 독립적인 개발 환경을 위해 작성
-* `refac/xx` - 개발된 기능을 리팩토링 하기 위해 작성
-* `hotfix/xx` - 출시 버전에서 발생한 버그를 수정하는 브랜치
-* `chore/xx` - 빌드 작업, 패키지 매니저 설정 등
-* `design/xx` - 디자인 변경
-* `bugfix/xx` - 디자인 변경
+| 브랜치 종류   | Prefix     | 용도                                                 | 예시                              |
+| -------- | ---------- | -------------------------------------------------- | ------------------------------- |
+| 운영(메인)   | `main`     | 실제 서비스가 동작하는 배포용 브랜치                               | `main`                          |
+| 개발 통합    | `develop`  | 다음 릴리스 준비를 위한 개발 통합 브랜치                            | `develop`                       |
+| 기능 추가    | `feat/`    | 새로운 기능(Feature) 개발용 브랜치                            | `feat/user-auth`                |
+| 버그 수정    | `bugfix/`  | develop 브랜치상의 일반 버그 수정                             | `bugfix/login-nullpointer`      |
+| 긴급 수정    | `hotfix/`  | 운영 중인 main 브랜치에서 발생한 긴급 버그 수정                      | `hotfix/payment-timeout`        |
+| 리팩터링     | `refactor/`   | 기존 코드 구조 개선·리팩터링용 브랜치                              | `refac/order-service`           |
+| 릴리스 준비   | `release/` | 배포 전 최종 버전 준비·테스트용 브랜치                             | `release/v1.2.0`                |
+| 빌드·설정    | `chore/`   | 패키지/의존성 업데이트, 빌드 설정, 환경 구성 등 비기능 작업                | `chore/update-dependencies`     |
+| 문서       | `docs/`    | API 명세서·README·아키텍처 다이어그램 등 문서 작업                  | `docs/openapi-spec`             |
+| CI/CD 설정 | `ci/`      | GitHub Actions·Jenkins·Dockerfile 등 CI·CD 파이프라인 설정 | `ci/github-actions-pipeline`    |
+
 
 
 
