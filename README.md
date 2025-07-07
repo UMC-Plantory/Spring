@@ -94,7 +94,7 @@ For building and running the application you need:
 | 기능 추가    | `feat/`    | 새로운 기능(Feature) 개발용 브랜치                            | `feat/user-auth`                |
 | 버그 수정    | `bugfix/`  | develop 브랜치상의 일반 버그 수정                             | `bugfix/login-nullpointer`      |
 | 긴급 수정    | `hotfix/`  | 운영 중인 main 브랜치에서 발생한 긴급 버그 수정                      | `hotfix/payment-timeout`        |
-| 리팩터링     | `refactor/`   | 기존 코드 구조 개선·리팩터링용 브랜치                              | `refac/order-service`           |
+| 리팩터링     | `refactor/`   | 기존 코드 구조 개선·리팩터링용 브랜치                              | `refactor/order-service`           |
 | 릴리스 준비   | `release/` | 배포 전 최종 버전 준비·테스트용 브랜치                             | `release/v1.2.0`                |
 | 빌드·설정    | `chore/`   | 패키지/의존성 업데이트, 빌드 설정, 환경 구성 등 비기능 작업                | `chore/update-dependencies`     |
 | 문서       | `docs/`    | API 명세서·README·아키텍처 다이어그램 등 문서 작업                  | `docs/openapi-spec`             |
@@ -106,40 +106,17 @@ For building and running the application you need:
 <br>
 
 ## 🌀 코딩 컨벤션
-* 파라미터 이름을 기준으로 줄바꿈 한다.
-```swift
-let actionSheet = UIActionSheet(
-  title: "정말 계정을 삭제하실 건가요?",
-  delegate: self,
-  cancelButtonTitle: "취소",
-  destructiveButtonTitle: "삭제해주세요"
-)
-```
-
-<br>
-
-* if let 구문이 길 경우에 줄바꿈 한다
-```swift
-if let user = self.veryLongFunctionNameWhichReturnsOptionalUser(),
-   let name = user.veryLongFunctionNameWhichReturnsOptionalName(),
-  user.gender == .female {
-  // ...
-}
-```
-
-* 나중에 추가로 작업해야 할 부분에 대해서는 `// TODO: - xxx 주석을 남기도록 한다.`
-* 코드의 섹션을 분리할 때는 `// MARK: - xxx 주석을 남기도록 한다.`
-* 함수에 대해 전부 주석을 남기도록 하여 무슨 액션을 하는지 알 수 있도록 한다.
+* https://jumbled-coyote-e75.notion.site/2243d073953b809d8ae6f15834f85b49?source=copy_link
 
 <br>
 
 ## 📁 PR 컨벤션
 * PR 시, 템플릿이 등장한다. 해당 템플릿에서 작성해야할 부분은 아래와 같다
-    1. `PR 유형 작성`, 어떤 변경 사항이 있었는지 [] 괄호 사이에 x를 입력하여 체크할 수 있도록 한다.
-    2. `작업 내용 작성`, 작업 내용에 대해 자세하게 작성을 한다.
-    3. `추후 진행할 작업`, PR 이후 작업할 내용에 대해 작성한다
-    4. `리뷰 포인트`, 본인 PR에서 꼭 확인해야 할 부분을 작성한다.
-    6. `PR 태그 종류`, PR 제목의 태그는 아래 형식을 따른다.
+    1. `PR 제목 작성`, PR 제목 규칙에 맞게 작성
+    2. `작업 내용 작성`, 작업 내용에 대해 자세하게 작성
+    3. `관련 이슈 작성`, PR과 관련된 이슈를 연결
+    4. `리뷰 포인트`, 본인 PR에서 꼭 확인해야 할 부분을 작성
+    6. `PR 올리기 전 확인`, PR 올리기 전 확인사항 체크
 
 #### 🌟 태그 종류 (커밋 컨벤션과 동일)
 | 태그        | 설명                                                   |
@@ -156,40 +133,21 @@ if let user = self.veryLongFunctionNameWhichReturnsOptionalUser(),
 | [CI/CD]     | 배포 및 워크플로우 관련 작업                          |
 
 ### ✅ PR 예시 모음
-> 🎉 [Chore] 프로젝트 초기 세팅 <br>
-> ✨ [Feat] 프로필 화면 UI 구현 <br>
-> 🐛 [Fix] iOS 17에서 버튼 클릭 오류 수정 <br>
-> 💄 [Design] 로그인 화면 레이아웃 조정 <br>
-> 📝 [Docs] README에 프로젝트 소개 추가 <br>
+> [Chore] 프로젝트 초기 세팅 <br>
+> [Feat] 프로필 화면 UI 구현 <br>
+> [Fix] iOS 17에서 버튼 클릭 오류 수정 <br>
+> [Design] 로그인 화면 레이아웃 조정 <br>
+> [Docs] README에 프로젝트 소개 추가 <br>
 
 <br>
 
+## 💡 이슈 컨벤션
+* 이슈 작성 시, 템플릿 선택 창 등장
+    1. 작성할 이슈에 맞게 템플릿 선택
+    2. 이슈 템플릿에 맞게 작성 후 이슈 작성
+    3. 기능/버그 외의 이슈는 Cutom(기본) 이슈 템플릿 선택
+
 ## 📑 커밋 컨벤션
-
-### 💬 깃모지 가이드
-
-| 아이콘 | 코드 | 설명 | 원문 |
-| :---: | :---: | :---: | :---: |
-| 🐛 | bug | 버그 수정 | Fix a bug |
-| ✨ | sparkles | 새 기능 | Introduce new features |
-| 💄 | lipstick | UI/스타일 파일 추가/수정 | Add or update the UI and style files |
-| ♻️ | recycle | 코드 리팩토링 | Refactor code |
-| ➕ | heavy_plus_sign | 의존성 추가 | Add a dependency |
-| 🔀 | twisted_rightwards_arrows | 브랜치 합병 | Merge branches |
-| 💡 | bulb | 주석 추가/수정 | Add or update comments in source code |
-| 🔥 | fire | 코드/파일 삭제 | Remove code or files |
-| 🚑 | ambulance | 긴급 수정 | Critical hotfix |
-| 🎉 | tada | 프로젝트 시작 | Begin a project |
-| 🔒 | lock | 보안 이슈 수정 | Fix security issues |
-| 🔖 | bookmark | 릴리즈/버전 태그 | Release / Version tags |
-| 📝 | memo | 문서 추가/수정 | Add or update documentation |
-| 🔧| wrench | 구성 파일 추가/삭제 | Add or update configuration files.|
-| ⚡️ | zap | 성능 개선 | Improve performance |
-| 🎨 | art | 코드 구조 개선 | Improve structure / format of the code |
-| 📦 | package | 컴파일된 파일 추가/수정 | Add or update compiled files |
-| 👽 | alien | 외부 API 변경 반영 | Update code due to external API changes |
-| 🚚 | truck | 리소스 이동, 이름 변경 | Move or rename resources |
-| 🙈 | see_no_evil | .gitignore 추가/수정 | Add or update a .gitignore file |
 
 ### 🏷️ 커밋 태그 가이드
 
@@ -207,14 +165,16 @@ if let user = self.veryLongFunctionNameWhichReturnsOptionalUser(),
 | [CI/CD]     | 배포 관련 설정, 워크플로우 구성 등                    |
 
 ### ✅ 커밋 예시 모음
-> 🎉 [Chore] 프로젝트 초기 세팅 <br>
-> ✨ [Feat] 프로필 화면 UI 구현 <br>
-> 🐛 [Fix] iOS 17에서 버튼 클릭 오류 수정 <br>
-> 💄 [Design] 로그인 화면 레이아웃 조정 <br>
-> 📝 [Docs] README에 프로젝트 소개 추가 <br>
+> [Chore] 프로젝트 초기 세팅 <br>
+> [Feat] 프로필 화면 UI 구현 <br>
+> [Fix] iOS 17에서 버튼 클릭 오류 수정 <br>
+> [Design] 로그인 화면 레이아웃 조정 <br>
+> [Docs] README에 프로젝트 소개 추가 <br>
 
 <br>
 
 ## 🗂️ 폴더 컨벤션
-```
-```
+- 도메인형 구조
+  
+![image](https://github.com/user-attachments/assets/0b566fe6-708e-48be-b8d2-afabbf060bf3)
+
