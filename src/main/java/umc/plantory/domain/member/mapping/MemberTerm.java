@@ -10,7 +10,6 @@ import umc.plantory.domain.term.entity.Term;
 import umc.plantory.global.baseEntity.BaseEntity;
 
 @Entity
-@Table(name = "MEMBER_TERM")
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor

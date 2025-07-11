@@ -1,10 +1,10 @@
-package umc.plantory.domain.term.entity;
+package umc.plantory.domain.wateringCan.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import umc.plantory.domain.diary.entity.Diary;
 
 @Entity
 @Builder
@@ -13,16 +13,13 @@ import org.hibernate.annotations.DynamicUpdate;
 @Getter
 @DynamicInsert
 @DynamicUpdate
-public class Term {
+public class WateringCan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "term_id")
+    @Column(name = "watering_can_id")
     private Long id;
 
-    @Column(length = 30, nullable = false)
-    private String termSort;
-
-    @Column(nullable = false)
-    @ColumnDefault("false")
-    private Boolean isRequired;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diary_id")
+    private Diary diary;
 }

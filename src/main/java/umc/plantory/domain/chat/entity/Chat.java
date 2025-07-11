@@ -8,7 +8,6 @@ import umc.plantory.domain.member.entity.Member;
 import umc.plantory.global.baseEntity.BaseEntity;
 
 @Entity
-@Table(name = "CHAT")
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor

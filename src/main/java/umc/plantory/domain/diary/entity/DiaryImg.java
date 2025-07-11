@@ -7,7 +7,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import umc.plantory.global.baseEntity.BaseEntity;
 
 @Entity
-@Table(name = "DIARY_IMG")
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor

@@ -10,7 +10,6 @@ import umc.plantory.global.baseEntity.BaseEntity;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "MEMBER_TOKEN")
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
