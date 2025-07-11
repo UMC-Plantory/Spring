@@ -1,12 +1,12 @@
-package umc.plantory.apiPayload;
+package umc.plantory.global.apiPayload;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import umc.plantory.apiPayload.code.BaseCode;
-import umc.plantory.apiPayload.code.status.SuccessStatus;
+import umc.plantory.global.apiPayload.code.BaseCode;
+import umc.plantory.global.apiPayload.code.status.SuccessStatus;
 
 @Getter
 @AllArgsConstructor

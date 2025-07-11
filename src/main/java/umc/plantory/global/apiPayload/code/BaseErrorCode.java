@@ -1,4 +1,4 @@
-package umc.plantory.apiPayload.code;
+package umc.plantory.global.apiPayload.code;
 
 public interface BaseErrorCode {
     ErrorReasonDTO getReason();
