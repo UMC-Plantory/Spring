@@ -1,4 +1,4 @@
-package umc.plantory.apiPayload.exception;
+package umc.plantory.global.apiPayload.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import umc.plantory.apiPayload.ApiResponse;
-import umc.plantory.apiPayload.code.ErrorReasonDTO;
-import umc.plantory.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.ApiResponse;
+import umc.plantory.global.apiPayload.code.ErrorReasonDTO;
+import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

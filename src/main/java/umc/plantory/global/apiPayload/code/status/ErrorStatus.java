@@ -1,10 +1,10 @@
-package umc.plantory.apiPayload.code.status;
+package umc.plantory.global.apiPayload.code.status;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import umc.plantory.apiPayload.code.BaseErrorCode;
-import umc.plantory.apiPayload.code.ErrorReasonDTO;
+import umc.plantory.global.apiPayload.code.BaseErrorCode;
+import umc.plantory.global.apiPayload.code.ErrorReasonDTO;
 
 @Getter
 @AllArgsConstructor

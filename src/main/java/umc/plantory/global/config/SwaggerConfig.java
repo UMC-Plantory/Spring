@@ -1,4 +1,4 @@
-package umc.plantory.config;
+package umc.plantory.global.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

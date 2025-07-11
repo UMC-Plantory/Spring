@@ -1,9 +1,9 @@
-package umc.plantory.apiPayload.exception;
+package umc.plantory.global.apiPayload.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import umc.plantory.apiPayload.code.BaseErrorCode;
-import umc.plantory.apiPayload.code.ErrorReasonDTO;
+import umc.plantory.global.apiPayload.code.BaseErrorCode;
+import umc.plantory.global.apiPayload.code.ErrorReasonDTO;
 
 @Getter
 @AllArgsConstructor
