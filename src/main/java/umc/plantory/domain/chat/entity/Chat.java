@@ -24,7 +24,7 @@ public class Chat extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(nullable = false) // 길이 제한 추가 가능성 있음
+    @Column(length = 500, nullable = false) // 길이 제한 추가 가능성 있음
     private String content;
 
     @Column(nullable = false)
