@@ -120,28 +120,8 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     // chat 예외 핸들러
     @ExceptionHandler(ChatApiException.class)
     public ResponseEntity<Object> handleChatApiException(ChatApiException ex, WebRequest request) {
-        ErrorStatus errorStatus;
-        String message;
-        switch (ex.getErrorType()) {
-            case INVALID_API_KEY -> {
-                errorStatus = ErrorStatus._UNAUTHORIZED;
-                message = "API 키가 잘못되었습니다.";
-            }
-            case QUOTA_EXCEEDED -> {
-                errorStatus = ErrorStatus.TOO_MANY_REQUESTS;
-                message = "API 쿼터가 모두 소진되었습니다.";
-            }
-
-            case SERVER_ERROR -> {
-                errorStatus = ErrorStatus._INTERNAL_SERVER_ERROR;
-                message = "OpenAI 서버에 일시적 장애가 발생했습니다. 잠시 후 다시 시도해 주세요.";
-            }
-
-            default -> {
-                errorStatus = ErrorStatus._BAD_REQUEST;
-                message = "알 수 없는 오류가 발생했습니다.";
-            }
-        }
+        ErrorStatus errorStatus = ex.getErrorStatus();
+        String message = ex.getErrorMessage();
         ApiResponse<Object> body = ApiResponse.onFailure(errorStatus.getCode(), message, null);
         return super.handleExceptionInternal(
                 ex,

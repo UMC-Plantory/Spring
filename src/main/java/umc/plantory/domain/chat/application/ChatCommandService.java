@@ -52,12 +52,12 @@ public class ChatCommandService implements ChatCommandUseCase {
             // Spring AI가 에러를 일반적인 RestClientException으로 감싸서 HTTP 상태 코드를 직접 확인 불가능하다.
             // 따라서 msg 매칭으로 예외 처리
             if (msg != null && (msg.contains("401") || msg.contains("Unauthorized") || msg.contains("unauthorized"))) {
-                throw new ChatApiException(ChatApiException.ErrorType.INVALID_API_KEY, "API 키가 잘못되었습니다.");
+                throw new ChatApiException(ChatApiException.ErrorType.INVALID_API_KEY);
             } else if (msg != null && msg.contains("429")) {
-                throw new ChatApiException(ChatApiException.ErrorType.QUOTA_EXCEEDED, "API 쿼터가 모두 소진되었습니다.");
+                throw new ChatApiException(ChatApiException.ErrorType.QUOTA_EXCEEDED);
             } else if (msg != null && msg.contains("Error while extracting response")) {
                 if (msg.contains("OpenAiApi$ChatCompletion")) {
-                    throw new ChatApiException(ChatApiException.ErrorType.INVALID_API_KEY, "API 키가 잘못되었습니다.");
+                    throw new ChatApiException(ChatApiException.ErrorType.INVALID_API_KEY);
                 }
             }
             throw e;
