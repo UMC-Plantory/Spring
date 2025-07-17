@@ -29,6 +29,8 @@ public class PromptFactory {
             // 기존 대화: 기존 시스템 프롬프트와 대화 맥락 활용
             prompt.append(SYSTEM_PROMPT).append("\n\n");
             recentChats.sort(Comparator.comparing(Chat::getCreatedAt));
+
+            // recentChats 통해 기존 대화 추출
             for (Chat chat : recentChats) {
                 if (Boolean.TRUE.equals(chat.getIsMember())) {
                     prompt.append("사용자: ").append(chat.getContent()).append("\n");
@@ -37,7 +39,7 @@ public class PromptFactory {
                 }
             }
         }
-        // 4. 현재 사용자 입력 추가
+        // 현재 사용자 입력 추가
         prompt.append("사용자(이번 입력): ").append(message).append("\n");
         prompt.append("챗봇:");
 

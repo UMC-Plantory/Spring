@@ -22,13 +22,13 @@ public class ChatCommandService implements ChatCommandUseCase {
     private final MemberRepository memberRepository;
 
     // 챗봇한테 chat 요청
-    // 데이터베이스 조회 : 이전 대화 기록 JSON (데이터베이스로 조회) (요청, 응답 5 세트 정도 저장)
+    // 데이터베이스 조회 : 이전 대화 기록 JSON (데이터베이스로 조회) (요청, 응답 각각 5개씩 조회)
     // 데이터베이스 저장 : 현재 대화 요청/응답, 사용자 구분, 시간
-    //
     @Override
     public String ask(String message, Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다."));
-        // 1. 사용자 메시지 저장
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다."));
+        // 사용자 메시지 저장
         chatJpaRepository.save(Chat.builder()
                 .member(member)
                 .content(message)
@@ -55,6 +55,7 @@ public class ChatCommandService implements ChatCommandUseCase {
             throw e;
         }
 
+        // 챗봇 응답 저장
         chatJpaRepository.save(Chat.builder()
                 .member(member)
                 .content(response)

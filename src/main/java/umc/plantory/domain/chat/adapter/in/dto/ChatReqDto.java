@@ -9,7 +9,7 @@ public class ChatReqDto {
     public record ChatRequest (
         @NotBlank(message = "메시지를 입력해주세요.")
         @Size(max = 400, message = "메시지는 최대 400자까지 입력할 수 있습니다.")
-        String message
+        String content
     ) {}
 
 }
