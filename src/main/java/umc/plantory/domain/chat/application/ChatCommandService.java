@@ -3,8 +3,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.openai.OpenAiChatClient;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 import umc.plantory.domain.chat.adapter.out.repository.ChatJpaRepository;
 import umc.plantory.domain.chat.entity.Chat;
 import umc.plantory.domain.chat.port.in.ChatCommandUseCase;
@@ -41,12 +40,19 @@ public class ChatCommandService implements ChatCommandUseCase {
         String response;
         try {
             response = chatClient.call(prompt);
-        } catch (HttpClientErrorException.Unauthorized exception) {
-            throw new ChatApiException(ChatApiException.ErrorType.INVALID_API_KEY, "API 키가 잘못되었습니다.");
-        } catch (HttpClientErrorException.TooManyRequests exception) {
-            throw new ChatApiException(ChatApiException.ErrorType.QUOTA_EXCEEDED, "API 쿼터가 모두 소진되었습니다.");
-        } catch (HttpServerErrorException.InternalServerError e) {
-            throw new ChatApiException(ChatApiException.ErrorType.SERVER_ERROR, "OpenAI 서버에 일시적 장애가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+        } catch (RestClientException e) {
+            String msg = e.getMessage();
+            // Spring AI가 에러를 일반적인 RestClientException으로 감싸서 HTTP 상태 코드를 직접 확인 불가능
+            if (msg != null && (msg.contains("401") || msg.contains("Unauthorized") || msg.contains("unauthorized"))) {
+                throw new ChatApiException(ChatApiException.ErrorType.INVALID_API_KEY, "API 키가 잘못되었습니다.");
+            } else if (msg != null && msg.contains("429")) {
+                throw new ChatApiException(ChatApiException.ErrorType.QUOTA_EXCEEDED, "API 쿼터가 모두 소진되었습니다.");
+            } else if (msg != null && msg.contains("Error while extracting response")) {
+                if (msg.contains("OpenAiApi$ChatCompletion")) {
+                    throw new ChatApiException(ChatApiException.ErrorType.INVALID_API_KEY, "API 키가 잘못되었습니다.");
+                }
+            }
+            throw e;
         }
 
         chatJpaRepository.save(Chat.builder()
