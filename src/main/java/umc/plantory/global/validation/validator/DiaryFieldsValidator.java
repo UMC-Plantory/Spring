@@ -17,11 +17,6 @@ public class DiaryFieldsValidator implements ConstraintValidator<ValidDiaryField
     public boolean isValid(DiaryRequestDTO request, ConstraintValidatorContext context) {
         List<String> missingFields = new ArrayList<>();
 
-        // 공통 필수
-        if (request.getDiaryDate() == null) {
-            missingFields.add("diaryDate");
-        }
-
         // 일반 저장일때만 체크
         if ("NORMAL".equals(request.getStatus())) {
             if (request.getEmotion() == null) missingFields.add("emotion");

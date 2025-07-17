@@ -14,7 +14,7 @@ public class DiaryConverter {
         return Diary.builder()
                 .title("임시 제목")
                 .diaryDate(request.getDiaryDate())
-                .emotion(Emotion.valueOf(request.getEmotion()))
+                .emotion(request.getEmotion() != null ? Emotion.valueOf(request.getEmotion()) : null)
                 .content(request.getContent())
                 .sleepStartTime(request.getSleepStartTime())
                 .sleepEndTime(request.getSleepEndTime())
