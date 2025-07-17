@@ -6,9 +6,9 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import umc.plantory.domain.image.converter.PresignedUrlConverter;
+import umc.plantory.domain.image.converter.ImageConverter;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
-import umc.plantory.global.apiPayload.exception.handler.S3Handler;
+import umc.plantory.global.apiPayload.exception.handler.ImageHandler;
 import umc.plantory.domain.image.dto.request.PresignedUrlRequestDTO;
 import umc.plantory.domain.image.dto.response.PresignedUrlResponseDTO;
 
@@ -17,21 +17,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * S3 Presigned URL을 생성하는 서비스 클래스.
- * 클라이언트가 직접 S3에 이미지를 업로드할 수 있도록
- * 제한된 시간 동안 유효한 URL을 생성.
- */
 @Service
 @RequiredArgsConstructor
-public class PresignedUrlService {
-
-    // 지원하는 파일 확장자와 MIME 타입 매핑
-    private static final Map<String, String> EXTENSION_TO_MIME = Map.of(
-            "jpg", "image/jpeg",
-            "jpeg", "image/jpeg",
-            "png", "image/png"
-    );
+public class ImageServiceImpl implements ImageService {
 
     private final AmazonS3 amazonS3;
 
@@ -41,7 +29,15 @@ public class PresignedUrlService {
     @Value("${cloud.aws.region.static}")
     private String region;
 
+    // 지원하는 파일 확장자와 MIME 타입 매핑
+    private static final Map<String, String> EXTENSION_TO_MIME = Map.of(
+            "jpg", "image/jpeg",
+            "jpeg", "image/jpeg",
+            "png", "image/png"
+    );
+
     // presigned Url 생성
+    @Override
     public PresignedUrlResponseDTO createPresignedUrl(PresignedUrlRequestDTO request) {
         String extension = extractAndValidateExtension(request.getFileName());
         String fileName = generateFileName(request.getType(), request.getFileName());
@@ -55,18 +51,31 @@ public class PresignedUrlService {
         URL presignedUrl = amazonS3.generatePresignedUrl(urlRequest);
         String accessUrl = buildAccessUrl(fileName);
 
-        return PresignedUrlConverter.toPresignedUrlResponseDTO(presignedUrl.toString(), accessUrl);
+        return ImageConverter.toPresignedUrlResponseDTO(presignedUrl.toString(), accessUrl);
+    }
+
+    // S3에 해당 이미지가 존재하는지 확인
+    @Override
+    public void validateImageExistence(String imageUrl) {
+        try {
+            String key = extractKeyFromUrl(imageUrl);
+            if (!amazonS3.doesObjectExist(bucket, key)) {
+                throw new ImageHandler(ErrorStatus.IMAGE_NOT_FOUND);
+            }
+        } catch (Exception e) {
+            throw new ImageHandler(ErrorStatus.IMAGE_NOT_FOUND);
+        }
     }
 
     // 파일명에서 확장자를 추출하고 유효성을 검증
     private String extractAndValidateExtension(String fileName) {
         int lastDot = fileName.lastIndexOf(".");
         if (lastDot == -1 || lastDot == fileName.length() - 1) {
-            throw new S3Handler(ErrorStatus.INVALID_FILENAME);
+            throw new ImageHandler(ErrorStatus.INVALID_FILENAME);
         }
         String extension = fileName.substring(lastDot + 1).toLowerCase();
         if (!EXTENSION_TO_MIME.containsKey(extension)) {
-            throw new S3Handler(ErrorStatus.INVALID_EXTENSION);
+            throw new ImageHandler(ErrorStatus.INVALID_EXTENSION);
         }
         return extension;
     }
@@ -84,5 +93,14 @@ public class PresignedUrlService {
     // Presigned URL의 만료 시간을 반환(3분)
     private Date getExpiration() {
         return new Date(System.currentTimeMillis() + 1000 * 60 * 3);
+    }
+
+    // 이미지 URL로부터 key를 반환
+    private String extractKeyFromUrl(String imageUrl) {
+        String prefix = String.format("https://%s.s3.%s.amazonaws.com/", bucket, region);
+        if (!imageUrl.startsWith(prefix)) {
+            throw new ImageHandler(ErrorStatus.IMAGE_NOT_FOUND);
+        }
+        return imageUrl.substring(prefix.length());
     }
 }
