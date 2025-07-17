@@ -17,6 +17,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * S3 Presigned URL 생성 및 이미지 유효성 검사를 담당하는 서비스
+ */
 @Service
 @RequiredArgsConstructor
 public class ImageServiceImpl implements ImageService {
@@ -36,7 +39,12 @@ public class ImageServiceImpl implements ImageService {
             "png", "image/png"
     );
 
-    // presigned Url 생성
+    /**
+     * Presigned URL을 생성하여 반환
+     *
+     * @param request 파일 타입 및 이름을 담은 요청 DTO
+     * @return presigned URL과 접근 가능한 URL이 포함된 응답 DTO
+     */
     @Override
     public PresignedUrlResponseDTO createPresignedUrl(PresignedUrlRequestDTO request) {
         String extension = extractAndValidateExtension(request.getFileName());
@@ -54,7 +62,12 @@ public class ImageServiceImpl implements ImageService {
         return ImageConverter.toPresignedUrlResponseDTO(presignedUrl.toString(), accessUrl);
     }
 
-    // S3에 해당 이미지가 존재하는지 확인
+    /**
+     * 이미지 URL을 통해 S3에 이미지가 존재하는지 확인
+     *
+     * @param imageUrl 이미지의 전체 접근 URL
+     * @throws ImageHandler 이미지가 존재하지 않을 경우 예외 발생
+     */
     @Override
     public void validateImageExistence(String imageUrl) {
         try {

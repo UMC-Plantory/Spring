@@ -22,6 +22,10 @@ import umc.plantory.global.enums.DiaryStatus;
 
 import java.time.LocalDate;
 
+/**
+ * 일기 작성 관련 커맨드(등록/수정 등) 비즈니스 로직을 처리하는 서비스
+ */
+
 @Service
 @RequiredArgsConstructor
 public class DiaryCommandServiceImpl implements DiaryCommandService {
@@ -31,7 +35,19 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
     private final WateringCanRepository wateringCanRepository;
     private final ImageService imageService;
 
-    // 일기 저장
+    /**
+     * 일기 저장
+     * <p>
+     * 1. 회원 조회 (임시: ID 1 고정)
+     * 2. 일기 엔티티 생성 및 저장
+     * 3. 이미지가 존재할 경우, S3 존재 여부 확인 및 DiaryImg 저장
+     * 4. 정식 저장 + 오늘 날짜이면 물뿌리개 지급
+     * </p>
+     *
+     * @param request 일기 작성 요청 DTO
+     * @return 저장된 일기에 대한 응답 DTO
+     * @throws MemberHandler 회원이 존재하지 않는 경우
+     */
     @Override
     @Transactional
     public DiaryResponseDTO.DiaryInfoDTO saveDiary(DiaryRequestDTO request) {
