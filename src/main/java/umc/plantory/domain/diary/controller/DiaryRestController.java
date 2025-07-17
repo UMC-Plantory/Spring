@@ -25,7 +25,7 @@ public class DiaryRestController {
             summary = "일기 작성",
             description = "일기를 작성합니다. NORMAL로 저장할 경우 물뿌리개가 생성됩니다."
     )
-    @PostMapping("/")
+    @PostMapping
     public ApiResponse<DiaryResponseDTO.DiaryInfoDTO> saveDiary(
             @Valid @RequestBody DiaryRequestDTO requestDTO
     ) {
