@@ -5,6 +5,9 @@ import umc.plantory.domain.chat.entity.Chat;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * 챗봇 프롬프트(대화 맥락) 생성 유틸리티 클래스.
+ */
 public class PromptFactory {
     private static final String SYSTEM_PROMPT = """
         너는 사용자의 감정을 세심하게 살펴주고, 진심으로 공감하며, 친구처럼 따뜻하게 대화하는 심리 상담사 챗봇이야.
@@ -19,6 +22,12 @@ public class PromptFactory {
         상대방이 어떤 감정이든 안전하게 표현할 수 있다고 느끼게 해주고, 상담사이지만 너무 형식적이지 않고, 진짜 친구처럼 자연스럽고 다정하게 대화를 이끌어줘.
         """;
 
+    /**
+     * 최근 대화 기록과 사용자 입력을 바탕으로 프롬프트 문자열을 생성합니다.
+     * @param recentChats 최근 대화 목록
+     * @param message 현재 사용자 입력
+     * @return 프롬프트 문자열
+     */
     public static String buildPrompt(List<Chat> recentChats, String message) {
         StringBuilder prompt = new StringBuilder();
 

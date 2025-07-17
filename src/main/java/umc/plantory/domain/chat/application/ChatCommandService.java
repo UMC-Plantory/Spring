@@ -14,6 +14,9 @@ import umc.plantory.global.apiPayload.exception.ChatApiException;
 
 import java.util.List;
 
+/**
+ * 챗봇 대화 처리 서비스. 사용자 메시지 저장, 프롬프트 생성, 챗봇 응답 저장을 담당합니다.
+ */
 @Service
 @RequiredArgsConstructor
 public class ChatCommandService implements ChatCommandUseCase {
@@ -21,9 +24,12 @@ public class ChatCommandService implements ChatCommandUseCase {
     private final ChatJpaRepository chatJpaRepository;
     private final MemberRepository memberRepository;
 
-    // 챗봇한테 chat 요청
-    // 데이터베이스 조회 : 이전 대화 기록 JSON (데이터베이스로 조회) (요청, 응답 각각 5개씩 조회)
-    // 데이터베이스 저장 : 현재 대화 요청/응답, 사용자 구분, 시간
+    /**
+     * 사용자의 메시지와 memberId를 받아 챗봇 응답을 반환합니다.
+     * @param message 사용자 메시지
+     * @param memberId 회원 ID
+     * @return 챗봇 응답
+     */
     @Override
     public String ask(String message, Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -36,13 +42,15 @@ public class ChatCommandService implements ChatCommandUseCase {
                 .build());
 
         List<Chat> recentChats = chatJpaRepository.findTop10ByMemberOrderByCreatedAtDesc(member);
+
         String prompt = PromptFactory.buildPrompt(recentChats, message);
         String response;
         try {
             response = chatClient.call(prompt);
         } catch (RestClientException e) {
             String msg = e.getMessage();
-            // Spring AI가 에러를 일반적인 RestClientException으로 감싸서 HTTP 상태 코드를 직접 확인 불가능
+            // Spring AI가 에러를 일반적인 RestClientException으로 감싸서 HTTP 상태 코드를 직접 확인 불가능하다.
+            // 따라서 msg 매칭으로 예외 처리
             if (msg != null && (msg.contains("401") || msg.contains("Unauthorized") || msg.contains("unauthorized"))) {
                 throw new ChatApiException(ChatApiException.ErrorType.INVALID_API_KEY, "API 키가 잘못되었습니다.");
             } else if (msg != null && msg.contains("429")) {

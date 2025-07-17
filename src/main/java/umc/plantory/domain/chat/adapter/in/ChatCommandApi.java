@@ -9,6 +9,10 @@ import umc.plantory.domain.chat.adapter.in.dto.ChatReqDto;
 import umc.plantory.global.apiPayload.ApiResponse;
 
 public interface ChatCommandApi {
-    @Operation(summary = "채팅 요청 API", description = "챗봇 요청 API 입니다.")
+    @Operation(
+        summary = "챗봇 채팅 요청",
+        description = "사용자가 챗봇에게 메시지를 보내면, 챗봇의 답변을 반환합니다. " +
+                      "소셜로그인 구현 이전이므로 memberId는 쿼리 파라미터로, content는 JSON body로 전달"
+    )
     ResponseEntity<ApiResponse<String>> chat(@RequestBody @Valid ChatReqDto.ChatRequest request,@RequestParam("memberId") Long memberId);
 }
