@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>서비스 이용 동의</title>
+    <style>
+        body { font-family: Apple SD Gothic Neo, Arial, sans-serif; margin: 0; padding:0; background:#fff;}
+        .container { width: 90%; max-width: 400px; margin: 16px auto; }
+        .title { font-size: 1.25rem; font-weight: bold; margin: 28px 0 4px; }
+        .desc { font-size: 0.97rem; color: #888; margin-bottom: 18px;}
+        .agreement-list { list-style: none; padding: 0; margin: 0;}
+        .agreement-item { display: flex; align-items: center; padding: 15px 0 12px; border-bottom: 1px solid #f4f4f4;}
+        .agreement-item input[type="checkbox"] { transform: scale(1.3); margin-right: 13px;}
+        .arrow { margin-left: auto; color: #bbb; font-size: 1.15rem; }
+        .all-agree { font-weight: 500; margin: 16px 0 10px;}
+        .btn-next {
+            width: 100%; padding: 14px 0; border: none; border-radius: 8px;
+            font-size: 1rem; color: #fff; background: #d1d5db; margin-top: 32px; cursor: not-allowed; font-weight: bold;
+            transition: background 0.2s;
+        }
+        .btn-next.active { background: #3CAF60; cursor: pointer;}
+    </style>
+</head>
+<body>
+<div class="container">
+    <form id="agreementForm">
+        <div class="title">서비스 이용 동의</div>
+        <div class="desc">약관을 확인 후 버튼을 체크해주세요</div>
+
+        <div class="agreement-item all-agree">
+            <input type="checkbox" id="checkAll">
+            <label for="checkAll">약관 전체 동의</label>
+        </div>
+        <ul class="agreement-list">
+            <li class="agreement-item">
+                <input type="checkbox" id="agree1" name="over14" class="required-checkbox" value="true">
+                <label for="agree1">(필수) 만 14세 이상입니다</label>
+            </li>
+            <li class="agreement-item">
+                <input type="checkbox" id="agree2" name="service_terms" class="required-checkbox" value="true">
+                <label for="agree2">(필수) 서비스 이용약관</label>
+                <span class="arrow">›</span>
+            </li>
+            <li class="agreement-item">
+                <input type="checkbox" id="agree3" name="privacy" class="required-checkbox" value="true">
+                <label for="agree3">(필수) 개인정보 수집/이용동의</label>
+                <span class="arrow">›</span>
+            </li>
+            <li class="agreement-item">
+                <input type="checkbox" id="agree4" name="locationConsent" value="true">
+                <label for="agree4">(선택) 위치정보 제공</label>
+                <span class="arrow">›</span>
+            </li>
+            <li class="agreement-item">
+                <input type="checkbox" id="agree5" name="marketingConsent" value="true">
+                <label for="agree5">(선택) 마케팅 수신 동의</label>
+                <span class="arrow">›</span>
+            </li>
+        </ul>
+        <button type="submit" class="btn-next" id="nextBtn" disabled>다음</button>
+    </form>
+</div>
+
+<script>
+    const form = document.getElementById('agreementForm');
+    const checkAll = document.getElementById('checkAll');
+    const requiredChecks = document.querySelectorAll('.required-checkbox');
+    const allChecks = document.querySelectorAll('.agreement-list input[type="checkbox"]');
+    const nextBtn = document.getElementById('nextBtn');
+
+    // 전체 동의 체크박스
+    checkAll.addEventListener('change', function() {
+        const checked = this.checked;
+        allChecks.forEach(cb => cb.checked = checked);
+        checkRequired();
+    });
+
+    allChecks.forEach(cb => {
+        cb.addEventListener('change', () => {
+            checkAll.checked = [...allChecks].every(box => box.checked);
+            checkRequired();
+        });
+    });
+
+    function checkRequired() {
+        const allRequiredChecked = [...requiredChecks].every(cb => cb.checked);
+        nextBtn.disabled = !allRequiredChecked;
+        nextBtn.classList.toggle('active', allRequiredChecked);
+    }
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        if (![...requiredChecks].every(cb => cb.checked)) {
+            alert('필수 약관에 모두 동의해 주세요.');
+            return;
+        }
+        // 서버 DTO에 맞는 약관 정보 바디 구성
+        const payload = {
+            termAgreement: {
+                over14: document.getElementById('agree1').checked,
+                service_terms: document.getElementById('agree2').checked,
+                privacy: document.getElementById('agree3').checked
+            },
+            locationConsent: document.getElementById('agree4').checked,
+            marketingConsent: document.getElementById('agree5').checked
+        };
+
+        // access_token이 localStorage에 저장되어 있어야 함 (로그인 후!)
+        const token = localStorage.getItem('access_token');
+
+        let headers = {
+            'Content-Type': 'application/json'
+        };
+        if(token) headers['Authorization'] = 'Bearer ' + token;
+
+        try {
+            const response = await fetch('/v1/plantory/auth/kakao/agreements', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(payload)
+            });
+            if (response.ok || response.status === 303) {
+                window.location.href = '/additional.html';
+            } else if (response.status === 401) {
+                alert("로그인이 필요합니다.");
+            } else {
+                alert("제출에 실패했습니다.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("네트워크 오류가 발생했습니다.");
+        }
+    });
+</script>
+</body>
+</html>
