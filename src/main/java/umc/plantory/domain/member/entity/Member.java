@@ -6,6 +6,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import umc.plantory.global.baseEntity.BaseEntity;
+import umc.plantory.global.enums.Gender;
 import umc.plantory.global.enums.MemberRole;
 import umc.plantory.global.enums.MemberStatus;
 import umc.plantory.global.enums.Provider;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
+@Setter
 @DynamicInsert
 @DynamicUpdate
 public class Member extends BaseEntity {
@@ -26,11 +28,15 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
-    @Column(length = 10, nullable = false)
-    private String name;
+    //@Column(length = 10, nullable = false)
+    //private String name;
 
     @Column(length = 25, nullable = false, unique = true)
     private String nickname;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Gender gender;
 
     @Column(length = 100, nullable = false)
     private String email;
