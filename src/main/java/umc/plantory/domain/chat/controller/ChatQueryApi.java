@@ -1,9 +1,9 @@
-package umc.plantory.domain.chat.adapter.in;
+package umc.plantory.domain.chat.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
-import umc.plantory.domain.chat.adapter.out.dto.ChatResDto;
+import umc.plantory.domain.chat.controller.dto.ChatResDto;
 import umc.plantory.global.apiPayload.ApiResponse;
 
 import java.time.LocalDateTime;

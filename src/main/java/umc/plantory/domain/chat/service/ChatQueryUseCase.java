@@ -1,6 +1,6 @@
-package umc.plantory.domain.chat.port.in;
+package umc.plantory.domain.chat.service;
 
-import umc.plantory.domain.chat.adapter.out.dto.ChatResDto;
+import umc.plantory.domain.chat.controller.dto.ChatResDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

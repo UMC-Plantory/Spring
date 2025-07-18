@@ -1,12 +1,10 @@
-package umc.plantory.domain.chat.application;
+package umc.plantory.domain.chat.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import umc.plantory.domain.chat.adapter.out.dto.ChatResDto;
-import umc.plantory.domain.chat.adapter.out.repository.ChatJpaRepository;
-import umc.plantory.domain.chat.entity.Chat;
-import umc.plantory.domain.chat.port.in.ChatQueryUseCase;
+import umc.plantory.domain.chat.controller.dto.ChatResDto;
+import umc.plantory.domain.chat.repository.ChatJpaRepository;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
 

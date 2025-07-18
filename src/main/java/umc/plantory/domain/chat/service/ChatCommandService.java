@@ -1,16 +1,15 @@
-package umc.plantory.domain.chat.application;
+package umc.plantory.domain.chat.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.openai.OpenAiChatClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import umc.plantory.domain.chat.adapter.out.repository.ChatJpaRepository;
+import umc.plantory.domain.chat.repository.ChatJpaRepository;
 import umc.plantory.domain.chat.entity.Chat;
-import umc.plantory.domain.chat.port.in.ChatCommandUseCase;
 import umc.plantory.domain.chat.prompt.PromptFactory;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
-import umc.plantory.global.apiPayload.exception.ChatApiException;
+import umc.plantory.domain.chat.exception.ChatApiException;
 
 import java.util.List;
 

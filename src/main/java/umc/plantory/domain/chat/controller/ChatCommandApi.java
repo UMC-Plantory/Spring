@@ -1,11 +1,11 @@
-package umc.plantory.domain.chat.adapter.in;
+package umc.plantory.domain.chat.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import umc.plantory.domain.chat.adapter.in.dto.ChatReqDto;
+import umc.plantory.domain.chat.controller.dto.ChatReqDto;
 import umc.plantory.global.apiPayload.ApiResponse;
 
 public interface ChatCommandApi {

@@ -1,6 +1,8 @@
-package umc.plantory.global.apiPayload.exception;
+package umc.plantory.domain.chat.exception;
 
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+
+import static umc.plantory.global.apiPayload.code.status.ErrorStatus.*;
 
 public class ChatApiException extends RuntimeException{
     private final ErrorType errorType;
@@ -27,10 +29,10 @@ public class ChatApiException extends RuntimeException{
 
     public ErrorStatus getErrorStatus() {
         return switch (errorType) {
-            case INVALID_API_KEY -> umc.plantory.global.apiPayload.code.status.ErrorStatus._UNAUTHORIZED;
-            case QUOTA_EXCEEDED -> umc.plantory.global.apiPayload.code.status.ErrorStatus._BAD_REQUEST;
-            case SERVER_ERROR -> umc.plantory.global.apiPayload.code.status.ErrorStatus._INTERNAL_SERVER_ERROR;
-            default -> umc.plantory.global.apiPayload.code.status.ErrorStatus._BAD_REQUEST;
+            case INVALID_API_KEY -> _UNAUTHORIZED;
+            case QUOTA_EXCEEDED -> _BAD_REQUEST;
+            case SERVER_ERROR -> _INTERNAL_SERVER_ERROR;
+            default -> _BAD_REQUEST;
         };
     }
     public String getErrorMessage() {

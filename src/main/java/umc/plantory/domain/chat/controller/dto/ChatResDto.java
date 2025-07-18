@@ -1,4 +1,4 @@
-package umc.plantory.domain.chat.adapter.out.dto;
+package umc.plantory.domain.chat.controller.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,4 +1,4 @@
-package umc.plantory.domain.chat.adapter.in;
+package umc.plantory.domain.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import umc.plantory.domain.chat.adapter.out.dto.ChatResDto;
-import umc.plantory.domain.chat.port.in.ChatQueryUseCase;
+import umc.plantory.domain.chat.controller.dto.ChatResDto;
+import umc.plantory.domain.chat.service.ChatQueryUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
 import java.time.LocalDateTime;

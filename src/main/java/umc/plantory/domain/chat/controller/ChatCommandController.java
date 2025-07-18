@@ -1,12 +1,12 @@
-package umc.plantory.domain.chat.adapter.in;
+package umc.plantory.domain.chat.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import umc.plantory.domain.chat.adapter.in.dto.ChatReqDto;
-import umc.plantory.domain.chat.port.in.ChatCommandUseCase;
+import umc.plantory.domain.chat.controller.dto.ChatReqDto;
+import umc.plantory.domain.chat.service.ChatCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
 @RestController
