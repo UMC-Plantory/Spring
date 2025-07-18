@@ -17,7 +17,7 @@ public class DiaryRequestDTO {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate diaryDate;
 
-    @Pattern(regexp = "HAPPY|SAD|TIRED|ANGRY|PEACEFUL", message = "emotion 값이 유효하지 않습니다.")
+    @Pattern(regexp = "HAPPY|SAD|SOSO|ANGRY|AMAZING", message = "emotion 값이 유효하지 않습니다.")
     private String emotion;
 
     private String content;
