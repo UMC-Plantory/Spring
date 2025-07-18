@@ -48,7 +48,6 @@ public class MemberAuthController {
     @Operation(summary = "카카오 인가 URL 반환", description = "카카오 OAuth2 인가를 위한 URL을 반환합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "인가 URL 반환 성공")
-
     })
     @GetMapping("/kakao/authorize")
     public ResponseEntity<String> getKakaoAuthorizeUrl() {
@@ -68,16 +67,20 @@ public class MemberAuthController {
     @GetMapping("/kakao/login")
     public ResponseEntity<?> kakaoLogin(@RequestParam("code") String code) {
         try {
-            AuthResponse auth = memberAuthService.kakaoLogin(code); // 카카오 토큰
+            // 카카오 인가코드를 이용해 회원 인증 및 정보 조회
+            AuthResponse auth = memberAuthService.kakaoLogin(code);
             Long userId = auth.getUserId();
+
+            // JWT 엑세스/리프레시 토큰 발급
             String accessToken = jwtProvider.createAccessToken(userId);
             String refreshToken = jwtProvider.createRefreshToken(userId);
             JwtResDTO.Login jwtLoginDto = new JwtResDTO.Login(accessToken, refreshToken);
             return ResponseEntity.ok(umc.plantory.global.apiPayload.ApiResponse.onSuccess(jwtLoginDto));
         } catch (KakaoApiException e) {
-            // Kakao API 관련 예외는 글로벌 핸들러에서 처리됨
+            // 카카오 API 관련 예외는 글로벌 핸들러로 위임
             throw e;
         } catch (Exception e) {
+            // 그 외 서버 내부 예외 처리
             return ResponseEntity.status(ErrorStatus._INTERNAL_SERVER_ERROR.getHttpStatus())
                     .body(umc.plantory.global.apiPayload.ApiResponse.onFailure(
                             ErrorStatus._INTERNAL_SERVER_ERROR.getCode(),
@@ -98,6 +101,7 @@ public class MemberAuthController {
     public ResponseEntity<?> saveAgreements(
             @RequestHeader(name = "Authorization", required = false) String authorizationHeader,
             @RequestBody AgreementRequest agreementRequest) {
+        // 인증 헤더 검사
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(ErrorStatus._UNAUTHORIZED.getHttpStatus())
                 .body(umc.plantory.global.apiPayload.ApiResponse.onFailure(
@@ -105,13 +109,16 @@ public class MemberAuthController {
                     ErrorStatus._UNAUTHORIZED.getMessage(),
                     null));
         }
+        // JWT에서 사용자 id 추출
         String accessToken = authorizationHeader.substring(7);
         Long memberId = jwtProvider.getUserIdFromToken(accessToken);
-        // 동적으로 필수 약관 체크
+
+        // 약관 동의 정보 받아오기 (필수 약관 동의 여부 체크)
         Map<String, Boolean> agreementMap = agreementRequest.getTermAgreement();
         if (agreementMap == null) agreementMap = Map.of();
         var requiredTerms = termRepository.findByIsRequiredTrue(); // db에 over14가 있나?
         for (Term term : requiredTerms) {
+            // 필수 약관을 모두 동의하지 않은 경우 에러 리턴
             if (!agreementMap.getOrDefault(term.getTermSort(), false)) {
                 return ResponseEntity.status(ErrorStatus._BAD_REQUEST.getHttpStatus())
                     .body(umc.plantory.global.apiPayload.ApiResponse.onFailure(
@@ -148,6 +155,7 @@ public class MemberAuthController {
     public ResponseEntity<?> setInfo(
             @RequestHeader(name = "Authorization", required = false) String authorizationHeader,
             @RequestBody AdditionalInfoRequest infoRequest) {
+        // 인증 헤더 검사
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(ErrorStatus._UNAUTHORIZED.getHttpStatus())
                     .body(umc.plantory.global.apiPayload.ApiResponse.onFailure(
@@ -155,8 +163,11 @@ public class MemberAuthController {
                             ErrorStatus._UNAUTHORIZED.getMessage(),
                             null));
         }
+        // JWT에서 사용자 id 추출
         String accessToken = authorizationHeader.substring(7);
         Long memberId = jwtProvider.getUserIdFromToken(accessToken);
+
+        // 필수 추가 정보 모두 입력되었는지 체크
         if (infoRequest.getNickname() == null || infoRequest.getUserId() == null
                 || infoRequest.getGender() == null || infoRequest.getBirth() == null) {
             return ResponseEntity.status(ErrorStatus._BAD_REQUEST.getHttpStatus())
@@ -165,6 +176,8 @@ public class MemberAuthController {
                             "필수 정보가 누락되었습니다.",
                             null));
         }
+
+        // 닉네임 중복 검사
         if (memberAuthService.isNicknameExists(infoRequest.getNickname())) {
             return ResponseEntity.status(ErrorStatus._CONFLICT.getHttpStatus())
                     .body(umc.plantory.global.apiPayload.ApiResponse.onFailure(
