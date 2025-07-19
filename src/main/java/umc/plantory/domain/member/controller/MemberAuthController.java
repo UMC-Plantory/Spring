@@ -28,7 +28,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/plantory/auth")
+@RequestMapping("/v1/plantory/")
 @Slf4j
 public class MemberAuthController {
     private final MemberAuthService memberAuthService;
@@ -64,7 +64,7 @@ public class MemberAuthController {
         @ApiResponse(responseCode = "200", description = "로그인 및 토큰 발급 성공"),
         @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
-    @GetMapping("/kakao/login")
+    @GetMapping("/member/login")
     public ResponseEntity<?> kakaoLogin(@RequestParam("code") String code) {
         try {
             // 카카오 인가코드를 이용해 회원 인증 및 정보 조회
@@ -151,7 +151,7 @@ public class MemberAuthController {
         @ApiResponse(responseCode = "404", description = "유저 정보 없음"),
         @ApiResponse(responseCode = "409", description = "중복 닉네임")
     })
-    @PostMapping("/member/additional")
+    @PostMapping("/member/first")
     public ResponseEntity<?> setInfo(
             @RequestHeader(name = "Authorization", required = false) String authorizationHeader,
             @RequestBody AdditionalInfoRequest infoRequest) {
