@@ -1,10 +1,14 @@
 package umc.plantory.global.apiPayload.exception.handler;
 
-import umc.plantory.global.apiPayload.code.BaseErrorCode;
-import umc.plantory.global.apiPayload.exception.GeneralException;
+import lombok.Getter;
+import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 
-public class MemberHandler extends GeneralException {
-    public MemberHandler(BaseErrorCode errorCode) {
-        super(errorCode);
+@Getter
+public class MemberHandler extends RuntimeException {
+    private final ErrorStatus errorStatus;
+
+    public MemberHandler(ErrorStatus errorStatus) {
+        super(errorStatus.getMessage());
+        this.errorStatus = errorStatus;
     }
 }

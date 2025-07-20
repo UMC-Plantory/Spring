@@ -6,6 +6,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import umc.plantory.global.baseEntity.BaseEntity;
+import umc.plantory.global.enums.Gender;
 import umc.plantory.global.enums.MemberRole;
 import umc.plantory.global.enums.MemberStatus;
 import umc.plantory.global.enums.Provider;
@@ -26,11 +27,15 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
-    @Column(length = 10, nullable = false)
-    private String name;
+    //@Column(length = 10, nullable = false)
+    //private String name;
 
     @Column(length = 25, nullable = false, unique = true)
     private String nickname;
+
+    @Enumerated(EnumType.STRING)
+//    @Column(nullable = false)
+    private Gender gender;
 
     @Column(length = 100, nullable = false)
     private String email;
@@ -80,6 +85,19 @@ public class Member extends BaseEntity {
     @ColumnDefault("0")
     private Integer totalBloomCnt;
 
+    // 값 변경은 별도 메서드로 처리합니다. (ex: updateNickname, updateProfileImg 등)
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+    public void updateUserId(String userId) {
+        this.userId = userId;
+    }
+    public void updateGender(Gender gender) {
+        this.gender = gender;
+    }
+    public void updateBirth(LocalDate birth) {
+        this.birth = birth;
+    }
     public void increaseWateringCan() {
         this.wateringCanCnt = this.wateringCanCnt + 1;
     }

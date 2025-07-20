@@ -45,4 +45,13 @@ public class SwaggerConfig {
                 .pathsToMatch("/v1/plantory/chat/**")
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi memberGroup() {
+        String[] pathsToMatch = {"/v1/plantory/member/**"};
+        return GroupedOpenApi.builder()
+                .group("멤버 API")
+                .pathsToMatch(pathsToMatch)
+                .build();
+    }
 }

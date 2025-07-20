@@ -19,6 +19,7 @@ import umc.plantory.domain.chat.exception.ChatApiException;
 import umc.plantory.global.apiPayload.ApiResponse;
 import umc.plantory.global.apiPayload.code.ErrorReasonDTO;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.exception.KakaoApiException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -64,6 +65,11 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     public ResponseEntity onThrowException(GeneralException generalException, HttpServletRequest request) {
         ErrorReasonDTO errorReasonHttpStatus = generalException.getErrorReasonHttpStatus();
         return handleExceptionInternal(generalException,errorReasonHttpStatus,null,request);
+    }
+
+    @ExceptionHandler(value = KakaoApiException.class)
+    public ResponseEntity<Object> handleKakaoApiException(KakaoApiException e, WebRequest request) {
+        return handleExceptionInternalFalse(e, ErrorStatus.KAKAO_API_ERROR, HttpHeaders.EMPTY, ErrorStatus.KAKAO_API_ERROR.getHttpStatus(), request, e.getMessage());
     }
 
     private ResponseEntity<Object> handleExceptionInternal(Exception e, ErrorReasonDTO reason,
