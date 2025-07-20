@@ -2,8 +2,8 @@ package umc.plantory.domain.member.infra;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import umc.plantory.domain.member.dto.KakaoTokenResponse;
-import umc.plantory.domain.member.dto.KakaoUserInfo;
+import umc.plantory.domain.member.dto.KakaoTokenResponseDTO;
+import umc.plantory.domain.member.dto.KakaoUserInfoDTO;
 import umc.plantory.global.security.jwt.JwtProvider;
 import umc.plantory.global.security.jwt.JwtResponseDTO;
 
@@ -15,12 +15,12 @@ public class KakaoAuthFacade {
     private final JwtProvider jwtProvider; // JWT 발급도 퍼사드에 포함
 
     // 카카오 토큰 발급 퍼사드로 감싸줌
-    public KakaoTokenResponse requestToken(String code) {
+    public KakaoTokenResponseDTO requestToken(String code) {
         return kakaoOAuthClient.requestToken(code);
     }
 
     // 카카오 사용자 정보 조회 퍼사드로 감싸줌
-    public KakaoUserInfo requestUserInfo(String accessToken) {
+    public KakaoUserInfoDTO requestUserInfo(String accessToken) {
         return kakaoOAuthClient.requestUserInfo(accessToken);
     }
 

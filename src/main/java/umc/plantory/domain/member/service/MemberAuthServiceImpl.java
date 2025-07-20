@@ -44,8 +44,8 @@ public class MemberAuthServiceImpl implements MemberAuthService {
      */
     @Override
     public MemberResponseDTO.MemberAuth kakaoLogin(String code) {
-        KakaoTokenResponse token = kakaoAuthFacade.requestToken(code);
-        KakaoUserInfo userInfo = kakaoAuthFacade.requestUserInfo(token.getAccessToken());
+        KakaoTokenResponseDTO token = kakaoAuthFacade.requestToken(code);
+        KakaoUserInfoDTO userInfo = kakaoAuthFacade.requestUserInfo(token.getAccessToken());
 
         Optional<Member> existing = memberRepository.findByProviderAndProviderId(Provider.KAKAO, String.valueOf(userInfo.getId()));
         Member member;
