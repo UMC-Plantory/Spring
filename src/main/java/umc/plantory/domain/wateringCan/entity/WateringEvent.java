@@ -10,6 +10,7 @@ import umc.plantory.global.enums.Emotion;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "watering_event")
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
