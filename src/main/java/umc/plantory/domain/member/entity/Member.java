@@ -80,4 +80,7 @@ public class Member extends BaseEntity {
     @ColumnDefault("0")
     private Integer totalBloomCnt;
 
+    public void increaseWateringCan() {
+        this.wateringCanCnt = this.wateringCanCnt + 1;
+    }
 }
