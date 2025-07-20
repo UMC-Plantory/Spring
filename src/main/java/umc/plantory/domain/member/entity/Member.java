@@ -30,11 +30,11 @@ public class Member extends BaseEntity {
     @Column(length = 25, nullable = false, unique = true)
     private String nickname;
 
-    @Column(length = 100, nullable = false)
-    private String email;
-
     @Enumerated(EnumType.STRING)
     private Gender gender;
+
+    @Column(length = 100, nullable = false)
+    private String email;
 
     @Column(length = 25, nullable = false, unique = true)
     private String userCustomId;

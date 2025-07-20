@@ -2,12 +2,12 @@ package umc.plantory.domain.member.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class KakaoTokenResponse {

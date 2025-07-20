@@ -14,7 +14,6 @@ import umc.plantory.global.baseEntity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Setter
 @DynamicInsert
 @DynamicUpdate
 public class MemberTerm extends BaseEntity {

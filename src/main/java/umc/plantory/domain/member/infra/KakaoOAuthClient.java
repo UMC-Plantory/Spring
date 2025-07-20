@@ -1,4 +1,4 @@
-package umc.plantory.domain.member.client;
+package umc.plantory.domain.member.infra;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
