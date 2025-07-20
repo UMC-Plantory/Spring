@@ -11,7 +11,7 @@ public class TerrariumResponseDto {
     @AllArgsConstructor
     public static class TerrariumResponse{
         private String flowerImgUrl; // Flower 엔티티 이미지
-        private int terrariumWateringCount; // WateringEvent 엔티티 내 terrarium_id로 조회한 물 뿌리개 갯수
-        private int memberWateringCount; // member 엔티티 내 watering_can_cnt 필드
+        private Integer terrariumWateringCount; // WateringEvent 엔티티 내 terrarium_id로 조회한 물 뿌리개 갯수
+        private Integer memberWateringCount; // member 엔티티 내 watering_can_cnt 필드
     }
 }
