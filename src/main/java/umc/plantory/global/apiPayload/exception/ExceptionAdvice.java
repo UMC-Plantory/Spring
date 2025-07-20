@@ -67,9 +67,8 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = KakaoApiException.class)
-    public ResponseEntity<?> handleKakaoApiException(KakaoApiException ex, WebRequest request) {
-        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-            .body(ApiResponse.onFailure("KAKAO_API_ERROR", ex.getMessage(), null));
+    public ResponseEntity<Object> handleKakaoApiException(KakaoApiException e, WebRequest request) {
+        return handleExceptionInternalFalse(e, ErrorStatus.KAKAO_API_ERROR, HttpHeaders.EMPTY, ErrorStatus.KAKAO_API_ERROR.getHttpStatus(), request, e.getMessage());
     }
 
     private ResponseEntity<Object> handleExceptionInternal(Exception e, ErrorReasonDTO reason,

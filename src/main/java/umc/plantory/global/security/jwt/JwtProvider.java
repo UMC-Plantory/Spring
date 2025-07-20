@@ -1,8 +1,6 @@
 package umc.plantory.global.security.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +31,7 @@ public class JwtProvider {
                 .compact();
     }
 
-    public void addTokenCookies(HttpServletResponse res, JwtResDTO.Login dto) {
+    public void addTokenCookies(HttpServletResponse res, JwtResponseDTO.Login dto) {
         addCookie(res, "access_token",  dto.getAccessToken(),  props.getAccessTokenExpiration());
         addCookie(res, "refresh_token", dto.getRefreshToken(), props.getRefreshTokenExpiration());
     }
@@ -47,10 +45,25 @@ public class JwtProvider {
     }
 
     public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(props.getSecret())
-                .parseClaimsJws(token)
-                .getBody();
-        return Long.parseLong(claims.getSubject());
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(props.getSecret())
+                    .parseClaimsJws(token)
+                    .getBody();
+            return Long.parseLong(claims.getSubject());
+        } catch (ExpiredJwtException e) {
+            throw new CustomJwtException("만료된 토큰입니다.");
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new CustomJwtException("유효하지 않은 토큰입니다.");
+        }
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(props.getSecret()).parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 }

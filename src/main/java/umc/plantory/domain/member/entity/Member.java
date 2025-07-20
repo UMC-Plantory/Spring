@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Setter
 @DynamicInsert
 @DynamicUpdate
 public class Member extends BaseEntity {
@@ -35,7 +34,7 @@ public class Member extends BaseEntity {
     private String nickname;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private Gender gender;
 
     @Column(length = 100, nullable = false)
@@ -86,4 +85,17 @@ public class Member extends BaseEntity {
     @ColumnDefault("0")
     private Integer totalBloomCnt;
 
+    // 값 변경은 별도 메서드로 처리합니다. (ex: updateNickname, updateProfileImg 등)
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+    public void updateUserId(String userId) {
+        this.userId = userId;
+    }
+    public void updateGender(Gender gender) {
+        this.gender = gender;
+    }
+    public void updateBirth(LocalDate birth) {
+        this.birth = birth;
+    }
 }

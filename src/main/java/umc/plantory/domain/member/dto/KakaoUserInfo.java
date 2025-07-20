@@ -2,10 +2,12 @@ package umc.plantory.domain.member.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class KakaoUserInfo {
@@ -13,14 +15,16 @@ public class KakaoUserInfo {
     @JsonProperty("kakao_account")
     private KakaoAccount kakaoAccount;
 
-    @Data
+    @Getter
+    @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     public static class KakaoAccount {
         private String email;
         private Profile profile;
 
-        @Data
+        @Getter
+        @Builder
         @AllArgsConstructor
         @NoArgsConstructor
         public static class Profile {

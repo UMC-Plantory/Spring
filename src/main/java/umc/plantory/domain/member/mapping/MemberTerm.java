@@ -14,7 +14,6 @@ import umc.plantory.global.baseEntity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Setter
 @DynamicInsert
 @DynamicUpdate
 public class MemberTerm extends BaseEntity {
@@ -34,4 +33,8 @@ public class MemberTerm extends BaseEntity {
     @Column(nullable = false)
     @ColumnDefault("false")
     private Boolean isAgree;
+
+    public void updateIsAgree(boolean isAgree) {
+        this.isAgree = isAgree;
+    }
 }

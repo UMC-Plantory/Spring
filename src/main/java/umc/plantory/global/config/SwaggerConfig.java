@@ -8,7 +8,8 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springdoc.core.models.GroupedOpenApi;
+
 
 @Configuration
 public class SwaggerConfig {
@@ -35,5 +36,14 @@ public class SwaggerConfig {
                 .info(info)
                 .addSecurityItem(securityRequirement)
                 .components(components);
+    }
+
+    @Bean
+    public GroupedOpenApi memberGroup() {
+        String[] pathsToMatch = {"/v1/plantory/member/**"};
+        return GroupedOpenApi.builder()
+                .group("멤버 API")
+                .pathsToMatch(pathsToMatch)
+                .build();
     }
 }
