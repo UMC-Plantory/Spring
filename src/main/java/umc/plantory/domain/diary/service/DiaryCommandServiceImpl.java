@@ -1,8 +1,8 @@
 package umc.plantory.domain.diary.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.diary.converter.DiaryConverter;
 import umc.plantory.domain.diary.dto.request.DiaryRequestDTO;
 import umc.plantory.domain.diary.dto.response.DiaryResponseDTO;
@@ -28,6 +28,7 @@ import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DiaryCommandServiceImpl implements DiaryCommandService {
     private final DiaryRepository diaryRepository;
     private final DiaryImgRepository diaryImgRepository;
@@ -50,7 +51,7 @@ public class DiaryCommandServiceImpl implements DiaryCommandService {
      */
     @Override
     @Transactional
-    public DiaryResponseDTO.DiaryInfoDTO saveDiary(DiaryRequestDTO request) {
+    public DiaryResponseDTO.DiaryInfoDTO saveDiary(DiaryRequestDTO.DiaryUploadDTO request) {
 
         // 임시로 1번 멤버 불러오기
         Member member = memberRepository.findById(1L)
