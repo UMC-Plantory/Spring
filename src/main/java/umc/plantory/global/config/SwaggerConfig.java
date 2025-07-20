@@ -54,4 +54,13 @@ public class SwaggerConfig {
                 .pathsToMatch(pathsToMatch)
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi terrariumGroup() {
+        String[] pathsToMatch = {"/v1/plantory/terrarium/**", "/v1/plantory/terrarium"};
+        return GroupedOpenApi.builder()
+                .group("테라리움 API")
+                .pathsToMatch(pathsToMatch)
+                .build();
+    }
 }
