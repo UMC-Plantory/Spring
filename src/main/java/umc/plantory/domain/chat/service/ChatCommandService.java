@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.ai.openai.OpenAiChatClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
+import umc.plantory.domain.chat.converter.ChatConverter;
 import umc.plantory.domain.chat.repository.ChatJpaRepository;
 import umc.plantory.domain.chat.entity.Chat;
 import umc.plantory.domain.chat.prompt.PromptFactory;
@@ -34,16 +35,12 @@ public class ChatCommandService implements ChatCommandUseCase {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다."));
         // 사용자 메시지 저장
-        chatJpaRepository.save(Chat.builder()
-                .member(member)
-                .content(message)
-                .isMember(true)
-                .build());
+        chatJpaRepository.save(ChatConverter.toChat(message, member, true));
 
         List<Chat> recentChats = chatJpaRepository.findTop10ByMemberOrderByCreatedAtDesc(member);
 
         String prompt = PromptFactory.buildPrompt(recentChats, message);
-        String response;
+        String response = "";
         try {
             response = chatClient.call(prompt);
         } catch (RestClientException e) {
@@ -63,11 +60,7 @@ public class ChatCommandService implements ChatCommandUseCase {
         }
 
         // 챗봇 응답 저장
-        chatJpaRepository.save(Chat.builder()
-                .member(member)
-                .content(response)
-                .isMember(false)
-                .build());
+        chatJpaRepository.save(ChatConverter.toChat(response, member, false));
 
         return response;
     }

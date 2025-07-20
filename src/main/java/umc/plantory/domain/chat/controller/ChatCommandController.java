@@ -5,13 +5,13 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import umc.plantory.domain.chat.controller.dto.ChatReqDto;
+import umc.plantory.domain.chat.controller.dto.ChatRequestDto;
 import umc.plantory.domain.chat.service.ChatCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/chat")
+@RequestMapping("/v1/plantory/chat")
 public class ChatCommandController implements ChatCommandApi {
     private final ChatCommandUseCase chatCommandUseCase;
     /**
@@ -22,7 +22,8 @@ public class ChatCommandController implements ChatCommandApi {
      */
     @Override
     @PostMapping
-    public ResponseEntity<ApiResponse<String>> chat(@RequestBody @Valid ChatReqDto.ChatRequest request, @RequestParam("memberId") Long memberId) {
+    public ResponseEntity<ApiResponse<String>> chat(@RequestBody @Valid ChatRequestDto.ChatRequest request,
+                                                    @RequestParam Long memberId) {
         String response = chatCommandUseCase.ask(request.content(), memberId);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
