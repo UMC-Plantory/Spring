@@ -24,7 +24,7 @@ public class ChatCommandController implements ChatCommandApi {
     @PostMapping
     public ResponseEntity<ApiResponse<String>> chat(@RequestBody @Valid ChatRequestDto.ChatRequest request,
                                                     @RequestParam Long memberId) {
-        String response = chatCommandUseCase.ask(request.content(), memberId);
+        String response = chatCommandUseCase.ask(request.getContent(), memberId);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 }
