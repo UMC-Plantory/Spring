@@ -16,12 +16,17 @@ public enum ErrorStatus implements BaseErrorCode {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
     // 멤버 관련
-    MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER4001", "존재하지 않는 회원입니다."),
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "존재하지 않는 회원입니다."),
 
     // S3 관련
     INVALID_EXTENSION(HttpStatus.BAD_REQUEST, "S34001", "허용되지 않은 파일 확장자입니다."),
     INVALID_FILENAME(HttpStatus.BAD_REQUEST, "S34002", "파일 이름이 유효하지 않습니다."),
     IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST, "S34003", "해당 이미지가 S3에 존재하지 않습니다."),
+
+    // 일기 관련
+    DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY4001", "존재하지 않는 일기입니다."),
+    DIARY_MISSING_FIELDS(HttpStatus.BAD_REQUEST, "DIARY4002", "일기의 필수 항목이 누락되었습니다."),
+    DIARY_UNAUTHORIZED(HttpStatus.FORBIDDEN,"DIARY4003","해당 일기에 대한 권한이 없습니다."),
 
     ;
     private final HttpStatus httpStatus;

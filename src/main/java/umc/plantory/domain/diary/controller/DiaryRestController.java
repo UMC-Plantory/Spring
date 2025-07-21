@@ -1,6 +1,7 @@
 package umc.plantory.domain.diary.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -36,5 +37,25 @@ public class DiaryRestController {
             @Valid @RequestBody DiaryRequestDTO.DiaryUploadDTO requestDTO
     ) {
         return ResponseEntity.ok(ApiResponse.onSuccess(diaryCommandService.saveDiary(requestDTO)));
+    }
+
+    @Operation(
+            summary = "일기 수정",
+            description = "일기를 수정합니다. 기존 이미지를 삭제할 경우 isImgDeleted를 true로 해주세요."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4001", description = "일기를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4011", description = "일기 작성자와 일치하지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "S34003", description = "이미지가 S3에 등록되지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @PatchMapping("/{diaryId}")
+    public ResponseEntity<ApiResponse<DiaryResponseDTO.DiaryInfoDTO>> updateDiary(
+            @Parameter(description = "수정할 일기의 ID", required = true)
+            @PathVariable("diaryId") Long diaryId,
+            @Valid @RequestBody DiaryRequestDTO.DiaryUpdateDTO requestDTO
+    ) {
+        return ResponseEntity.ok(ApiResponse.onSuccess(diaryCommandService.updateDiary(diaryId, requestDTO)));
     }
 }

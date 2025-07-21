@@ -80,6 +80,26 @@ public class ImageServiceImpl implements ImageService {
         }
     }
 
+    /**
+     * 이미지 URL에 해당하는 이미지를 S3에서 삭제
+     *
+     * @param imageUrl 이미지의 전체 접근 URL
+     * @throws ImageHandler 이미지가 존재하지 않거나 삭제에 실패한 경우 예외 발생
+     */
+    @Override
+    public void deleteImage(String imageUrl) {
+        try {
+            String key = extractKeyFromUrl(imageUrl);
+            if (amazonS3.doesObjectExist(bucket, key)) {
+                amazonS3.deleteObject(bucket, key);
+            } else {
+                throw new ImageHandler(ErrorStatus.IMAGE_NOT_FOUND);
+            }
+        } catch (Exception e) {
+            throw new ImageHandler(ErrorStatus.IMAGE_NOT_FOUND);
+        }
+    }
+
     // 파일명에서 확장자를 추출하고 유효성을 검증
     private String extractAndValidateExtension(String fileName) {
         int lastDot = fileName.lastIndexOf(".");

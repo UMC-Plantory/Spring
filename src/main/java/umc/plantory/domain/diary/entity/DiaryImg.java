@@ -26,4 +26,7 @@ public class DiaryImg extends BaseEntity {
     @Column(length = 255, nullable = false)
     private String diaryImgUrl;
 
+    public void updateUrl(String diaryImgUrl) {
+        this.diaryImgUrl = diaryImgUrl;
+    }
 }
