@@ -24,6 +24,7 @@ import umc.plantory.global.enums.Emotion;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 일기 작성 관련 커맨드(등록/수정 등) 비즈니스 로직을 처리하는 서비스
@@ -124,11 +125,12 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
 
+        // 해당 일기의 작성자가 맞는지 확인
         if (!diary.getMember().getId().equals(member.getId())) {
             throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
         }
 
-        // Normal 상태인 다이어리만 스크랩 가능
+        // Normal 상태인 일기만 스크랩 가능
         if (diary.getStatus() != DiaryStatus.NORMAL) {
             throw new DiaryHandler(ErrorStatus.DIARY_INVALID_STATUS);
         }
@@ -145,16 +147,34 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
 
+        // 해당 일기의 작성자가 맞는지 확인
         if (!diary.getMember().getId().equals(member.getId())) {
             throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
         }
 
-        // Scrap 상태였던 다이어리만 취소 가능
+        // Scrap 상태였던 일기만 취소 가능
         if (diary.getStatus() != DiaryStatus.SCRAP) {
             throw new DiaryHandler(ErrorStatus.DIARY_INVALID_STATUS);
         }
 
         diary.updateStatus(DiaryStatus.NORMAL);
+    }
+
+    @Override
+    @Transactional
+    public void tempSaveDiaries(DiaryRequestDTO.DiaryIdsDTO request) {
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        List<Diary> diaries = diaryRepository.findAllById(request.getDiaryIds());
+
+        for (Diary diary : diaries) {
+            // 해당 일기의 작성자가 맞는지 확인
+            if (!diary.getMember().getId().equals(member.getId())) {
+                throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
+            }
+            diary.updateStatus(DiaryStatus.TEMP);
+        }
     }
 
     // 이미지 처리
@@ -164,7 +184,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 기존 이미지가 있는 경우
         if (diaryImg != null) {
             // 기존 이미지 삭제
-            if (isImgDeleted) {
+            if (isImgDeleted && newImageUrl == null) {
                 imageUseCase.deleteImage(diaryImg.getDiaryImgUrl());
                 diaryImgRepository.delete(diaryImg);
                 return null;

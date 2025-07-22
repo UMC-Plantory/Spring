@@ -9,6 +9,7 @@ import umc.plantory.global.validation.annotation.ValidDiaryFields;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class DiaryRequestDTO {
 
@@ -72,5 +73,12 @@ public class DiaryRequestDTO {
 
         @Schema(description = "기존 이미지 삭제 여부", example = "false")
         private Boolean isImgDeleted;
+    }
+
+    @Getter
+    public static class DiaryIdsDTO {
+        @Schema(description = "요청할 일기 ID 배열", example = "[1, 2, 3]")
+        @NotNull(message = "diaryIds 항목은 필수입니다.")
+        private List<Long> diaryIds;
     }
 }

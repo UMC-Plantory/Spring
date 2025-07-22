@@ -8,4 +8,5 @@ public interface DiaryCommandUseCase {
     DiaryResponseDTO.DiaryInfoDTO updateDiary(Long diaryId, DiaryRequestDTO.DiaryUpdateDTO request);
     void scrapDiary(Long diaryId);
     void cancelScrapDiary(Long diaryId);
+    void tempSaveDiaries(DiaryRequestDTO.DiaryIdsDTO request);
 }
