@@ -9,4 +9,6 @@ public interface DiaryCommandUseCase {
     void scrapDiary(Long diaryId);
     void cancelScrapDiary(Long diaryId);
     void tempSaveDiaries(DiaryRequestDTO.DiaryIdsDTO request);
+    void softDeleteDiaries(DiaryRequestDTO.DiaryIdsDTO request);
+    void hardDeleteDiaries(DiaryRequestDTO.DiaryIdsDTO request);
 }

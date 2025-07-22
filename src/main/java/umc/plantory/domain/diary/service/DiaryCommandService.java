@@ -177,6 +177,38 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         }
     }
 
+    @Override
+    @Transactional
+    public void softDeleteDiaries(DiaryRequestDTO.DiaryIdsDTO request) {
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        List<Diary> diaries = diaryRepository.findAllById(request.getDiaryIds());
+
+        for (Diary diary : diaries) {
+            if (!diary.getMember().getId().equals(member.getId())) {
+                throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
+            }
+            diary.updateStatus(DiaryStatus.DELETE);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void hardDeleteDiaries(DiaryRequestDTO.DiaryIdsDTO request) {
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        List<Diary> diaries = diaryRepository.findAllById(request.getDiaryIds());
+
+        for (Diary diary : diaries) {
+            if (!diary.getMember().getId().equals(member.getId())) {
+                throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
+            }
+            diaryRepository.delete(diary);
+        }
+    }
+
     // 이미지 처리
     private String handleDiaryImage(Diary diary, String newImageUrl, boolean isImgDeleted) {
         DiaryImg diaryImg = diaryImgRepository.findByDiary(diary).orElse(null);

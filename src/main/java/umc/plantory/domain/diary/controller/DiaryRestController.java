@@ -110,4 +110,38 @@ public class DiaryRestController {
         diaryCommandUseCase.tempSaveDiaries(requestDTO);
         return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
+
+    @Operation(
+            summary = "일기 휴지통 이동",
+            description = "전달받은 일기 ID 목록을 DELETE 상태로 일괄 변경합니다."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4001", description = "일기를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4003", description = "일기 작성자와 일치하지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @PatchMapping("/waste")
+    public ResponseEntity<ApiResponse<Void>> moveDiariesToTrash(
+            @Valid @RequestBody DiaryRequestDTO.DiaryIdsDTO request
+    ) {
+        diaryCommandUseCase.softDeleteDiaries(request);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
+    }
+
+    @Operation(
+            summary = "일기 영구 삭제",
+            description = "전달받은 일기 ID 목록을 DB에서 완전히 삭제합니다."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4001", description = "일기를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4003", description = "일기 작성자와 일치하지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> hardDeleteDiaries(
+            @Valid @RequestBody DiaryRequestDTO.DiaryIdsDTO request
+    ) {
+        diaryCommandUseCase.hardDeleteDiaries(request);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
+    }
 }
