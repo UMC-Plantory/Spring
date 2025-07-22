@@ -64,4 +64,8 @@ public class Diary extends BaseEntity {
         this.sleepEndTime = sleepEndTime;
         this.status = status;
     }
+
+    public void updateStatus(DiaryStatus status) {
+        this.status = status;
+    }
 }

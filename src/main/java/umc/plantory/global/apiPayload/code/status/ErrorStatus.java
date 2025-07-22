@@ -27,6 +27,7 @@ public enum ErrorStatus implements BaseErrorCode {
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY4001", "존재하지 않는 일기입니다."),
     DIARY_MISSING_FIELDS(HttpStatus.BAD_REQUEST, "DIARY4002", "일기의 필수 항목이 누락되었습니다."),
     DIARY_UNAUTHORIZED(HttpStatus.FORBIDDEN,"DIARY4003","해당 일기에 대한 권한이 없습니다."),
+    DIARY_INVALID_STATUS(HttpStatus.BAD_REQUEST, "DIARY4004", "현재 일기의 상태에서는 해당 작업을 수행할 수 없습니다."),
 
     ;
     private final HttpStatus httpStatus;

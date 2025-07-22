@@ -10,7 +10,7 @@ import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.diary.entity.DiaryImg;
 import umc.plantory.domain.diary.repository.DiaryImgRepository;
 import umc.plantory.domain.diary.repository.DiaryRepository;
-import umc.plantory.domain.image.service.ImageService;
+import umc.plantory.domain.image.service.ImageUseCase;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.wateringCan.converter.WateringCanConverter;
@@ -37,7 +37,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     private final DiaryImgRepository diaryImgRepository;
     private final MemberRepository memberRepository;
     private final WateringCanRepository wateringCanRepository;
-    private final ImageService imageService;
+    private final ImageUseCase imageUseCase;
 
     /**
      * 일기 등록
@@ -61,6 +61,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 이미지 등록 처리
         String imageUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), false);
 
+        // 물뿌리개 처리
         handleWateringCan(diary, member);
 
         return DiaryConverter.toDiaryInfoDTO(diary, imageUrl);
@@ -108,9 +109,52 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         diary.update(emotion, content, sleepStart, sleepEnd, status);
 
+        // 물뿌리개 처리
         handleWateringCan(diary, member);
 
         return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
+    }
+
+    @Override
+    @Transactional
+    public void scrapDiary(Long diaryId) {
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
+
+        if (!diary.getMember().getId().equals(member.getId())) {
+            throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
+        }
+
+        // Normal 상태인 다이어리만 스크랩 가능
+        if (diary.getStatus() != DiaryStatus.NORMAL) {
+            throw new DiaryHandler(ErrorStatus.DIARY_INVALID_STATUS);
+        }
+
+        diary.updateStatus(DiaryStatus.SCRAP);
+    }
+
+    @Override
+    @Transactional
+    public void cancelScrapDiary(Long diaryId) {
+        Member member = memberRepository.findById(1L)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
+
+        if (!diary.getMember().getId().equals(member.getId())) {
+            throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
+        }
+
+        // Scrap 상태였던 다이어리만 취소 가능
+        if (diary.getStatus() != DiaryStatus.SCRAP) {
+            throw new DiaryHandler(ErrorStatus.DIARY_INVALID_STATUS);
+        }
+
+        diary.updateStatus(DiaryStatus.NORMAL);
     }
 
     // 이미지 처리
@@ -121,15 +165,15 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         if (diaryImg != null) {
             // 기존 이미지 삭제
             if (isImgDeleted) {
-                imageService.deleteImage(diaryImg.getDiaryImgUrl());
+                imageUseCase.deleteImage(diaryImg.getDiaryImgUrl());
                 diaryImgRepository.delete(diaryImg);
                 return null;
             }
 
             // 이미지 교체
             if (newImageUrl != null && !newImageUrl.equals(diaryImg.getDiaryImgUrl())) {
-                imageService.validateImageExistence(newImageUrl);
-                imageService.deleteImage(diaryImg.getDiaryImgUrl());
+                imageUseCase.validateImageExistence(newImageUrl);
+                imageUseCase.deleteImage(diaryImg.getDiaryImgUrl());
                 diaryImg.updateUrl(newImageUrl);
                 return newImageUrl;
             }
@@ -140,7 +184,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 기존 이미지가 없는 경우
         // 이미지 새로 등록
         if (!isImgDeleted && newImageUrl != null) {
-            imageService.validateImageExistence(newImageUrl);
+            imageUseCase.validateImageExistence(newImageUrl);
             DiaryImg newDiaryImg = DiaryConverter.toDiaryImg(newImageUrl, diary);
             diaryImgRepository.save(newDiaryImg);
             return newImageUrl;

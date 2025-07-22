@@ -22,7 +22,6 @@ import umc.plantory.global.apiPayload.ApiResponse;
 public class DiaryRestController {
 
     private final DiaryCommandUseCase diaryCommandUseCase;
-
     @Operation(
             summary = "일기 작성",
             description = "일기를 작성합니다. status가 NORMAL일 경우 물뿌리개가 생성됩니다."
@@ -45,9 +44,9 @@ public class DiaryRestController {
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON400", description = "잘못된 요청 형식", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4001", description = "일기를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4011", description = "일기 작성자와 일치하지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4002", description = "필수 필드 미입력", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4003", description = "일기 작성자와 일치하지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "S34003", description = "이미지가 S3에 등록되지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
     @PatchMapping("/{diaryId}")
@@ -57,5 +56,41 @@ public class DiaryRestController {
             @Valid @RequestBody DiaryRequestDTO.DiaryUpdateDTO requestDTO
     ) {
         return ResponseEntity.ok(ApiResponse.onSuccess(diaryCommandUseCase.updateDiary(diaryId, requestDTO)));
+    }
+
+    @Operation(
+            summary = "일기 스크랩",
+            description = "NORMAL 상태인 일기를 SCRAP 상태로 변경합니다."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4001", description = "일기를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4003", description = "일기 작성자와 일치하지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4004", description = "현재 상태에서 스크랩할 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @PatchMapping("/{diaryId}/scrap/on")
+    public ResponseEntity<ApiResponse<Void>> scrapDiary(
+            @Parameter(description = "스크랩할 일기의 ID") @PathVariable Long diaryId
+    ) {
+        diaryCommandUseCase.scrapDiary(diaryId);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
+    }
+
+    @Operation(
+            summary = "스크랩 취소",
+            description = "SCRAP 상태인 일기를 NORMAL 상태로 변경합니다."
+    )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4001", description = "일기를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4003", description = "일기 작성자와 일치하지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4004", description = "SCRAP 상태가 아니라 취소할 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @PatchMapping("/{diaryId}/scrap/off")
+    public ResponseEntity<ApiResponse<Void>> cancelScrapDiary(
+            @Parameter(description = "스크랩 취소할 일기의 ID") @PathVariable Long diaryId
+    ) {
+        diaryCommandUseCase.cancelScrapDiary(diaryId);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
 }
