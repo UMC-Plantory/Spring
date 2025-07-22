@@ -7,6 +7,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import umc.plantory.domain.diary.entity.Diary;
 
 @Entity
+@Table(name = "watering_can")
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
