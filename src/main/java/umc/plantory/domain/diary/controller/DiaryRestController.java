@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.plantory.domain.diary.dto.request.DiaryRequestDTO;
 import umc.plantory.domain.diary.dto.response.DiaryResponseDTO;
-import umc.plantory.domain.diary.service.DiaryCommandService;
+import umc.plantory.domain.diary.service.DiaryCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
 @Tag(name = "Diary", description = "일기 관련 API")
@@ -20,7 +20,7 @@ import umc.plantory.global.apiPayload.ApiResponse;
 @RequiredArgsConstructor
 public class DiaryRestController {
 
-    private final DiaryCommandService diaryCommandService;
+    private final DiaryCommandUseCase diaryCommandService;
 
     @Operation(
             summary = "일기 작성",

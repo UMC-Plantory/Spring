@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import umc.plantory.domain.image.service.ImageService;
+import umc.plantory.domain.image.service.ImageUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 import umc.plantory.domain.image.dto.request.PresignedUrlRequestDTO;
 import umc.plantory.domain.image.dto.response.PresignedUrlResponseDTO;
@@ -23,7 +23,7 @@ import umc.plantory.domain.image.dto.response.PresignedUrlResponseDTO;
 @RequestMapping("/v1/plantory")
 public class ImageRestController {
 
-    private final ImageService presignedUrlService;
+    private final ImageUseCase presignedUrlService;
 
     @Operation(
             summary = "Presigned URL 발급",
