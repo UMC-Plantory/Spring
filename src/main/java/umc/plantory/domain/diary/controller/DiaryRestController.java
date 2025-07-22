@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.plantory.domain.diary.dto.request.DiaryRequestDTO;
 import umc.plantory.domain.diary.dto.response.DiaryResponseDTO;
-import umc.plantory.domain.diary.service.DiaryCommandService;
+import umc.plantory.domain.diary.service.DiaryCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
 @Tag(name = "Diary", description = "일기 관련 API")
@@ -21,7 +21,7 @@ import umc.plantory.global.apiPayload.ApiResponse;
 @RequiredArgsConstructor
 public class DiaryRestController {
 
-    private final DiaryCommandService diaryCommandService;
+    private final DiaryCommandUseCase diaryCommandUseCase;
 
     @Operation(
             summary = "일기 작성",
@@ -36,7 +36,7 @@ public class DiaryRestController {
     public ResponseEntity<ApiResponse<DiaryResponseDTO.DiaryInfoDTO>> saveDiary(
             @Valid @RequestBody DiaryRequestDTO.DiaryUploadDTO requestDTO
     ) {
-        return ResponseEntity.ok(ApiResponse.onSuccess(diaryCommandService.saveDiary(requestDTO)));
+        return ResponseEntity.ok(ApiResponse.onSuccess(diaryCommandUseCase.saveDiary(requestDTO)));
     }
 
     @Operation(
@@ -56,6 +56,6 @@ public class DiaryRestController {
             @PathVariable("diaryId") Long diaryId,
             @Valid @RequestBody DiaryRequestDTO.DiaryUpdateDTO requestDTO
     ) {
-        return ResponseEntity.ok(ApiResponse.onSuccess(diaryCommandService.updateDiary(diaryId, requestDTO)));
+        return ResponseEntity.ok(ApiResponse.onSuccess(diaryCommandUseCase.updateDiary(diaryId, requestDTO)));
     }
 }
