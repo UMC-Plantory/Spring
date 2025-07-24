@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class DiaryFieldsValidator implements ConstraintValidator<ValidDiaryFields, DiaryRequestDTO> {
+public class DiaryFieldsValidator implements ConstraintValidator<ValidDiaryFields, DiaryRequestDTO.DiaryUploadDTO> {
 
     @Override
-    public boolean isValid(DiaryRequestDTO request, ConstraintValidatorContext context) {
+    public boolean isValid(DiaryRequestDTO.DiaryUploadDTO request, ConstraintValidatorContext context) {
         List<String> missingFields = new ArrayList<>();
 
         // 일반 저장일때만 체크

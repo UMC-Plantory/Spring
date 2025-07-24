@@ -10,7 +10,7 @@ import umc.plantory.global.enums.Emotion;
 
 public class DiaryConverter {
 
-    public static Diary toDiary(DiaryRequestDTO request, Member member) {
+    public static Diary toDiary(DiaryRequestDTO.DiaryUploadDTO request, Member member) {
         return Diary.builder()
                 .title("임시 제목")
                 .diaryDate(request.getDiaryDate())
