@@ -6,6 +6,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import umc.plantory.global.baseEntity.BaseEntity;
+import umc.plantory.global.enums.Gender;
 import umc.plantory.global.enums.MemberRole;
 import umc.plantory.global.enums.MemberStatus;
 import umc.plantory.global.enums.Provider;
@@ -28,6 +29,9 @@ public class Member extends BaseEntity {
 
     @Column(length = 10, nullable = false)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Column(length = 25, nullable = false, unique = true)
     private String nickname;
@@ -80,4 +84,19 @@ public class Member extends BaseEntity {
     @ColumnDefault("0")
     private Integer totalBloomCnt;
 
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateUserCustomId(String userCustomId) {
+        this.userId = userCustomId;
+    }
+
+    public void updateBirth(LocalDate birth) {
+        this.birth = birth;
+    }
+
+    public void updateGender(Gender gender) {
+        this.gender = gender;
+    }
 }
