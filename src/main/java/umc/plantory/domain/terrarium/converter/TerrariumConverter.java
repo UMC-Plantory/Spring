@@ -4,11 +4,13 @@ import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto.Terrari
 
 public class TerrariumConverter {
 
-    public static TerrariumResponse toTerrariumResponse(String flowerImgUrl, int terrariumWateringCount, int memberWateringCount) {
+    public static TerrariumResponse toTerrariumResponse(Long terrariumId, String flowerImgUrl, int terrariumWateringCount, int memberWateringCount) {
         return TerrariumResponse.builder()
+                .terrariumId(terrariumId)
                 .flowerImgUrl(flowerImgUrl)
                 .terrariumWateringCount(terrariumWateringCount)
                 .memberWateringCount(memberWateringCount)
                 .build();
     }
+
 }

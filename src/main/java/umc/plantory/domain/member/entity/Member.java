@@ -104,4 +104,10 @@ public class Member extends BaseEntity {
     public void updateProfileImgUrl(String profileImgUrl) {
         this.profileImgUrl = profileImgUrl;
     }
+    public void decreaseWateringCanCount() {
+        if (wateringCanCnt <= 0) {
+            throw new IllegalStateException("남은 물뿌리개가 없습니다.");
+        }
+        wateringCanCnt--;
+    }
 }

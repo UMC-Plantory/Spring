@@ -24,11 +24,11 @@ public class Terrarium extends BaseEntity {
     @Column(name = "terrarium_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "flower_id")
     private Flower flower;
 
@@ -46,4 +46,19 @@ public class Terrarium extends BaseEntity {
     private LocalDateTime secondStepDate;
 
     private LocalDateTime thirdStepDate;
+
+    private static final int FIRST_STEP = 1;
+    private static final int SECOND_STEP = 4;
+    private static final int THIRD_STEP = 7;
+
+    
+    public void recordStepIfNeeded(int wateringCount, LocalDateTime now) {
+        if (wateringCount == FIRST_STEP && this.firstStepDate == null) {
+            this.firstStepDate = now;
+        } else if (wateringCount == SECOND_STEP && this.secondStepDate == null) {
+            this.secondStepDate = now;
+        } else if (wateringCount == THIRD_STEP && this.thirdStepDate == null) {
+            this.thirdStepDate = now;
+        }
+    }
 }
