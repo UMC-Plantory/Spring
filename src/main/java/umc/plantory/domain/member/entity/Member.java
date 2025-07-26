@@ -101,4 +101,10 @@ public class Member extends BaseEntity {
     public void increaseWateringCan() {
         this.wateringCanCnt = this.wateringCanCnt + 1;
     }
+    public void decreaseWateringCanCount() {
+        if (wateringCanCnt <= 0) {
+            throw new IllegalStateException("남은 물뿌리개가 없습니다.");
+        }
+        wateringCanCnt--;
+    }
 }

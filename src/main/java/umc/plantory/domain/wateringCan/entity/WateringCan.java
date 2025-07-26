@@ -33,4 +33,15 @@ public class WateringCan {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private Emotion emotion;
+
+    @Column(nullable = false)
+    private Boolean isUsed;
+
+    public void setIsUsed() {
+        if (isUsed == false) {
+            isUsed = true;
+        }
+    }
+
+
 }

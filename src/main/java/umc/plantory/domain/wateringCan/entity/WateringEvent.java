@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import umc.plantory.domain.terrarium.entity.Terrarium;
+import umc.plantory.global.baseEntity.BaseEntity;
 
 @Entity
 @Table(name = "watering_event")
@@ -14,7 +15,7 @@ import umc.plantory.domain.terrarium.entity.Terrarium;
 @Getter
 @DynamicInsert
 @DynamicUpdate
-public class WateringEvent {
+public class WateringEvent extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "watering_event_id")
