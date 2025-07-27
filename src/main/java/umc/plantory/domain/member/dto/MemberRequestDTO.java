@@ -14,19 +14,21 @@ public class MemberRequestDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class TermAgreementRequest {
+        private Long memberId;
+        private List<Long> agreeTermIdList;
+        private List<Long> disagreeTermIdList;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class MemberSignupRequest {
         private Long memberId;
-
         private String nickname;
-
         private String userCustomId;
-
         private Gender gender;
-
         private LocalDate birth;
-
-        private List<Long> agreeTermIdList;
-
-        private List<Long> disagreeTermIdList;
     }
 }

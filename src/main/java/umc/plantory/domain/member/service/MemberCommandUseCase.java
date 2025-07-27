@@ -4,5 +4,6 @@ import umc.plantory.domain.member.dto.MemberRequestDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
 
 public interface MemberCommandUseCase {
-    public MemberResponseDTO.MemberSignupResponse memberSignup(MemberRequestDTO.MemberSignupRequest request);
+    MemberResponseDTO.TermAgreementResponse termAgreement(MemberRequestDTO.TermAgreementRequest request);
+    MemberResponseDTO.MemberSignupResponse memberSignup(MemberRequestDTO.MemberSignupRequest request);
 }

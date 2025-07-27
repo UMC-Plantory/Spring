@@ -27,6 +27,53 @@ public class MemberCommandService implements MemberCommandUseCase{
 
     @Override
     @Transactional
+    public MemberResponseDTO.TermAgreementResponse termAgreement(MemberRequestDTO.TermAgreementRequest request) {
+        // 회원 조회
+        Member findMember = memberRepository.findById(request.getMemberId())
+            .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // 약관 동의 정보 저장
+        List<Long> agreeTermIdList = request.getAgreeTermIdList();
+        List<Long> disagreeTermIdList = request.getDisagreeTermIdList();
+        
+        if (!validateRequiredTerms(agreeTermIdList)) {
+            throw new TermHandler(ErrorStatus.REQUIRED_TERM_NOT_AGREED);
+        }
+        
+        // 동의한 약관
+        for (Long termId : agreeTermIdList) {
+            Term term = termRepository.findById(termId)
+                .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
+            memberTermRepository.findByMemberAndTerm(findMember, term)
+                .ifPresentOrElse(
+                    mt -> mt.updateIsAgree(true),
+                    () -> {
+                        MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, true);
+                        memberTermRepository.save(newMemberTerm);
+                    }
+                );
+        }
+        
+        // 미동의한 약관
+        for (Long termId : disagreeTermIdList) {
+            Term term = termRepository.findById(termId)
+                .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
+            memberTermRepository.findByMemberAndTerm(findMember, term)
+                .ifPresentOrElse(
+                    mt -> mt.updateIsAgree(false),
+                    () -> {
+                        MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, false);
+                        memberTermRepository.save(newMemberTerm);
+                    }
+                );
+        }
+        
+        // 응답 반환
+        return MemberConverter.toTermAgreementResponse(findMember);
+    }
+
+    @Override
+    @Transactional
     public MemberResponseDTO.MemberSignupResponse memberSignup(MemberRequestDTO.MemberSignupRequest request) {
         // 회원 조회
         Member findMember = memberRepository.findById(request.getMemberId())
@@ -44,38 +91,6 @@ public class MemberCommandService implements MemberCommandUseCase{
         findMember.updateGender(request.getGender());
         memberRepository.save(findMember);
 
-        // 약관 동의 정보 저장
-        List<Long> agreeTermIdList = request.getAgreeTermIdList();
-        List<Long> disagreeTermIdList = request.getDisagreeTermIdList();
-        if (!validateRequiredTerms(agreeTermIdList)) {
-            throw new TermHandler(ErrorStatus.REQUIRED_TERM_NOT_AGREED);
-        }
-        // 동의한 약관
-        for (Long termId : agreeTermIdList) {
-            var term = termRepository.findById(termId)
-                .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
-            memberTermRepository.findByMemberAndTerm(findMember, term)
-                .ifPresentOrElse(
-                    mt -> mt.updateIsAgree(true),
-                    () -> {
-                        MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, true);
-                        memberTermRepository.save(newMemberTerm);
-                    }
-                );
-        }
-        // 미동의한 약관
-        for (Long termId : disagreeTermIdList) {
-            var term = termRepository.findById(termId)
-                .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
-            memberTermRepository.findByMemberAndTerm(findMember, term)
-                .ifPresentOrElse(
-                    mt -> mt.updateIsAgree(false),
-                    () -> {
-                        MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, false);
-                        memberTermRepository.save(newMemberTerm);
-                    }
-                );
-        }
         // 응답 반환
         return MemberConverter.toMemberSignupResponse(findMember);
     }
