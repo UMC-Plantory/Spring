@@ -1,0 +1,7 @@
+package umc.plantory.domain.token.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import umc.plantory.domain.token.entity.MemberToken;
+
+public interface MemberTokenRepository extends JpaRepository<MemberToken, Long>{
+}
