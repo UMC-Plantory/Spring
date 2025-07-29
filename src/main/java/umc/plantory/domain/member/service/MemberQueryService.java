@@ -18,6 +18,7 @@ public class MemberQueryService implements MemberQueryUseCase {
 
     @Override
     public MemberResponseDTO.ProfileResponse getProfile(Long memberId) {
+        // 후에 memberId 대신 토큰 방식으로 수정할 예정
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
         

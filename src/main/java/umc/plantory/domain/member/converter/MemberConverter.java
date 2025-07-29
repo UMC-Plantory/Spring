@@ -8,6 +8,7 @@ import umc.plantory.domain.term.entity.Term;
 public class MemberConverter {
     private static final String tempNickname = "새싹이";
     private static final String defaultProfileImg = "";
+    // s3 주소로 변경 예정
 
     public static MemberResponseDTO.TermAgreementResponse toTermAgreementResponse(Member member) {
         return MemberResponseDTO.TermAgreementResponse.builder()
@@ -41,6 +42,7 @@ public class MemberConverter {
                 .build();
     }
 
+    // 수면 시간을 "HH:MM" 형식으로 포맷팅
     private static String formatSleepTime(Integer minutes) {
         if (minutes == null || minutes == 0) {
             return "00:00";
