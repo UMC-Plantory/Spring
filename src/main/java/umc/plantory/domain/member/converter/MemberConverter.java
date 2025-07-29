@@ -6,8 +6,8 @@ import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.term.entity.Term;
 
 public class MemberConverter {
-    private static final String tempNickname = "새싹이";
-    private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory-bucket.s3.ap-northeast-2.amazonaws.com/plantory/profile/plantory_default_img.png";
+    private static final String tempNickname = "토리";
+    private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
     public static MemberResponseDTO.TermAgreementResponse toTermAgreementResponse(Member member) {
         return MemberResponseDTO.TermAgreementResponse.builder()

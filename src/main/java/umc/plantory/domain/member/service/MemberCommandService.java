@@ -25,7 +25,7 @@ public class MemberCommandService implements MemberCommandUseCase{
     private final MemberTermRepository memberTermRepository;
     private final TermRepository termRepository;
     
-    private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory-bucket.s3.ap-northeast-2.amazonaws.com/plantory/profile/plantory_default_img.png";
+    private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
     @Override
     @Transactional
