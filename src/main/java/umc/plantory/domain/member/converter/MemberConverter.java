@@ -10,12 +10,13 @@ import umc.plantory.global.enums.Provider;
 public class MemberConverter {
     private static final String DEFAULT_NICKNAME = "토리";
     private static final String DEFAULT_PROFILE_IMG = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
+    private static final String DEFAULT_USER_CUSTOM_ID = "temp_plantory";
 
     public static Member toMember (MemberDataDTO.KakaoMemberData kakaoMemberData) {
         return Member.builder()
                 .nickname(DEFAULT_NICKNAME)
                 .email(kakaoMemberData.getEmail())
-                .userCustomId("")
+                .userCustomId(DEFAULT_USER_CUSTOM_ID)
                 .profileImgUrl(DEFAULT_PROFILE_IMG)
                 .provider(Provider.KAKAO)
                 .providerId(kakaoMemberData.getSub())
