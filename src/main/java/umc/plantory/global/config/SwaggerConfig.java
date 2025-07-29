@@ -36,4 +36,13 @@ public class SwaggerConfig {
                 .addSecurityItem(securityRequirement)
                 .components(components);
     }
+
+    /*@Bean
+    public GroupedOpenApi chatbotOpenApi() {
+        return GroupedOpenApi.builder()
+                .group("챗봇 API")
+                .displayName("챗봇 API")
+                .pathsToMatch("/v1/plantory/chat/**")
+                .build();
+    }*/
 }

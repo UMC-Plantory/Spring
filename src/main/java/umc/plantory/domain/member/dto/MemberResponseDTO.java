@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 public class MemberResponseDTO {
     @Getter
@@ -42,5 +43,16 @@ public class MemberResponseDTO {
         private Integer avgSleepTime;
         private Integer totalBloomCnt;
         private String status;
+    }
+}
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class KkoOAuth2LoginResponse {
+        private String accessToken;
+        private String refreshToken;
+        private LocalDateTime accessTokenExpiredAt;
     }
 }
