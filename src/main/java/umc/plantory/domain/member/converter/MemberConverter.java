@@ -7,7 +7,7 @@ import umc.plantory.domain.term.entity.Term;
 
 public class MemberConverter {
     private static final String tempNickname = "새싹이";
-    private static final String defaultProfileImg = "";
+    private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory-bucket.s3.ap-northeast-2.amazonaws.com/plantory/profile/plantory_default_img.png";
 
     public static MemberResponseDTO.TermAgreementResponse toTermAgreementResponse(Member member) {
         return MemberResponseDTO.TermAgreementResponse.builder()
@@ -21,6 +21,7 @@ public class MemberConverter {
                 .memberId(member.getId())
                 .nickname(member.getNickname())
                 .userCustomId(member.getUserId())
+                .profileImgUrl(member.getProfileImgUrl() != null ? member.getProfileImgUrl() : DEFAULT_PROFILE_IMG_URL)
                 .build();
     }
 

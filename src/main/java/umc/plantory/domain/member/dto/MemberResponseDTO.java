@@ -23,5 +23,6 @@ public class MemberResponseDTO {
         private Long memberId;
         private String nickname;
         private String userCustomId;
+        private String profileImgUrl;
     }
 }

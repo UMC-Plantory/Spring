@@ -30,5 +30,6 @@ public class MemberRequestDTO {
         private String userCustomId;
         private Gender gender;
         private LocalDate birth;
+        private String profileImgUrl;
     }
 }

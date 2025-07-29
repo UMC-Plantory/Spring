@@ -25,7 +25,7 @@ public class MemberRestController {
     }
 
     @PatchMapping("/signup")
-    @Operation(summary = "회원가입 완료 API", description = "회원의 추가 정보를 입력하여 회원가입을 완료하는 API입니다.")
+    @Operation(summary = "회원가입 완료 API", description = "회원의 추가 정보(닉네임, 사용자 커스텀 ID, 성별, 생년월일, 프로필 이미지)를 입력하여 회원가입을 완료하는 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.MemberSignupResponse>> signup(
             @RequestBody MemberRequestDTO.MemberSignupRequest request) {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandService.memberSignup(request)));

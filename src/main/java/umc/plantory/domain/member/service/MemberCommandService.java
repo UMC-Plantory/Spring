@@ -24,6 +24,8 @@ public class MemberCommandService implements MemberCommandUseCase{
     private final MemberRepository memberRepository;
     private final MemberTermRepository memberTermRepository;
     private final TermRepository termRepository;
+    
+    private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory-bucket.s3.ap-northeast-2.amazonaws.com/plantory/profile/plantory_default_img.png";
 
     @Override
     @Transactional
@@ -89,6 +91,16 @@ public class MemberCommandService implements MemberCommandUseCase{
         findMember.updateUserCustomId(request.getUserCustomId());
         findMember.updateBirth(request.getBirth());
         findMember.updateGender(request.getGender());
+        
+        // 프로필 이미지 설정
+        String profileImgUrl = request.getProfileImgUrl();
+        if (profileImgUrl != null && !profileImgUrl.trim().isEmpty()) {
+            findMember.updateProfileImgUrl(profileImgUrl);
+        } else {
+            // 기본 프로필 이미지 설정
+            findMember.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
+        }
+        
         memberRepository.save(findMember);
 
         // 응답 반환
