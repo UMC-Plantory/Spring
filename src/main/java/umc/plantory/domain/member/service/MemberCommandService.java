@@ -89,7 +89,6 @@ public class MemberCommandService implements MemberCommandUseCase{
         findMember.updateUserCustomId(request.getUserCustomId());
         findMember.updateBirth(request.getBirth());
         findMember.updateGender(request.getGender());
-        memberRepository.save(findMember);
 
         // 응답 반환
         return MemberConverter.toMemberSignupResponse(findMember);
