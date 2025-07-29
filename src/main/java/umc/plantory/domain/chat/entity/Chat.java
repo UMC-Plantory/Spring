@@ -7,6 +7,9 @@ import org.hibernate.annotations.DynamicUpdate;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.global.baseEntity.BaseEntity;
 
+/**
+ * 채팅 메시지 엔티티. 사용자와 챗봇 간의 대화 내용을 저장합니다.
+ */
 @Entity
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

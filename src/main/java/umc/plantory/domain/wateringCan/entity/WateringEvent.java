@@ -5,11 +5,9 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import umc.plantory.domain.terrarium.entity.Terrarium;
-import umc.plantory.global.enums.Emotion;
-
-import java.time.LocalDate;
 
 @Entity
+@Table(name = "watering_event")
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -29,12 +27,4 @@ public class WateringEvent {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "watering_can_id")
     private WateringCan wateringCan;
-
-    @Column(nullable = false)
-    private LocalDate diaryDate;
-
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
-    private Emotion emotion;
-
 }
