@@ -77,8 +77,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public DiaryResponseDTO.DiaryInfoDTO updateDiary(String authorization, Long diaryId, DiaryRequestDTO.DiaryUpdateDTO request) {
         Member member = getLoginMember(authorization);
 
-        Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
+        Diary diary = getDiaryOrThrow(diaryId);
 
         // 일기 작성자 확인
         validateDiaryOwnership(diary, member);
@@ -116,8 +115,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public void scrapDiary(String authorization, Long diaryId) {
         Member member = getLoginMember(authorization);
 
-        Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
+        Diary diary = getDiaryOrThrow(diaryId);
 
         validateDiaryOwnership(diary, member);
 
@@ -139,8 +137,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public void cancelScrapDiary(String authorization, Long diaryId) {
         Member member = getLoginMember(authorization);
 
-        Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
+        Diary diary = getDiaryOrThrow(diaryId);
 
         validateDiaryOwnership(diary, member);
 
@@ -162,12 +159,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public void tempSaveDiaries(String authorization, DiaryRequestDTO.DiaryIdsDTO request) {
         Member member = getLoginMember(authorization);
 
-        List<Diary> diaries = diaryRepository.findAllById(request.getDiaryIds());
-
-        // 모든 일기가 존재하는지 확인
-        if (diaries.size() != request.getDiaryIds().size()) {
-            throw new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND);
-        }
+        List<Diary> diaries = getDiariesOrThrow(request.getDiaryIds());
 
         // 일기 작성자 확인 및 상태 TEMP로 변경
         for (Diary diary : diaries) {
@@ -186,11 +178,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public void softDeleteDiaries(String authorization, DiaryRequestDTO.DiaryIdsDTO request) {
         Member member = getLoginMember(authorization);
 
-        List<Diary> diaries = diaryRepository.findAllById(request.getDiaryIds());
-
-        if (diaries.size() != request.getDiaryIds().size()) {
-            throw new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND);
-        }
+        List<Diary> diaries = getDiariesOrThrow(request.getDiaryIds());
 
         // 일기 작성자 확인 및 상태 DELETE로 변경
         for (Diary diary : diaries) {
@@ -212,11 +200,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public void hardDeleteDiaries(String authorization, DiaryRequestDTO.DiaryIdsDTO request) {
         Member member = getLoginMember(authorization);
 
-        List<Diary> diaries = diaryRepository.findAllById(request.getDiaryIds());
-
-        if (diaries.size() != request.getDiaryIds().size()) {
-            throw new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND);
-        }
+        List<Diary> diaries = getDiariesOrThrow(request.getDiaryIds());
 
         // 일기 작성자 확인 및 이미지, 물뿌리개 처리
         for (Diary diary : diaries) {
@@ -248,6 +232,21 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    }
+
+    // 일기 ID로 일기 단건 조회
+    private Diary getDiaryOrThrow(Long diaryId) {
+        return diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
+    }
+
+    // 일기 ID로 일기 여러건 조회
+    private List<Diary> getDiariesOrThrow(List<Long> diaryIds) {
+        List<Diary> diaries = diaryRepository.findAllById(diaryIds);
+        if (diaries.size() != diaryIds.size()) {
+            throw new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND);
+        }
+        return diaries;
     }
 
     // 주어진 일기의 작성자가 현재 사용자인지 확인
