@@ -35,11 +35,6 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_EXTENSION(HttpStatus.BAD_REQUEST, "S34001", "허용되지 않은 파일 확장자입니다."),
     INVALID_FILENAME(HttpStatus.BAD_REQUEST, "S34002", "파일 이름이 유효하지 않습니다."),
     IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST, "S34003", "해당 이미지가 S3에 존재하지 않습니다."),
-
-    // 약관 관련
-    TERM_NOT_FOUND(HttpStatus.NOT_FOUND, "TERM4001", "존재하지 않는 약관입니다."),
-    REQUIRED_TERM_NOT_AGREED(HttpStatus.BAD_REQUEST, "TERM4002", "필수 약관에 동의하지 않았습니다."),
-
     ;
     private final HttpStatus httpStatus;
     private final String code;

@@ -27,6 +27,7 @@ public class MemberConverter {
                 .memberId(member.getId())
                 .nickname(member.getNickname())
                 .userCustomId(member.getUserCustomId())
+                .profileImgUrl(member.getProfileImgUrl() != null ? member.getProfileImgUrl() : DEFAULT_PROFILE_IMG_URL)
                 .build();
     }
 

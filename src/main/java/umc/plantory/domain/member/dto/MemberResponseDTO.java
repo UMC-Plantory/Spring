@@ -24,6 +24,7 @@ public class MemberResponseDTO {
         private Long memberId;
         private String nickname;
         private String userCustomId;
+        private String profileImgUrl;
     }
 
     @Getter
@@ -44,12 +45,11 @@ public class MemberResponseDTO {
         private Integer totalBloomCnt;
         private String status;
     }
-}
 
-    @Builder
     @Getter
-    @NoArgsConstructor
+    @Builder
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class KkoOAuth2LoginResponse {
         private String accessToken;
         private String refreshToken;

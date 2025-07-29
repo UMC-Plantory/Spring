@@ -101,22 +101,6 @@ public class Member extends BaseEntity {
         this.wateringCanCnt = this.wateringCanCnt + 1;
     }
 
-    public void updateNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public void updateUserCustomId(String userCustomId) {
-        this.userCustomId = userCustomId;
-    }
-
-    public void updateBirth(LocalDate birth) {
-        this.birth = birth;
-    }
-
-    public void updateGender(Gender gender) {
-        this.gender = gender;
-    }
-
     public void updateProfileImgUrl(String profileImgUrl) {
         this.profileImgUrl = profileImgUrl;
     }
