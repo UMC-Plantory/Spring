@@ -33,4 +33,8 @@ public class MemberTerm extends BaseEntity {
     @Column(nullable = false)
     @ColumnDefault("false")
     private Boolean isAgree;
+
+    public void updateIsAgree(boolean isAgree) {
+        this.isAgree = isAgree;
+    }
 }

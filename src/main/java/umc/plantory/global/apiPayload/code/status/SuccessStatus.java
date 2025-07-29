@@ -9,7 +9,8 @@ import umc.plantory.global.apiPayload.code.ReasonDTO;
 @Getter
 @AllArgsConstructor
 public enum SuccessStatus implements BaseCode {
-    _OK(HttpStatus.OK, "COMMON200", "성공입니다.");
+    _OK(HttpStatus.OK, "COMMON200", "성공입니다."),
+    PROFILE_READ_SUCCESS(HttpStatus.OK, "200", "프로필 조회 성공");
 
     private final HttpStatus httpStatus;
     private final String code;
