@@ -7,8 +7,7 @@ import umc.plantory.domain.term.entity.Term;
 
 public class MemberConverter {
     private static final String tempNickname = "토리";
-    private static final String defaultProfileImg = "";
-    // s3 주소로 변경 예정
+    private static final String defaultProfileImg = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
     public static MemberResponseDTO.TermAgreementResponse toTermAgreementResponse(Member member) {
         return MemberResponseDTO.TermAgreementResponse.builder()
@@ -36,7 +35,7 @@ public class MemberConverter {
                 .wateringCanCnt(member.getWateringCanCnt())
                 .continuousRecordCnt(member.getContinuousRecordCnt())
                 .totalRecordCnt(member.getTotalRecordCnt())
-                .avgSleepTime(member.getAvgSleepTime())
+                .avgSleepTime(member.getAvgSleepTime()) // 분단위 수면 시간
                 .totalBloomCnt(member.getTotalBloomCnt())
                 .status(member.getStatus() != null ? member.getStatus().name() : null)
                 .build();
