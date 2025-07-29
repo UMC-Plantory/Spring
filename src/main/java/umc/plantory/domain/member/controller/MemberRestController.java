@@ -1,0 +1,57 @@
+package umc.plantory.domain.member.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RestController;
+import umc.plantory.domain.kakao.service.KakaoOidcService;
+import umc.plantory.domain.member.dto.MemberDataDTO;
+import umc.plantory.domain.member.dto.MemberRequestDTO;
+import umc.plantory.domain.member.dto.MemberResponseDTO;
+import umc.plantory.domain.member.entity.Member;
+import umc.plantory.domain.member.service.MemberCommandUseCase;
+import umc.plantory.domain.token.service.MemberTokenCommandUseCase;
+import umc.plantory.global.apiPayload.ApiResponse;
+
+@RestController
+@RequestMapping("/v1/plantory/member")
+@RequiredArgsConstructor
+@Tag(name = "Member", description = "회원 관련 API")
+public class MemberRestController {
+    private final KakaoOidcService kakaoOidcService;
+    private final MemberCommandUseCase memberCommandUseCase;
+    private final MemberTokenCommandUseCase memberTokenService;
+
+    @PostMapping("/term")
+    @Operation(summary = "약관 동의 API", description = "회원이 약관에 동의하는 API입니다.")
+    public ResponseEntity<ApiResponse<MemberResponseDTO.TermAgreementResponse>> termAgreement(
+            @RequestBody MemberRequestDTO.TermAgreementRequest request) {
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.termAgreement(request)));
+    }
+
+    @PatchMapping("/signup")
+    @Operation(summary = "회원가입 완료 API", description = "회원의 추가 정보(닉네임, 사용자 커스텀 ID, 성별, 생년월일, 프로필 이미지)를 입력하여 회원가입을 완료하는 API입니다.")
+    public ResponseEntity<ApiResponse<MemberResponseDTO.MemberSignupResponse>> signup(
+            @RequestBody MemberRequestDTO.MemberSignupRequest request) {
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.memberSignup(request)));
+    }
+
+    @PostMapping("/kko/login")
+    @Operation(summary = "KAKAO OAuth2 로그인 API", description = "KAKAO OAuth2 로그인 API 입니다.")
+    public ResponseEntity<ApiResponse<MemberResponseDTO.KkoOAuth2LoginResponse>> kkoOAuth2Login
+            (@RequestBody MemberRequestDTO.KkoOAuth2LoginRequest request) {
+        // id_token 검증 후 멤버 데이터 추출
+        MemberDataDTO.KakaoMemberData kakaoMemberData = kakaoOidcService.verifyAndParseIdToken(request);
+
+        // id_token 에서 추출한 데이터를 통해 멤버 조회 OR 생성
+        Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(kakaoMemberData);
+
+        // 토큰 생성 및 응답
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateToken(findOrCreateMember)));
+    }
+}
