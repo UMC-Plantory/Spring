@@ -32,7 +32,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class DiaryCommandService implements DiaryCommandUseCase {
     private final DiaryRepository diaryRepository;
     private final DiaryImgRepository diaryImgRepository;
