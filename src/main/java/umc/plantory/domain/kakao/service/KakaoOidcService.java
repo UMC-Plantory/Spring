@@ -30,6 +30,9 @@ public class KakaoOidcService {
     // ISSER 상수 -> id_token 안에 들어 있는 iss claim과 비교해 정품 Kakao 토큰인지 검증
     private static final String ISSUER = "https://kauth.kakao.com";
 
+    /**
+     * id_token을 검증하고 담겨있는 멤버 데이터 추출하는 메서드
+     */
     public MemberDataDTO.KakaoMemberData verifyAndParseIdToken(MemberRequestDTO.KkoOAuth2LoginRequest request) {
         try {
             // id_token 디코딩 : 헤더와 payload 읽기 위해 필요

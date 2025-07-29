@@ -36,10 +36,10 @@ dependencies {
 	implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter:0.8.1'
 
 	// Spring Security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+	//implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	// OAUTH2
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	//implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
 	// JWT
 	implementation 'com.auth0:java-jwt:4.4.0'

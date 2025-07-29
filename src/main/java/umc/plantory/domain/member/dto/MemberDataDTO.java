@@ -13,9 +13,7 @@ public class MemberDataDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class KakaoMemberData {
-        private String nickname;
         private String email;
         private String sub; // provider_id
-        private Gender gender;
     }
 }
