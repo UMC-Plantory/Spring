@@ -267,7 +267,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             if (newImageUrl != null && !newImageUrl.equals(diaryImg.getDiaryImgUrl())) {
                 imageUseCase.validateImageExistence(newImageUrl);
                 imageUseCase.deleteImage(diaryImg.getDiaryImgUrl());
-                diaryImg.updateUrl(newImageUrl);
+                diaryImg.updateImgUrl(newImageUrl);
                 return newImageUrl;
             }
 
