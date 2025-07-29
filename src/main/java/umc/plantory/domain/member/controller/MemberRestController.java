@@ -13,8 +13,8 @@ import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
 import umc.plantory.domain.member.entity.Member;
-import umc.plantory.domain.member.service.MemberCommandService;
-import umc.plantory.domain.token.service.MemberTokenCommandService;
+import umc.plantory.domain.member.service.MemberCommandUseCase;
+import umc.plantory.domain.token.service.MemberTokenCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
 @RestController
@@ -23,8 +23,8 @@ import umc.plantory.global.apiPayload.ApiResponse;
 @Tag(name = "Member", description = "회원 관련 API")
 public class MemberRestController {
     private final KakaoOidcService kakaoOidcService;
-    private final MemberCommandService memberService;
-    private final MemberTokenCommandService memberTokenService;
+    private final MemberCommandUseCase memberService;
+    private final MemberTokenCommandUseCase memberTokenService;
 
     @PostMapping("/kko/login")
     @Operation(summary = "KAKAO OAuth2 로그인 API", description = "KAKAO OAuth2 로그인 API 입니다.")
