@@ -39,7 +39,7 @@ public class MemberResponseDTO {
         private Integer wateringCanCnt;
         private Integer continuousRecordCnt;
         private Integer totalRecordCnt;
-        private String avgSleepTime;
+        private Integer avgSleepTime;
         private Integer totalBloomCnt;
         private String status;
     }

@@ -6,7 +6,7 @@ import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.term.entity.Term;
 
 public class MemberConverter {
-    private static final String tempNickname = "새싹이";
+    private static final String tempNickname = "토리";
     private static final String defaultProfileImg = "";
     // s3 주소로 변경 예정
 
@@ -36,20 +36,10 @@ public class MemberConverter {
                 .wateringCanCnt(member.getWateringCanCnt())
                 .continuousRecordCnt(member.getContinuousRecordCnt())
                 .totalRecordCnt(member.getTotalRecordCnt())
-                .avgSleepTime(formatSleepTime(member.getAvgSleepTime()))
+                .avgSleepTime(member.getAvgSleepTime())
                 .totalBloomCnt(member.getTotalBloomCnt())
                 .status(member.getStatus() != null ? member.getStatus().name() : null)
                 .build();
-    }
-
-    // 수면 시간을 "HH:MM" 형식으로 포맷팅
-    private static String formatSleepTime(Integer minutes) {
-        if (minutes == null || minutes == 0) {
-            return "00:00";
-        }
-        int hours = minutes / 60;
-        int remainingMinutes = minutes % 60;
-        return String.format("%02d:%02d", hours, remainingMinutes);
     }
 
     public static MemberTerm toMemberTerm(Member member, Term term, Boolean isAgree) {
