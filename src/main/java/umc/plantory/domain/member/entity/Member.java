@@ -27,20 +27,17 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
-    @Column(length = 10, nullable = false)
-    private String name;
-
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-
     @Column(length = 25, nullable = false, unique = true)
     private String nickname;
 
     @Column(length = 100, nullable = false)
     private String email;
 
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
     @Column(length = 25, nullable = false, unique = true)
-    private String userId;
+    private String userCustomId;
 
     @Column(length = 255, nullable = false)
     private String profileImgUrl;
@@ -84,12 +81,16 @@ public class Member extends BaseEntity {
     @ColumnDefault("0")
     private Integer totalBloomCnt;
 
+    public void increaseWateringCan() {
+        this.wateringCanCnt = this.wateringCanCnt + 1;
+    }
+
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
 
     public void updateUserCustomId(String userCustomId) {
-        this.userId = userCustomId;
+        this.userCustomId = userCustomId;
     }
 
     public void updateBirth(LocalDate birth) {

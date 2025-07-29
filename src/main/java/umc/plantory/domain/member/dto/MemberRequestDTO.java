@@ -32,4 +32,12 @@ public class MemberRequestDTO {
         private LocalDate birth;
         private String profileImgUrl;
     }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class KkoOAuth2LoginRequest {
+        private String idToken;
+    }
 }

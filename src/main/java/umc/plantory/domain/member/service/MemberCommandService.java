@@ -1,11 +1,12 @@
 package umc.plantory.domain.member.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.member.converter.MemberConverter;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
+import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.member.repository.MemberRepository;
@@ -20,11 +21,11 @@ import umc.plantory.domain.term.entity.Term;
 
 @Service
 @RequiredArgsConstructor
-public class MemberCommandService implements MemberCommandUseCase{
+public class MemberCommandService implements MemberCommandUseCase {
     private final MemberRepository memberRepository;
     private final MemberTermRepository memberTermRepository;
     private final TermRepository termRepository;
-    
+
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
     @Override
@@ -37,11 +38,11 @@ public class MemberCommandService implements MemberCommandUseCase{
         // 약관 동의 정보 저장
         List<Long> agreeTermIdList = request.getAgreeTermIdList();
         List<Long> disagreeTermIdList = request.getDisagreeTermIdList();
-        
+
         if (!validateRequiredTerms(agreeTermIdList)) {
             throw new TermHandler(ErrorStatus.REQUIRED_TERM_NOT_AGREED);
         }
-        
+
         // 동의한 약관
         for (Long termId : agreeTermIdList) {
             Term term = termRepository.findById(termId)
@@ -55,7 +56,7 @@ public class MemberCommandService implements MemberCommandUseCase{
                     }
                 );
         }
-        
+
         // 미동의한 약관
         for (Long termId : disagreeTermIdList) {
             Term term = termRepository.findById(termId)
@@ -69,7 +70,7 @@ public class MemberCommandService implements MemberCommandUseCase{
                     }
                 );
         }
-        
+
         // 응답 반환
         return MemberConverter.toTermAgreementResponse(findMember);
     }
@@ -91,7 +92,7 @@ public class MemberCommandService implements MemberCommandUseCase{
         findMember.updateUserCustomId(request.getUserCustomId());
         findMember.updateBirth(request.getBirth());
         findMember.updateGender(request.getGender());
-        
+
         // 프로필 이미지 설정
         String profileImgUrl = request.getProfileImgUrl();
         if (profileImgUrl != null && !profileImgUrl.trim().isEmpty()) {
@@ -100,7 +101,7 @@ public class MemberCommandService implements MemberCommandUseCase{
             // 기본 프로필 이미지 설정
             findMember.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
         }
-        
+
         memberRepository.save(findMember);
 
         // 응답 반환
@@ -125,5 +126,21 @@ public class MemberCommandService implements MemberCommandUseCase{
             }
         }
         return true;
+    }
+
+    /**
+     * id_token 에서 추출한 멤버 데이터를 통해
+     * 기존 회원이라면 조회해서 가져오고
+     * 첫 로그인이면 데이터 저장하는 메서드
+     * @param kakaoMemberData : id_token 에서 추출한 멤버 데이터
+     * @return : 추출한 멤버 데이터와 일치하는 멤버
+     */
+    @Override
+    @Transactional
+    public Member findOrCreateMember(MemberDataDTO.KakaoMemberData kakaoMemberData) {
+        Member findOrNewMember = memberRepository.findByProviderId(kakaoMemberData.getSub())
+                .orElseGet(() -> MemberConverter.toMember(kakaoMemberData));
+
+        return memberRepository.save(findOrNewMember);
     }
 }

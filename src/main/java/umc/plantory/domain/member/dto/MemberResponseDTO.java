@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 public class MemberResponseDTO {
     @Getter
     @Builder
@@ -24,5 +26,15 @@ public class MemberResponseDTO {
         private String nickname;
         private String userCustomId;
         private String profileImgUrl;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class KkoOAuth2LoginResponse {
+        private String accessToken;
+        private String refreshToken;
+        private LocalDateTime accessTokenExpiredAt;
     }
 }
