@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import umc.plantory.domain.diary.entity.Diary;
+import umc.plantory.domain.member.entity.Member;
 import umc.plantory.global.enums.Emotion;
 
 import java.time.LocalDate;
@@ -27,10 +28,18 @@ public class WateringCan {
     @JoinColumn(name = "diary_id")
     private Diary diary;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
     @Column(nullable = false)
     private LocalDate diaryDate;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private Emotion emotion;
+
+    public void updateDiary(Diary diary) {
+        this.diary = diary;
+    }
 }

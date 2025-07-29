@@ -68,4 +68,8 @@ public class Diary extends BaseEntity {
     public void updateStatus(DiaryStatus status) {
         this.status = status;
     }
+
+    public void updateDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
 }

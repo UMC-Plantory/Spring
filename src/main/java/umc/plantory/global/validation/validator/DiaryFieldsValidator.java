@@ -3,8 +3,7 @@ package umc.plantory.global.validation.validator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.stereotype.Component;
-import umc.plantory.domain.diary.dto.request.DiaryRequestDTO;
-import umc.plantory.global.enums.DiaryStatus;
+import umc.plantory.domain.diary.dto.DiaryRequestDTO;
 import umc.plantory.global.validation.annotation.ValidDiaryFields;
 
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ public class DiaryFieldsValidator implements ConstraintValidator<ValidDiaryField
         // 일반 저장일때만 체크
         if ("NORMAL".equals(request.getStatus())) {
             if (request.getEmotion() == null) missingFields.add("emotion");
-            if (request.getContent() == null || request.getContent().isBlank()) missingFields.add("content");
+            if (request.getContent() == null) missingFields.add("content");
             if (request.getSleepStartTime() == null) missingFields.add("sleepStartTime");
             if (request.getSleepEndTime() == null) missingFields.add("sleepEndTime");
         }

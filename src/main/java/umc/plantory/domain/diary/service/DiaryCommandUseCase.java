@@ -1,7 +1,7 @@
 package umc.plantory.domain.diary.service;
 
-import umc.plantory.domain.diary.dto.request.DiaryRequestDTO;
-import umc.plantory.domain.diary.dto.response.DiaryResponseDTO;
+import umc.plantory.domain.diary.dto.DiaryRequestDTO;
+import umc.plantory.domain.diary.dto.DiaryResponseDTO;
 
 public interface DiaryCommandUseCase {
     DiaryResponseDTO.DiaryInfoDTO saveDiary(DiaryRequestDTO.DiaryUploadDTO request);

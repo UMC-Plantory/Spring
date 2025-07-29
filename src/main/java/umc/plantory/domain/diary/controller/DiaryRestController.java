@@ -10,8 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import umc.plantory.domain.diary.dto.request.DiaryRequestDTO;
-import umc.plantory.domain.diary.dto.response.DiaryResponseDTO;
+import umc.plantory.domain.diary.dto.DiaryRequestDTO;
+import umc.plantory.domain.diary.dto.DiaryResponseDTO;
 import umc.plantory.domain.diary.service.DiaryCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 

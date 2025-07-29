@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.diary.converter.DiaryConverter;
-import umc.plantory.domain.diary.dto.request.DiaryRequestDTO;
-import umc.plantory.domain.diary.dto.response.DiaryResponseDTO;
+import umc.plantory.domain.diary.dto.DiaryRequestDTO;
+import umc.plantory.domain.diary.dto.DiaryResponseDTO;
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.diary.entity.DiaryImg;
 import umc.plantory.domain.diary.repository.DiaryImgRepository;
@@ -45,7 +45,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
      *
      * @param request 일기 작성 요청 DTO
      * @return 저장된 일기에 대한 응답 DTO
-     * @throws MemberHandler 회원이 존재하지 않는 경우
      */
     @Override
     @Transactional
@@ -74,23 +73,18 @@ public class DiaryCommandService implements DiaryCommandUseCase {
      * @param diaryId 수정할 일기 ID
      * @param request 일기 수정 요청 DTO
      * @return 수정된 일기 정보를 담은 응답 DTO
-     * @throws MemberHandler 회원이 존재하지 않는 경우
-     * @throws DiaryHandler 일기가 존재하지 않거나 권한이 없는 경우
      */
     @Override
     @Transactional
     public DiaryResponseDTO.DiaryInfoDTO updateDiary(Long diaryId, DiaryRequestDTO.DiaryUpdateDTO request) {
-
         Member member = memberRepository.findById(1L)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
 
-        // 해당 일기의 작성자가 맞는지 확인
-        if (!diary.getMember().getId().equals(member.getId())) {
-            throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
-        }
+        // 일기 작성자 확인
+        validateDiaryOwnership(diary, member);
 
         // 이미지 업데이트 처리
         String diaryImgUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), Boolean.TRUE.equals(request.getIsImgDeleted()));
@@ -104,18 +98,22 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         // 임시 저장 → 정식 저장일때 필수 필드 다 있는지 확인
         if (status == DiaryStatus.NORMAL &&
-                (emotion == null || content == null || content.isBlank() || sleepStart == null || sleepEnd == null)) {
+                (emotion == null || content == null || sleepStart == null || sleepEnd == null)) {
             throw new DiaryHandler(ErrorStatus.DIARY_MISSING_FIELDS);
         }
 
         diary.update(emotion, content, sleepStart, sleepEnd, status);
 
-        // 물뿌리개 처리
         handleWateringCan(diary, member);
 
         return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
     }
 
+    /**
+     * 일기를 스크랩 상태로 변경
+     *
+     * @param diaryId 일기 ID
+     */
     @Override
     @Transactional
     public void scrapDiary(Long diaryId) {
@@ -125,10 +123,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
 
-        // 해당 일기의 작성자가 맞는지 확인
-        if (!diary.getMember().getId().equals(member.getId())) {
-            throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
-        }
+        validateDiaryOwnership(diary, member);
 
         // Normal 상태인 일기만 스크랩 가능
         if (diary.getStatus() != DiaryStatus.NORMAL) {
@@ -138,6 +133,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         diary.updateStatus(DiaryStatus.SCRAP);
     }
 
+    /**
+     * 일기 스크랩을 취소
+     *
+     * @param diaryId 일기 ID
+     */
     @Override
     @Transactional
     public void cancelScrapDiary(Long diaryId) {
@@ -147,10 +147,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
 
-        // 해당 일기의 작성자가 맞는지 확인
-        if (!diary.getMember().getId().equals(member.getId())) {
-            throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
-        }
+        validateDiaryOwnership(diary, member);
 
         // Scrap 상태였던 일기만 취소 가능
         if (diary.getStatus() != DiaryStatus.SCRAP) {
@@ -160,6 +157,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         diary.updateStatus(DiaryStatus.NORMAL);
     }
 
+    /**
+     * 여러 일기를 임시 보관 상태로 변경
+     *
+     * @param request 일기 ID 목록 DTO
+     */
     @Override
     @Transactional
     public void tempSaveDiaries(DiaryRequestDTO.DiaryIdsDTO request) {
@@ -168,15 +170,23 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         List<Diary> diaries = diaryRepository.findAllById(request.getDiaryIds());
 
+        // 모든 일기가 존재하는지 확인
+        if (diaries.size() != request.getDiaryIds().size()) {
+            throw new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND);
+        }
+
+        // 일기 작성자 확인 및 상태 TEMP로 변경
         for (Diary diary : diaries) {
-            // 해당 일기의 작성자가 맞는지 확인
-            if (!diary.getMember().getId().equals(member.getId())) {
-                throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
-            }
+            validateDiaryOwnership(diary, member);
             diary.updateStatus(DiaryStatus.TEMP);
         }
     }
 
+    /**
+     * 여러 일기를 삭제 상태로 변경
+     *
+     * @param request 일기 ID 목록 DTO
+     */
     @Override
     @Transactional
     public void softDeleteDiaries(DiaryRequestDTO.DiaryIdsDTO request) {
@@ -185,14 +195,25 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         List<Diary> diaries = diaryRepository.findAllById(request.getDiaryIds());
 
+        if (diaries.size() != request.getDiaryIds().size()) {
+            throw new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND);
+        }
+
+        // 일기 작성자 확인 및 상태 DELETE로 변경
         for (Diary diary : diaries) {
-            if (!diary.getMember().getId().equals(member.getId())) {
-                throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
-            }
+            validateDiaryOwnership(diary, member);
             diary.updateStatus(DiaryStatus.DELETE);
+
+            // 삭제 일시 기록
+            diary.updateDeletedAt(LocalDateTime.now());
         }
     }
 
+    /**
+     * 여러 일기를 영구 삭제
+     *
+     * @param request 일기 ID 목록 DTO
+     */
     @Override
     @Transactional
     public void hardDeleteDiaries(DiaryRequestDTO.DiaryIdsDTO request) {
@@ -201,11 +222,32 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         List<Diary> diaries = diaryRepository.findAllById(request.getDiaryIds());
 
+        if (diaries.size() != request.getDiaryIds().size()) {
+            throw new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND);
+        }
+
+        // 일기 작성자 확인 및 이미지, 물뿌리개 처리
         for (Diary diary : diaries) {
-            if (!diary.getMember().getId().equals(member.getId())) {
-                throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
-            }
+            validateDiaryOwnership(diary, member);
+
+            // 이미지 삭제
+            diaryImgRepository.findByDiary(diary).ifPresent(diaryImg -> {
+                imageUseCase.deleteImage(diaryImg.getDiaryImgUrl());
+                diaryImgRepository.delete(diaryImg);
+            });
+
+            // 물뿌리개에 연결된 diary null로 처리
+            wateringCanRepository.findByDiary(diary)
+                    .ifPresent(wateringCan -> wateringCan.updateDiary(null));
+
             diaryRepository.delete(diary);
+        }
+    }
+
+    // 주어진 일기의 작성자가 현재 사용자인지 확인
+    private void validateDiaryOwnership(Diary diary, Member member) {
+        if (!diary.getMember().getId().equals(member.getId())) {
+            throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
         }
     }
 
@@ -245,11 +287,17 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         return null;
     }
 
-    // 물뿌리개 지급
+    // 당일 작성된 일기고, 해당 날짜에 물뿌리개를 지급한 적이 없다면 물뿌리개 생성
     private void handleWateringCan(Diary diary, Member member) {
-        if (diary.getStatus() == DiaryStatus.NORMAL && diary.getDiaryDate().isEqual(LocalDate.now())) {
+        if (diary.getStatus() == DiaryStatus.NORMAL
+                && diary.getDiaryDate().isEqual(LocalDate.now())
+                && !wateringCanRepository.existsByDiaryDateAndMember(LocalDate.now(), member)) {
+
+            // 사용자가 가진 물뿌리개 개수 +1
             member.increaseWateringCan();
-            WateringCan wateringCan = WateringCanConverter.toWateringCan(diary);
+
+            // wateringCan 엔티티 생성 및 저장
+            WateringCan wateringCan = WateringCanConverter.toWateringCan(diary, member);
             wateringCanRepository.save(wateringCan);
         }
     }

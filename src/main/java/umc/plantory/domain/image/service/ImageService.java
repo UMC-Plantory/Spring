@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import umc.plantory.domain.image.converter.ImageConverter;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.ImageHandler;
-import umc.plantory.domain.image.dto.request.PresignedUrlRequestDTO;
-import umc.plantory.domain.image.dto.response.PresignedUrlResponseDTO;
+import umc.plantory.domain.image.dto.PresignedUrlRequestDTO;
+import umc.plantory.domain.image.dto.PresignedUrlResponseDTO;
 
 import java.net.URL;
 import java.util.Date;
