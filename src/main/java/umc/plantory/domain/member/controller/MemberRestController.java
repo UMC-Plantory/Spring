@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
-import umc.plantory.domain.member.service.MemberCommandService;
 import umc.plantory.domain.member.service.MemberCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
