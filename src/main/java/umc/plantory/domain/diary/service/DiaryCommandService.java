@@ -13,6 +13,7 @@ import umc.plantory.domain.diary.repository.DiaryRepository;
 import umc.plantory.domain.image.service.ImageUseCase;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
+import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.wateringCan.converter.WateringCanConverter;
 import umc.plantory.domain.wateringCan.entity.WateringCan;
 import umc.plantory.domain.wateringCan.repository.WateringCanRepository;
@@ -38,6 +39,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     private final MemberRepository memberRepository;
     private final WateringCanRepository wateringCanRepository;
     private final ImageUseCase imageUseCase;
+    private final JwtProvider jwtProvider;
 
     /**
      * 일기 등록
@@ -47,11 +49,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
      */
     @Override
     @Transactional
-    public DiaryResponseDTO.DiaryInfoDTO saveDiary(DiaryRequestDTO.DiaryUploadDTO request) {
-
-        // 임시로 1번 멤버 불러오기
-        Member member = memberRepository.findById(1L)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    public DiaryResponseDTO.DiaryInfoDTO saveDiary(String authorization, DiaryRequestDTO.DiaryUploadDTO request) {
+        Member member = getLoginMember(authorization);
 
         // diary 엔티티 생성 및 저장
         Diary diary = DiaryConverter.toDiary(request, member);
@@ -75,9 +74,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
      */
     @Override
     @Transactional
-    public DiaryResponseDTO.DiaryInfoDTO updateDiary(Long diaryId, DiaryRequestDTO.DiaryUpdateDTO request) {
-        Member member = memberRepository.findById(1L)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    public DiaryResponseDTO.DiaryInfoDTO updateDiary(String authorization, Long diaryId, DiaryRequestDTO.DiaryUpdateDTO request) {
+        Member member = getLoginMember(authorization);
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
@@ -115,9 +113,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
      */
     @Override
     @Transactional
-    public void scrapDiary(Long diaryId) {
-        Member member = memberRepository.findById(1L)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    public void scrapDiary(String authorization, Long diaryId) {
+        Member member = getLoginMember(authorization);
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
@@ -139,9 +136,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
      */
     @Override
     @Transactional
-    public void cancelScrapDiary(Long diaryId) {
-        Member member = memberRepository.findById(1L)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    public void cancelScrapDiary(String authorization, Long diaryId) {
+        Member member = getLoginMember(authorization);
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
@@ -163,9 +159,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
      */
     @Override
     @Transactional
-    public void tempSaveDiaries(DiaryRequestDTO.DiaryIdsDTO request) {
-        Member member = memberRepository.findById(1L)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    public void tempSaveDiaries(String authorization, DiaryRequestDTO.DiaryIdsDTO request) {
+        Member member = getLoginMember(authorization);
 
         List<Diary> diaries = diaryRepository.findAllById(request.getDiaryIds());
 
@@ -188,9 +183,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
      */
     @Override
     @Transactional
-    public void softDeleteDiaries(DiaryRequestDTO.DiaryIdsDTO request) {
-        Member member = memberRepository.findById(1L)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    public void softDeleteDiaries(String authorization, DiaryRequestDTO.DiaryIdsDTO request) {
+        Member member = getLoginMember(authorization);
 
         List<Diary> diaries = diaryRepository.findAllById(request.getDiaryIds());
 
@@ -215,9 +209,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
      */
     @Override
     @Transactional
-    public void hardDeleteDiaries(DiaryRequestDTO.DiaryIdsDTO request) {
-        Member member = memberRepository.findById(1L)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    public void hardDeleteDiaries(String authorization, DiaryRequestDTO.DiaryIdsDTO request) {
+        Member member = getLoginMember(authorization);
 
         List<Diary> diaries = diaryRepository.findAllById(request.getDiaryIds());
 
@@ -241,6 +234,20 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
             diaryRepository.delete(diary);
         }
+    }
+
+    // 로그인한 사용자 반환
+    private Member getLoginMember(String authorization) {
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
     }
 
     // 주어진 일기의 작성자가 현재 사용자인지 확인
