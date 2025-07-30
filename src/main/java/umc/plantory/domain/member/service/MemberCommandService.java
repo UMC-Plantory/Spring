@@ -14,7 +14,6 @@ import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
-import umc.plantory.domain.token.service.MemberTokenCommandService;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TermHandler;
@@ -31,7 +30,6 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final TermRepository termRepository;
     private final JwtProvider jwtProvider;
     private final MemberTokenRepository memberTokenRepository;
-    private final MemberTokenCommandService memberTokenCommandService;
 
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
@@ -124,23 +122,14 @@ public class MemberCommandService implements MemberCommandUseCase {
 
         // JWT 토큰 검증 및 멤버 ID 추출
         jwtProvider.validateToken(token);
-        
-        // 블랙리스트 확인
-        if (memberTokenCommandService.isBlacklisted(token)) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-        
         Long memberId = jwtProvider.getMemberId(token);
 
         // 회원 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        // Refresh Token 삭제
+        // 해당 멤버의 토큰 정보 삭제
         memberTokenRepository.deleteByMember(member);
-        
-        // 토큰을 블랙리스트에 추가
-        memberTokenCommandService.addToBlacklist(token, "LOGOUT");
     }
 
     @Override
@@ -154,26 +143,17 @@ public class MemberCommandService implements MemberCommandUseCase {
 
         // JWT 토큰 검증 및 멤버 ID 추출
         jwtProvider.validateToken(token);
-        
-        // 블랙리스트 확인
-        if (memberTokenCommandService.isBlacklisted(token)) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-        
         Long memberId = jwtProvider.getMemberId(token);
 
         // 회원 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        // soft delete: status를 INACTIVE로 변경
+        // soft delete: status를 INACTIVE로 변경하고 inactiveAt 설정
         member.updateStatus(MemberStatus.INACTIVE);
         
-        // 계정 탈퇴 시에는 모든 토큰 정보 삭제
+        // 해당 멤버의 토큰 정보 삭제
         memberTokenRepository.deleteByMember(member);
-        
-        // 토큰을 블랙리스트에 추가
-        memberTokenCommandService.addToBlacklist(token, "DELETE");
     }
 
     // 추가 정보 필수 입력값 검증

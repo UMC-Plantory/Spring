@@ -107,5 +107,8 @@ public class Member extends BaseEntity {
 
     public void updateStatus(MemberStatus status) {
         this.status = status;
+        if (status == MemberStatus.INACTIVE) {
+            this.inactiveAt = LocalDateTime.now();
+        }
     }
 }
