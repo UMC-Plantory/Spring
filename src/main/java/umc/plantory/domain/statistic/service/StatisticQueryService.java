@@ -31,6 +31,12 @@ public class StatisticQueryService implements StatisticQueryUseCase {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
+    /**
+     * 전달받은 날짜를 기준으로, 사용자의 최근 7일간 수면 통계 정보를 반환합니다.
+     * @param authorization 헤더에서 받아온 사용자 인증 정보
+     * @param today 기준 날짜
+     * @return WeeklySleepStatisticDTO - 날짜 별 평균 수면 시간 및 7일간 평균 수면 시간
+     */
     @Override
     public StatisticResponseDTO.WeeklySleepStatisticDTO getWeeklySleepStatistics(String authorization, LocalDate today) {
 
@@ -75,6 +81,13 @@ public class StatisticQueryService implements StatisticQueryUseCase {
 
         return StatisticConverter.toWeeklyStatisticDTO(startDate, endDate, averageSleepMinutes, dailySleepDataList);
     }
+
+    /**
+     * 전달받은 날짜를 기준으로, 사용자의 최근 30일간 수면 통계 정보를 반환합니다.
+     * @param authorization 헤더에서 받아온 사용자 인증 정보
+     * @param today 기준 날짜
+     * @return MonthlySleepStatisticDTO - 주별 평균 수면 시각 및 30일간 평균 수면 시간
+     */
 
     @Override
     public StatisticResponseDTO.MonthlySleepStatisticDTO getMonthlySleepStatistics(String authorization, LocalDate today) {
@@ -135,6 +148,14 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         return StatisticConverter.toMonthlySleepStatisticDTO(startDate, endDate, averageSleepMinutes, weeklySleepDataList);
     }
 
+    /**
+     * 전달받은 날짜를 기준으로, 최근 range일간의 감정 통계 정보를 반환합니다.
+     * @param authorization 헤더에서 받아온 사용자 인증 정보
+     * @param today 기준 날짜
+     * @param range 범위 (ex: range = 7 이면, 최근 7일간의 범위)
+     * @return EmotionStatisticDTO - 감정별 빈도수 및 최다 감정 포함
+     */
+
     @Override
     public StatisticResponseDTO.EmotionStatisticDTO getEmotionStatistics(String authorization, LocalDate today, Integer range) {
 
@@ -152,7 +173,7 @@ public class StatisticQueryService implements StatisticQueryUseCase {
             throw new StatisticHandler(ErrorStatus.EMOTION_STATISTIC_NOT_FOUND);
         }
 
-        // 감정별 빈도 Map 초기화
+        // 감정 값 0으로 초기화
         Map<Emotion, Integer> emotionMap = new EnumMap<>(Emotion.class);
         for (Emotion emotion : Emotion.values()) {
             emotionMap.put(emotion, 0);
