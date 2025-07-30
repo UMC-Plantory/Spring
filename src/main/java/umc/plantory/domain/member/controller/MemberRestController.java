@@ -70,4 +70,11 @@ public class MemberRestController {
             @RequestHeader("Authorization") String authorization) {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.logout(authorization)));
     }
+
+    @PatchMapping("/delete")
+    @Operation(summary = "계정 탈퇴 API", description = "계정 탈퇴 API입니다.")
+    public ResponseEntity<ApiResponse<MemberResponseDTO.MemberDeleteResponse>> deleteMember(
+            @RequestHeader("Authorization") String authorization) {
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.delete(authorization)));
+    }
 }

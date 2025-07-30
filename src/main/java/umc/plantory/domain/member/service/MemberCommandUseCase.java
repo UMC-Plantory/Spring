@@ -10,4 +10,5 @@ public interface MemberCommandUseCase {
     MemberResponseDTO.MemberSignupResponse memberSignup(MemberRequestDTO.MemberSignupRequest request);
     Member findOrCreateMember(MemberDataDTO.KakaoMemberData kakaoMemberData);
     MemberResponseDTO.MemberLogoutResponse logout(String authorization);
+    MemberResponseDTO.MemberDeleteResponse delete(String authorization);
 }

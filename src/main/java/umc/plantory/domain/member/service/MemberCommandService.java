@@ -13,9 +13,11 @@ import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
+import umc.plantory.domain.token.repository.MemberTokenRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TermHandler;
+import umc.plantory.global.enums.MemberStatus;
 
 import java.util.List;
 import umc.plantory.domain.term.entity.Term;
@@ -27,6 +29,7 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final MemberTermRepository memberTermRepository;
     private final TermRepository termRepository;
     private final JwtProvider jwtProvider;
+    private final MemberTokenRepository memberTokenRepository;
 
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
@@ -127,6 +130,32 @@ public class MemberCommandService implements MemberCommandUseCase {
 
         // memberId 반환으로 임시 설정해둠
         return MemberConverter.toMemberLogoutResponse(member);
+    }
+
+    @Override
+    @Transactional
+    public MemberResponseDTO.MemberDeleteResponse delete(String authorization) {
+        // Authorization 헤더에서 토큰 추출
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        // JWT 토큰 검증 및 멤버 ID 추출
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+
+        // 회원 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // soft delete: status를 INACTIVE로 변경
+        member.updateStatus(MemberStatus.INACTIVE);
+        
+        // 토큰 정보도 삭제
+        memberTokenRepository.deleteByMember(member);
+        
+        return MemberConverter.toMemberDeleteResponse(member);
     }
 
     // 추가 정보 필수 입력값 검증

@@ -75,4 +75,10 @@ public class MemberConverter {
                 .role(MemberRole.USER)
                 .build();
     }
+
+    public static MemberResponseDTO.MemberDeleteResponse toMemberDeleteResponse(Member member) {
+        return MemberResponseDTO.MemberDeleteResponse.builder()
+                .memberId(member.getId())
+                .build();
+    }
 }

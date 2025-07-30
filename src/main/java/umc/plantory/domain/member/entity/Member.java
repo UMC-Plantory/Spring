@@ -104,4 +104,8 @@ public class Member extends BaseEntity {
     public void updateProfileImgUrl(String profileImgUrl) {
         this.profileImgUrl = profileImgUrl;
     }
+
+    public void updateStatus(MemberStatus status) {
+        this.status = status;
+    }
 }
