@@ -31,6 +31,21 @@ public class MemberResponseDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class MemberLogoutResponse {
+        private Long memberId;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class MemberDeleteResponse {
+        private Long memberId;
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ProfileResponse {
         private String userCustomId;
         private String nickname;

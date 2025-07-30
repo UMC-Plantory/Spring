@@ -18,6 +18,7 @@ import umc.plantory.global.apiPayload.exception.handler.TermHandler;
 
 import java.util.List;
 import umc.plantory.domain.term.entity.Term;
+import umc.plantory.global.enums.MemberStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +34,7 @@ public class MemberCommandService implements MemberCommandUseCase {
     public MemberResponseDTO.TermAgreementResponse termAgreement(MemberRequestDTO.TermAgreementRequest request) {
         // 회원 조회
         Member findMember = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
         // 약관 동의 정보 저장
         List<Long> agreeTermIdList = request.getAgreeTermIdList();
@@ -46,29 +47,29 @@ public class MemberCommandService implements MemberCommandUseCase {
         // 동의한 약관
         for (Long termId : agreeTermIdList) {
             Term term = termRepository.findById(termId)
-                    .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
+                .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
             memberTermRepository.findByMemberAndTerm(findMember, term)
-                    .ifPresentOrElse(
-                            mt -> mt.updateIsAgree(true),
-                            () -> {
-                                MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, true);
-                                memberTermRepository.save(newMemberTerm);
-                            }
-                    );
+                .ifPresentOrElse(
+                    mt -> mt.updateIsAgree(true),
+                    () -> {
+                        MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, true);
+                        memberTermRepository.save(newMemberTerm);
+                    }
+                );
         }
 
         // 미동의한 약관
         for (Long termId : disagreeTermIdList) {
             Term term = termRepository.findById(termId)
-                    .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
+                .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
             memberTermRepository.findByMemberAndTerm(findMember, term)
-                    .ifPresentOrElse(
-                            mt -> mt.updateIsAgree(false),
-                            () -> {
-                                MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, false);
-                                memberTermRepository.save(newMemberTerm);
-                            }
-                    );
+                .ifPresentOrElse(
+                    mt -> mt.updateIsAgree(false),
+                    () -> {
+                        MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, false);
+                        memberTermRepository.save(newMemberTerm);
+                    }
+                );
         }
 
         // 응답 반환
@@ -80,7 +81,7 @@ public class MemberCommandService implements MemberCommandUseCase {
     public MemberResponseDTO.MemberSignupResponse memberSignup(MemberRequestDTO.MemberSignupRequest request) {
         // 회원 조회
         Member findMember = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
         // 필수 추가 정보 검증
         if (!validateAdditionalInfo(request)) {
@@ -111,9 +112,9 @@ public class MemberCommandService implements MemberCommandUseCase {
     // 추가 정보 필수 입력값 검증
     private boolean validateAdditionalInfo(MemberRequestDTO.MemberSignupRequest request) {
         return request.getNickname() != null &&
-                request.getUserCustomId() != null &&
-                request.getGender() != null &&
-                request.getBirth() != null;
+               request.getUserCustomId() != null &&
+               request.getGender() != null &&
+               request.getBirth() != null;
     }
 
     // 필수 약관 동의 여부 검증
@@ -142,5 +143,46 @@ public class MemberCommandService implements MemberCommandUseCase {
                 .orElseGet(() -> MemberConverter.toMember(kakaoMemberData));
 
         return memberRepository.save(findOrNewMember);
+    }
+
+    @Override
+    @Transactional
+    public MemberResponseDTO.MemberLogoutResponse memberLogout(MemberRequestDTO.MemberLogoutRequest request) {
+        // 회원 조회
+        Member findMember = memberRepository.findById(request.getMemberId())
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
+        }
+        String accessToken = authorizationHeader.substring(7);
+        Long memberId = jwtProvider.getUserIdFromToken(accessToken);
+        logout(memberId);
+
+        // 응답 반환
+        return MemberConverter.toMemberSignupResponse(findMember);
+    }
+
+    @Override
+    @Transactional
+    public MemberResponseDTO.MemberDeleteResponse memberDelete(MemberRequestDTO.MemberDeleteRequest request) {
+        // 회원 조회
+        Member findMember = memberRepository.findById(request.getMemberId())
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
+        }
+        String accessToken = authorizationHeader.substring(7);
+        Long memberId = jwtProvider.getUserIdFromToken(accessToken);
+        logout(memberId);
+
+        // soft delete: status를 INACTIVE로 변경
+        member.setStatus(MemberStatus.INACTIVE);
+        memberRepository.save(member);
+        // 토큰 정보도 삭제 (로그아웃과 동일하게)
+        memberTokenRepository.deleteByMember(member);
+        // 응답 반환
+        return MemberConverter.toMemberSignupResponse(findMember);
     }
 }
