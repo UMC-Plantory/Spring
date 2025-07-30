@@ -113,7 +113,7 @@ public class MemberCommandService implements MemberCommandUseCase {
 
     @Override
     @Transactional
-    public MemberResponseDTO.MemberLogoutResponse logout(String authorization) {
+    public void logout(String authorization) {
         // Authorization 헤더에서 토큰 추출
         String token = jwtProvider.resolveToken(authorization);
         if (token == null) {
@@ -128,13 +128,12 @@ public class MemberCommandService implements MemberCommandUseCase {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        // memberId 반환으로 임시 설정해둠
-        return MemberConverter.toMemberLogoutResponse(member);
+        // 로그아웃 처리 완료 
     }
 
     @Override
     @Transactional
-    public MemberResponseDTO.MemberDeleteResponse delete(String authorization) {
+    public void delete(String authorization) {
         // Authorization 헤더에서 토큰 추출
         String token = jwtProvider.resolveToken(authorization);
         if (token == null) {
@@ -154,8 +153,6 @@ public class MemberCommandService implements MemberCommandUseCase {
         
         // 토큰 정보도 삭제
         memberTokenRepository.deleteByMember(member);
-        
-        return MemberConverter.toMemberDeleteResponse(member);
     }
 
     // 추가 정보 필수 입력값 검증

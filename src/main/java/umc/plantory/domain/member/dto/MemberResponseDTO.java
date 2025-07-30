@@ -27,22 +27,6 @@ public class MemberResponseDTO {
         private String profileImgUrl;
     }
 
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class MemberLogoutResponse {
-        private Long memberId;
-    }
-
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class MemberDeleteResponse {
-        private Long memberId;
-    }
-
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor

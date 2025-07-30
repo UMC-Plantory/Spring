@@ -66,15 +66,17 @@ public class MemberRestController {
 
     @DeleteMapping("/logout")
     @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다.")
-    public ResponseEntity<ApiResponse<MemberResponseDTO.MemberLogoutResponse>> logout(
+    public ResponseEntity<ApiResponse<Void>> logout(
             @RequestHeader("Authorization") String authorization) {
-        return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.logout(authorization)));
+        memberCommandUseCase.logout(authorization);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
 
     @PatchMapping("/delete")
     @Operation(summary = "계정 탈퇴 API", description = "계정 탈퇴 API입니다.")
-    public ResponseEntity<ApiResponse<MemberResponseDTO.MemberDeleteResponse>> deleteMember(
+    public ResponseEntity<ApiResponse<Void>> deleteMember(
             @RequestHeader("Authorization") String authorization) {
-        return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.delete(authorization)));
+        memberCommandUseCase.delete(authorization);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
 }

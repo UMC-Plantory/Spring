@@ -56,29 +56,16 @@ public class MemberConverter {
                 .build();
     }
 
-    public static MemberResponseDTO.MemberLogoutResponse toMemberLogoutResponse(Member member) {
-        return MemberResponseDTO.MemberLogoutResponse.builder()
-                .memberId(member.getId())
-                .build();
-    }
-
     public static Member toMember (MemberDataDTO.KakaoMemberData kakaoMemberData) {
         return Member.builder()
-                .nickname(DEFAULT_NICKNAME)
                 .email(kakaoMemberData.getEmail())
+                .nickname(DEFAULT_NICKNAME)
                 .userCustomId(DEFAULT_USER_CUSTOM_ID)
                 .profileImgUrl(DEFAULT_PROFILE_IMG_URL)
                 .provider(Provider.KAKAO)
                 .providerId(kakaoMemberData.getSub())
-                .gender(Gender.NONE)
-                .status(MemberStatus.PENDING)
+                .status(MemberStatus.ACTIVE)
                 .role(MemberRole.USER)
-                .build();
-    }
-
-    public static MemberResponseDTO.MemberDeleteResponse toMemberDeleteResponse(Member member) {
-        return MemberResponseDTO.MemberDeleteResponse.builder()
-                .memberId(member.getId())
                 .build();
     }
 }
