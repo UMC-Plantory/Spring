@@ -35,14 +35,6 @@ public class MemberResponseDTO {
         private Long memberId;
     }
 
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class MemberDeleteResponse {
-        private Long memberId;
-    }
-
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor

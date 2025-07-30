@@ -56,6 +56,12 @@ public class MemberConverter {
                 .build();
     }
 
+    public static MemberResponseDTO.MemberLogoutResponse toMemberLogoutResponse(Member member) {
+        return MemberResponseDTO.MemberLogoutResponse.builder()
+                .memberId(member.getId())
+                .build();
+    }
+
     public static Member toMember (MemberDataDTO.KakaoMemberData kakaoMemberData) {
         return Member.builder()
                 .nickname(DEFAULT_NICKNAME)

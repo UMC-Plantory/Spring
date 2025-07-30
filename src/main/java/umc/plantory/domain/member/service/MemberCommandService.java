@@ -12,13 +12,13 @@ import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
+import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TermHandler;
 
 import java.util.List;
 import umc.plantory.domain.term.entity.Term;
-import umc.plantory.global.enums.MemberStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +26,7 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final MemberRepository memberRepository;
     private final MemberTermRepository memberTermRepository;
     private final TermRepository termRepository;
+    private final JwtProvider jwtProvider;
 
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
@@ -39,11 +40,11 @@ public class MemberCommandService implements MemberCommandUseCase {
         // 약관 동의 정보 저장
         List<Long> agreeTermIdList = request.getAgreeTermIdList();
         List<Long> disagreeTermIdList = request.getDisagreeTermIdList();
-
+        
         if (!validateRequiredTerms(agreeTermIdList)) {
             throw new TermHandler(ErrorStatus.REQUIRED_TERM_NOT_AGREED);
         }
-
+        
         // 동의한 약관
         for (Long termId : agreeTermIdList) {
             Term term = termRepository.findById(termId)
@@ -57,7 +58,7 @@ public class MemberCommandService implements MemberCommandUseCase {
                     }
                 );
         }
-
+        
         // 미동의한 약관
         for (Long termId : disagreeTermIdList) {
             Term term = termRepository.findById(termId)
@@ -71,7 +72,7 @@ public class MemberCommandService implements MemberCommandUseCase {
                     }
                 );
         }
-
+        
         // 응답 반환
         return MemberConverter.toTermAgreementResponse(findMember);
     }
@@ -93,7 +94,7 @@ public class MemberCommandService implements MemberCommandUseCase {
         findMember.updateUserCustomId(request.getUserCustomId());
         findMember.updateBirth(request.getBirth());
         findMember.updateGender(request.getGender());
-
+        
         // 프로필 이미지 설정
         String profileImgUrl = request.getProfileImgUrl();
         if (profileImgUrl != null && !profileImgUrl.trim().isEmpty()) {
@@ -103,10 +104,29 @@ public class MemberCommandService implements MemberCommandUseCase {
             findMember.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
         }
 
-        memberRepository.save(findMember);
-
         // 응답 반환
         return MemberConverter.toMemberSignupResponse(findMember);
+    }
+
+    @Override
+    @Transactional
+    public MemberResponseDTO.MemberLogoutResponse logout(String authorization) {
+        // Authorization 헤더에서 토큰 추출
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        // JWT 토큰 검증 및 멤버 ID 추출
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+
+        // 회원 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // memberId 반환으로 임시 설정해둠
+        return MemberConverter.toMemberLogoutResponse(member);
     }
 
     // 추가 정보 필수 입력값 검증
@@ -143,46 +163,5 @@ public class MemberCommandService implements MemberCommandUseCase {
                 .orElseGet(() -> MemberConverter.toMember(kakaoMemberData));
 
         return memberRepository.save(findOrNewMember);
-    }
-
-    @Override
-    @Transactional
-    public MemberResponseDTO.MemberLogoutResponse memberLogout(MemberRequestDTO.MemberLogoutRequest request) {
-        // 회원 조회
-        Member findMember = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
-
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
-        }
-        String accessToken = authorizationHeader.substring(7);
-        Long memberId = jwtProvider.getUserIdFromToken(accessToken);
-        logout(memberId);
-
-        // 응답 반환
-        return MemberConverter.toMemberSignupResponse(findMember);
-    }
-
-    @Override
-    @Transactional
-    public MemberResponseDTO.MemberDeleteResponse memberDelete(MemberRequestDTO.MemberDeleteRequest request) {
-        // 회원 조회
-        Member findMember = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
-
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
-        }
-        String accessToken = authorizationHeader.substring(7);
-        Long memberId = jwtProvider.getUserIdFromToken(accessToken);
-        logout(memberId);
-
-        // soft delete: status를 INACTIVE로 변경
-        member.setStatus(MemberStatus.INACTIVE);
-        memberRepository.save(member);
-        // 토큰 정보도 삭제 (로그아웃과 동일하게)
-        memberTokenRepository.deleteByMember(member);
-        // 응답 반환
-        return MemberConverter.toMemberSignupResponse(findMember);
     }
 }

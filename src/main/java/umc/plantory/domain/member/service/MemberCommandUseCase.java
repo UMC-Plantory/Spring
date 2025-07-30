@@ -9,4 +9,5 @@ public interface MemberCommandUseCase {
     MemberResponseDTO.TermAgreementResponse termAgreement(MemberRequestDTO.TermAgreementRequest request);
     MemberResponseDTO.MemberSignupResponse memberSignup(MemberRequestDTO.MemberSignupRequest request);
     Member findOrCreateMember(MemberDataDTO.KakaoMemberData kakaoMemberData);
+    MemberResponseDTO.MemberLogoutResponse logout(String authorization);
 }

@@ -28,7 +28,6 @@ public class MemberRestController {
     private final MemberCommandUseCase memberCommandUseCase;
     private final MemberQueryUseCase memberQueryUseCase;
     private final MemberTokenCommandUseCase memberTokenService;
-    private final MemberQueryUseCase memberQueryUseCase;
 
     @GetMapping("/profile")
     @Operation(summary = "마이페이지 프로필 조회 API", description = "회원의 프로필 정보와 통계를 조회하는 API입니다.")
@@ -69,13 +68,6 @@ public class MemberRestController {
     @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.MemberLogoutResponse>> logout(
             @RequestHeader("Authorization") String authorization) {
-        return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.get(authorization)));
-    }
-
-    @PatchMapping("/delete")
-    @Operation(summary = "계정 탈퇴 API", description = "계정 탈퇴 API입니다.")
-    public ResponseEntity<ApiResponse<MemberResponseDTO.MemberDeleteResponse>> deleteMember(
-            @RequestHeader("Authorization") String authorization) {
-        return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.get(authorization)));
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.logout(authorization)));
     }
 }
