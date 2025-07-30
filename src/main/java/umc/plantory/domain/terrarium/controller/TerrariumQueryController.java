@@ -18,34 +18,57 @@ public class TerrariumQueryController implements TerrariumQueryApi {
 
     private final TerrariumQueryUseCase terrariumQueryUseCase;
 
+    /**
+     * 현재 키우고 있는 테라리움을 조회합니다.
+     *
+     * @param authorization 인증용 JWT 토큰
+     * @return ApiResponse로 감싼 현재 테라리움 정보 DTO
+     */
     @Override
     @GetMapping
-    public ResponseEntity<ApiResponse<TerrariumResponseDto.TerrariumResponse>> getTerrariumData(@RequestParam("memberId") Long memberId) {
-        log.info("현재 테라리움 조회 요청 - memberId: {}", memberId);
-        TerrariumResponseDto.TerrariumResponse response = terrariumQueryUseCase.findCurrentTerrariumData(memberId);
+    public ResponseEntity<ApiResponse<TerrariumResponseDto.TerrariumResponse>> getTerrariumData(
+            @RequestHeader("Authorization") String authorization) {
+
+        log.info("현재 테라리움 조회 요청");
+        TerrariumResponseDto.TerrariumResponse response = terrariumQueryUseCase.findCurrentTerrariumData(authorization);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
+    /**
+     * 회원의 월별 개화 완료된 테라리움 목록을 조회합니다.
+     *
+     * @param authorization 인증용 JWT 토큰
+     * @param year 조회할 연도 (YYYY)
+     * @param month 조회할 월 (1~12)
+     * @return ApiResponse로 감싼 개화 완료된 테라리움 목록 DTO 리스트
+     */
     @Override
-    @GetMapping("/completed")
+    @GetMapping("/month")
     public ResponseEntity<ApiResponse<List<TerrariumResponseDto.CompletedTerrariumResponse>>> getCompletedTerrariumsByMonth(
-            @RequestParam("memberId") Long memberId,
+            @RequestHeader("Authorization") String authorization,
             @RequestParam int year,
             @RequestParam int month) {
 
-        log.info("월별 개화 완료 테라리움 조회 - memberId: {}, year: {}, month: {}", memberId, year, month);
-        List<TerrariumResponseDto.CompletedTerrariumResponse> responseList = terrariumQueryUseCase.findCompletedTerrariumsByMonth(memberId, year, month);
+        log.info("월별 개화 완료 테라리움 조회 - year: {}, month: {}", year, month);
+        List<TerrariumResponseDto.CompletedTerrariumResponse> responseList = terrariumQueryUseCase.findCompletedTerrariumsByMonth(authorization, year, month);
         return ResponseEntity.ok(ApiResponse.onSuccess(responseList));
     }
 
+    /**
+     * 특정 완료된 테라리움의 상세 정보를 조회합니다.
+     *
+     * @param authorization 인증용 JWT 토큰
+     * @param terrariumId 상세 조회할 테라리움 ID
+     * @return ApiResponse로 감싼 해당 테라리움 상세 DTO
+     */
     @Override
-    @GetMapping("/completed/{terrarium-id}")
+    @GetMapping("/{terrarium-id}")
     public ResponseEntity<ApiResponse<TerrariumResponseDto.CompletedTerrariumDetatilResponse>> getCompletedTerrariumDetail(
-            @RequestParam("memberId") Long memberId,
+            @RequestHeader("Authorization") String authorization,
             @PathVariable("terrarium-id") Long terrariumId) {
 
-        log.info("완료된 테라리움 상세 조회 - memberId: {}, terrariumId: {}", memberId, terrariumId);
-        TerrariumResponseDto.CompletedTerrariumDetatilResponse response = terrariumQueryUseCase.findCompletedTerrariumDetail(memberId, terrariumId);
+        log.info("완료된 테라리움 상세 조회 - terrariumId: {}", terrariumId);
+        TerrariumResponseDto.CompletedTerrariumDetatilResponse response = terrariumQueryUseCase.findCompletedTerrariumDetail(authorization, terrariumId);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 }

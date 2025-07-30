@@ -40,7 +40,6 @@ public class Terrarium extends BaseEntity {
     @Column(nullable = false)
     private Boolean isBloom;
 
-    @Column(nullable = false)
     private LocalDateTime firstStepDate;
 
     private LocalDateTime secondStepDate;

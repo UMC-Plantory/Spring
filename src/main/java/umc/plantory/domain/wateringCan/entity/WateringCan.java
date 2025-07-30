@@ -42,4 +42,5 @@ public class WateringCan {
     public void updateDiary(Diary diary) {
         this.diary = diary;
     }
+
 }

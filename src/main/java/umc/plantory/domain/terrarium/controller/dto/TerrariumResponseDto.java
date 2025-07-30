@@ -23,6 +23,7 @@ public class TerrariumResponseDto {
     @Getter
     @AllArgsConstructor
     public static class WateringTerrariumResponse{
+        private Long terrariumId;
         private Integer terrariumWateringCount; // WateringEvent 엔티티 내 terrarium_id로 조회한 물 뿌리개 갯수
         private Integer memberWateringCount; // member 엔티티 내 watering_can_cnt 필드
     }

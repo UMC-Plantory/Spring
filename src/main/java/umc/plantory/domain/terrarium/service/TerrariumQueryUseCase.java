@@ -7,7 +7,7 @@ import java.util.List;
 
 @Transactional(readOnly = true)
 public interface TerrariumQueryUseCase {
-    TerrariumResponseDto.TerrariumResponse findCurrentTerrariumData(Long memberId);
-    List<TerrariumResponseDto.CompletedTerrariumResponse> findCompletedTerrariumsByMonth(Long memberId, int year, int month);
-    TerrariumResponseDto.CompletedTerrariumDetatilResponse findCompletedTerrariumDetail(Long memberId, Long terrariumId);
+    TerrariumResponseDto.TerrariumResponse findCurrentTerrariumData(String authorization);
+    List<TerrariumResponseDto.CompletedTerrariumResponse> findCompletedTerrariumsByMonth(String authorization, int year, int month);
+    TerrariumResponseDto.CompletedTerrariumDetatilResponse findCompletedTerrariumDetail(String authorization, Long terrariumId);
 }

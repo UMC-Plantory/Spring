@@ -17,8 +17,6 @@ public enum ErrorStatus implements BaseErrorCode {
     _CONFLICT(HttpStatus.CONFLICT, "COMMON409", "이미 사용 중인 값이 존재합니다."),
     _NOT_FOUND(HttpStatus.NOT_FOUND, "COMMON404", "대상을 찾을 수 없습니다."),
     KAKAO_API_ERROR(HttpStatus.BAD_GATEWAY, "KAKAO400", "카카오 API 호출 중 오류가 발생했습니다."),
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER404", "회원 정보를 찾을 수 없습니다."),
-    TERM_NOT_FOUND(HttpStatus.NOT_FOUND, "TERM404", "약관을 찾을 수 없습니다."),
     NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "MEMBER4002", "닉네임은 필수 입니다."),
 
     // 멤버 관련
@@ -49,6 +47,9 @@ public enum ErrorStatus implements BaseErrorCode {
     FLOWER_NOT_FOUND_IN_TERRARIUM(HttpStatus.NOT_FOUND, "TERRARIUM4042", "테라리움에 꽃 정보가 존재하지 않습니다."),
     FLOWER_IMG_NOT_FOUND_IN_TERRARIUM(HttpStatus.NOT_FOUND, "TERRARIUM4043", "테라리움에 꽃 이미지 정보가 존재하지 않습니다."),
     WATERING_PROCESS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "W4001", "물 주기에 실패했습니다."),
+
+    // 꽃 관련
+    FLOWER_NOT_FOUND(HttpStatus.NOT_FOUND, "FLOWER404", "존재하지 않는 꽃입니다."),
 
     // 일기 관련
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY4001", "존재하지 않는 일기입니다."),

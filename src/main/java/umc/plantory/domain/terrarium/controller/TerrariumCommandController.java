@@ -20,17 +20,17 @@ public class TerrariumCommandController implements TerrariumCommandApi{
      * 테라리움에 물을 주는 요청을 처리합니다.
      *
      * @param terrariumId 물을 줄 테라리움의 ID
-     * @param memberId 요청 회원의 ID
+     * @param authorization 인증용 JWT 토큰
      * @return 물주기 결과 및 테라리움 상태 정보
      */
     @Override
     @PostMapping("/{terrarium-id}/water")
     public ResponseEntity<ApiResponse<TerrariumResponseDto.WateringTerrariumResponse>> waterTerrarium(
             @PathVariable("terrarium-id") Long terrariumId,
-            @RequestParam("memberId") Long memberId) {
+            @RequestHeader("Authorization") String authorization) {
 
-        log.info("테라리움 물주기 요청 - terrariumId: {}, memberId: {}", terrariumId, memberId);
-        TerrariumResponseDto.WateringTerrariumResponse response = terrariumCommandUseCase.performTerrariumWatering(memberId, terrariumId);
+        log.info("테라리움 물주기 요청 - terrariumId: {}", terrariumId);
+        TerrariumResponseDto.WateringTerrariumResponse response = terrariumCommandUseCase.performTerrariumWatering(authorization, terrariumId);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 }
