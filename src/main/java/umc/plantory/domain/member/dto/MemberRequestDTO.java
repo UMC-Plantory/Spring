@@ -37,6 +37,18 @@ public class MemberRequestDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class ProfileUpdateRequest {
+        private String nickname;
+        private String userCustomId;
+        private Gender gender;
+        private LocalDate birth;
+        private String profileImgUrl;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class KkoOAuth2LoginRequest {
         private String idToken;
     }

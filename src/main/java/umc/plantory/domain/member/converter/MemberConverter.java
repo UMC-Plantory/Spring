@@ -10,6 +10,8 @@ import umc.plantory.global.enums.Provider;
 import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.term.entity.Term;
 
+import java.time.LocalDate;
+
 public class MemberConverter {
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
     private static final String DEFAULT_NICKNAME = "토리";
@@ -45,6 +47,18 @@ public class MemberConverter {
                 .avgSleepTime(member.getAvgSleepTime()) // 분단위 수면 시간
                 .totalBloomCnt(member.getTotalBloomCnt())
                 .status(member.getStatus() != null ? member.getStatus().name() : null)
+                .build();
+    }
+
+    public static MemberResponseDTO.ProfileUpdateResponse toProfileUpdateResponse(Member member) {
+        return MemberResponseDTO.ProfileUpdateResponse.builder()
+                .memberId(member.getId())
+                .nickname(member.getNickname())
+                .userCustomId(member.getUserCustomId())
+                .gender(member.getGender() != null ? member.getGender().name().toLowerCase() : null)
+                .birth(member.getBirth() != null ? member.getBirth().toString() : null)
+                .profileImgUrl(member.getProfileImgUrl() != null ? member.getProfileImgUrl() : DEFAULT_PROFILE_IMG_URL)
+                .message("프로필 수정이 완료되었습니다.")
                 .build();
     }
 

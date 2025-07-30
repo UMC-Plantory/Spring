@@ -32,6 +32,14 @@ public class MemberRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.getProfile(authorization)));
     }
 
+    @PatchMapping("/profile")
+    @Operation(summary = "프로필 수정 API", description = "회원의 프로필 정보(닉네임, 사용자 커스텀 ID, 성별, 생년월일, 프로필 이미지)를 수정하는 API입니다.")
+    public ResponseEntity<ApiResponse<MemberResponseDTO.ProfileUpdateResponse>> updateProfile(
+            @RequestHeader("Authorization") String authorization,
+            @RequestBody MemberRequestDTO.ProfileUpdateRequest request) {
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.updateProfile(authorization, request)));
+    }
+
     @PostMapping("/term")
     @Operation(summary = "약관 동의 API", description = "회원이 약관에 동의하는 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.TermAgreementResponse>> termAgreement(
