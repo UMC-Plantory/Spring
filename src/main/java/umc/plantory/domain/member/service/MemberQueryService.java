@@ -8,6 +8,7 @@ import umc.plantory.domain.member.dto.MemberResponseDTO;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
+import umc.plantory.domain.token.service.MemberTokenCommandService;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 
@@ -17,6 +18,7 @@ import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 public class MemberQueryService implements MemberQueryUseCase {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
+    private final MemberTokenCommandService memberTokenCommandService;
 
     @Override
     public MemberResponseDTO.ProfileResponse getProfile(String authorization) {
@@ -28,6 +30,12 @@ public class MemberQueryService implements MemberQueryUseCase {
 
         // JWT 토큰 검증 및 멤버 ID 추출
         jwtProvider.validateToken(token);
+        
+        // 블랙리스트 확인
+        if (memberTokenCommandService.isBlacklisted(token)) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+        
         Long memberId = jwtProvider.getMemberId(token);
 
         // 회원 조회

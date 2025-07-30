@@ -7,8 +7,11 @@ import umc.plantory.domain.kakao.converter.KakaoConverter;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.token.converter.MemberTokenConverter;
+import umc.plantory.domain.token.converter.TokenBlacklistConverter;
+import umc.plantory.domain.token.entity.TokenBlacklist;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
+import umc.plantory.domain.token.repository.TokenBlacklistRepository;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +19,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class MemberTokenCommandService implements MemberTokenCommandUseCase {
     private final MemberTokenRepository memberTokenRepository;
+    private final TokenBlacklistRepository tokenBlacklistRepository;
     private final JwtProvider jwtProvider;
 
     /**
@@ -37,5 +41,26 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
         memberTokenRepository.save(MemberTokenConverter.toMemberToken(member, refreshToken, refreshTokenExpiredAt));
 
         return KakaoConverter.toKkoOAuth2LoginResponse(accessToken, refreshToken, accessTokenExpiredAt);
+    }
+
+    /**
+     * 토큰을 블랙리스트에 추가
+     */
+    @Transactional
+    public void addToBlacklist(String token, String reason) {
+        // 토큰의 만료 시간 가져오기
+        LocalDateTime expiredAt = jwtProvider.getExpiredAt(token);
+        
+        // 블랙리스트에 추가
+        TokenBlacklist blacklistedToken = TokenBlacklistConverter.toTokenBlacklist(token, expiredAt, reason);
+        tokenBlacklistRepository.save(blacklistedToken);
+    }
+
+    /**
+     * 토큰이 블랙리스트에 있는지 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isBlacklisted(String token) {
+        return tokenBlacklistRepository.existsByToken(token);
     }
 }
