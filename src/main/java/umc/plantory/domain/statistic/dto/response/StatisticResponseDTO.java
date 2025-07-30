@@ -1,8 +1,11 @@
 package umc.plantory.domain.statistic.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -13,39 +16,46 @@ public class StatisticResponseDTO {
 
     @Getter
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class WeeklySleepStatisticDTO {
-        private boolean hasDate;
         private LocalDate startDate;
         private LocalDate endDate;
-        private String todayWeekday;
-        private Long averageSleepMinutes;
+        private DayOfWeek todayWeekday;
+        private Integer averageSleepMinutes;
         private List<DailySleepData> dailySleepRecords;
     }
 
     @Getter
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class MonthlySleepStatisticDTO {
         private LocalDate startDate;
         private LocalDate endDate;
-        private String todayWeekday;
-        private Long averageSleepMinutes;
+        private DayOfWeek todayWeekday;
+        private Integer averageSleepMinutes;
         private List<WeeklySleepData> weeklySleepRecords;
     }
 
     @Getter
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class DailySleepData {
         private LocalDate date;
-        private String weekday;
+        private DayOfWeek weekday;
         private LocalTime sleepStartTime;
         private LocalTime sleepEndTime;
     }
 
     @Getter
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class WeeklySleepData {
-        private Long week;
-        private LocalTime sleepStartTime;
-        private LocalTime sleepEndTime;
+        private Integer week;
+        private LocalTime averageSleepStartTime;
+        private LocalTime averageSleepEndTime;
     }
 }

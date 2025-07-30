@@ -21,9 +21,21 @@ public class StatisticRestController {
     private final StatisticQueryUseCase statisticQueryUseCase;
 
     @GetMapping("/statistic/weekly")
-    public ResponseEntity<ApiResponse<StatisticResponseDTO.WeeklySleepStatisticDTO>> getRecentSleepStatistic(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
+    public ResponseEntity<ApiResponse<StatisticResponseDTO.WeeklySleepStatisticDTO>> getWeeklySleepStatistic(
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate today) {
 
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getWeeklySleepStatistics(today)));
+    }
+
+
+    @GetMapping("/statistic/monthly")
+    public ResponseEntity<ApiResponse<StatisticResponseDTO.MonthlySleepStatisticDTO>> getMonthlySleepStatistic(
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate today) {
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getMonthlySleepStatistics(today)));
     }
 }
