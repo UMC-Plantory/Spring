@@ -13,8 +13,9 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -43,8 +44,14 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         return StatisticConverter.toWeeklyStatisticDTO(today, averageSleepMinutes, dailySleepDataList);
     }
 
+    @Override
+    public StatisticResponseDTO.MonthlySleepStatisticDTO getMonthlySleepStatistics(LocalDate today) {
+        return null;
+    }
+
     // 평균 수면 시간 계산
     private int getAverageSleepMinutes(List<StatisticResponseDTO.DailySleepData> dailySleepDataList, List<Diary> diaries) {
+
         int totalMinutes = 0;
 
         for (StatisticResponseDTO.DailySleepData dailySleepData : dailySleepDataList) {
@@ -57,25 +64,25 @@ public class StatisticQueryService implements StatisticQueryUseCase {
 
     // 7일 수면 데이터를 날짜 기준으로 설정 (없느 날짜는 빈 데이터)
     private static List<StatisticResponseDTO.DailySleepData> getDailySleepData(LocalDate today, List<Diary> diaries) {
-        List<StatisticResponseDTO.DailySleepData> dailySleepDataList = new ArrayList<>();
 
+        Map<LocalDate, Diary> diaryMap = new HashMap<>();
+        for (Diary diary : diaries) {
+            diaryMap.put(diary.getDiaryDate(), diary);
+        }
+
+        List<StatisticResponseDTO.DailySleepData> dailySleepDataList = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
+
             LocalDate targetDate = today.minusDays(6 - i);
 
-            boolean found = false;
+            Diary diary = diaryMap.get(targetDate);
 
-            for (Diary diary : diaries) {
-                if (diary.getDiaryDate().equals(targetDate)) {
-                    dailySleepDataList.add(StatisticConverter.toDailySleepData(diary));
-                    found = true;
-                    break;
-                }
-            }
-
-            // 해당 날짜에 작성된 일기가 없는 경우
-            if (!found) {
+            if (diary != null) {
+                dailySleepDataList.add(StatisticConverter.toDailySleepData(diary));
+            } else {
                 dailySleepDataList.add(StatisticConverter.toDailySleepData(targetDate));
             }
+
         }
         return dailySleepDataList;
     }
