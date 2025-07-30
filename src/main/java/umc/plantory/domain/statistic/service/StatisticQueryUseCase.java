@@ -5,9 +5,9 @@ import umc.plantory.domain.statistic.dto.response.StatisticResponseDTO;
 import java.time.LocalDate;
 
 public interface StatisticQueryUseCase {
-    StatisticResponseDTO.WeeklySleepStatisticDTO getWeeklySleepStatistics(LocalDate today);
+    StatisticResponseDTO.WeeklySleepStatisticDTO getWeeklySleepStatistics(String authorization, LocalDate today);
 
-    StatisticResponseDTO.MonthlySleepStatisticDTO getMonthlySleepStatistics(LocalDate today);
+    StatisticResponseDTO.MonthlySleepStatisticDTO getMonthlySleepStatistics(String authorization, LocalDate today);
 
-    StatisticResponseDTO.EmotionStatisticDTO getEmotionStatistics(LocalDate today, Integer range);
+    StatisticResponseDTO.EmotionStatisticDTO getEmotionStatistics(String authorization, LocalDate today, Integer range);
 }

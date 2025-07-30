@@ -6,10 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import umc.plantory.domain.statistic.dto.response.StatisticResponseDTO;
 import umc.plantory.domain.statistic.service.StatisticQueryUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
@@ -30,9 +27,10 @@ public class StatisticRestController {
             description = "입력한 날짜 기준으로 사용자의 최근 7일간 수면 통계 정보를 조회합니다."
     )
     public ResponseEntity<ApiResponse<StatisticResponseDTO.WeeklySleepStatisticDTO>> getWeeklySleepStatistic(
+            @RequestHeader("Authorization") String authorization,
             @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
-        return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getWeeklySleepStatistics(today)));
+        return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getWeeklySleepStatistics(authorization, today)));
     }
 
     @GetMapping("/sleep-stat/month")
@@ -41,9 +39,10 @@ public class StatisticRestController {
             description = "입력한 날짜 기준으로 사용자의 최근 30일간 수면 통계 정보를 조회합니다."
     )
     public ResponseEntity<ApiResponse<StatisticResponseDTO.MonthlySleepStatisticDTO>> getMonthlySleepStatistic(
+            @RequestHeader("Authorization") String authorization,
             @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
-        return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getMonthlySleepStatistics(today)));
+        return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getMonthlySleepStatistics(authorization, today)));
     }
 
     @GetMapping("/emotion-stat/week")
@@ -52,9 +51,10 @@ public class StatisticRestController {
             description = "입력한 날짜 기준으로 사용자의 최근 7일간 감정 통계 정보를 조회합니다."
     )
     public ResponseEntity<ApiResponse<StatisticResponseDTO.EmotionStatisticDTO>> getWeeklyEmotionStatistic(
+            @RequestHeader("Authorization") String authorization,
             @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
-        return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getEmotionStatistics(today, 7)));
+        return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getEmotionStatistics(authorization, today, 7)));
         }
 
     @GetMapping("/emotion-stat/month")
@@ -63,8 +63,9 @@ public class StatisticRestController {
             description = "입력한 날짜 기준으로 사용자의 최근 30일간 감정 통계 정보를 조회합니다."
     )
     public ResponseEntity<ApiResponse<?>> getMonthlyEmotionStatistic(
+            @RequestHeader("Authorization") String authorization,
             @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
-        return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getEmotionStatistics(today, 30)));
+        return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getEmotionStatistics(authorization, today, 30)));
     }
 }

@@ -5,10 +5,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.diary.repository.DiaryRepository;
+import umc.plantory.domain.member.entity.Member;
+import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.statistic.converter.StatisticConverter;
 import umc.plantory.domain.statistic.dto.response.StatisticResponseDTO;
 import lombok.extern.slf4j.Slf4j;
+import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.StatisticHandler;
 import umc.plantory.global.enums.Emotion;
 
@@ -24,16 +28,21 @@ import java.util.*;
 public class StatisticQueryService implements StatisticQueryUseCase {
 
     private final DiaryRepository diaryRepository;
+    private final MemberRepository memberRepository;
+    private final JwtProvider jwtProvider;
 
     @Override
-    public StatisticResponseDTO.WeeklySleepStatisticDTO getWeeklySleepStatistics(LocalDate today) {
+    public StatisticResponseDTO.WeeklySleepStatisticDTO getWeeklySleepStatistics(String authorization, LocalDate today) {
+
+        // member 받아오기
+        Member member = getLoginedMember(authorization);
 
         // 시작일 및 종료일 설정
         LocalDate startDate = today.minusDays(6);
         LocalDate endDate = today;
 
         // 최근 7일 일기 데이터 조회 (startDate 부터 endDate 까지)
-        List<Diary> diaries = diaryRepository.findByMemberIdAndDiaryDateBetweenOrderByDiaryDateDesc(1L, startDate, endDate);
+        List<Diary> diaries = diaryRepository.findByMemberAndDiaryDateBetweenOrderByDiaryDateDesc(member, startDate, endDate);
 
         // 데이터 없는 경우 예외처리
         if (diaries.isEmpty()) {
@@ -68,14 +77,16 @@ public class StatisticQueryService implements StatisticQueryUseCase {
     }
 
     @Override
-    public StatisticResponseDTO.MonthlySleepStatisticDTO getMonthlySleepStatistics(LocalDate today) {
+    public StatisticResponseDTO.MonthlySleepStatisticDTO getMonthlySleepStatistics(String authorization, LocalDate today) {
+
+        Member member = getLoginedMember(authorization);
 
         // 시작일 및 종료일 설정
         LocalDate startDate = today.minusDays(29);
         LocalDate endDate = today;
 
         // 최근 30일 일기 데이터 조회 (startDate 부터 endDate 까지)
-        List<Diary> diaries = diaryRepository.findByMemberIdAndDiaryDateBetweenOrderByDiaryDateDesc(1L, startDate, endDate);
+        List<Diary> diaries = diaryRepository.findByMemberAndDiaryDateBetweenOrderByDiaryDateDesc(member, startDate, endDate);
 
         // 데이터 없는 경우 예외처리
         if (diaries.isEmpty()) {
@@ -125,14 +136,16 @@ public class StatisticQueryService implements StatisticQueryUseCase {
     }
 
     @Override
-    public StatisticResponseDTO.EmotionStatisticDTO getEmotionStatistics(LocalDate today, Integer range) {
+    public StatisticResponseDTO.EmotionStatisticDTO getEmotionStatistics(String authorization, LocalDate today, Integer range) {
+
+        Member member = getLoginedMember(authorization);
 
         // 시작일 및 종료일 설정
         LocalDate startDate = today.minusDays(range - 1);
         LocalDate endDate = today;
 
         // 최근 일기 데이터 조회 (startDate 부터 endDate 까지)
-        List<Diary> diaries = diaryRepository.findByMemberIdAndDiaryDateBetweenOrderByDiaryDateDesc(1L, startDate, endDate);
+        List<Diary> diaries = diaryRepository.findByMemberAndDiaryDateBetweenOrderByDiaryDateDesc(member, startDate, endDate);
 
         // 데이터 없는 경우 예외처리
         if (diaries.isEmpty()) {
@@ -195,5 +208,19 @@ public class StatisticQueryService implements StatisticQueryUseCase {
 
         int avgSeconds = (int) ((avgAngle / (2 * Math.PI)) * 86400);
         return LocalTime.ofSecondOfDay(avgSeconds);
+    }
+
+    // 로그인한 사용자 정보 받아오기
+    private Member getLoginedMember(String authorization) {
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
     }
 }
