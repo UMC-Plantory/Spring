@@ -8,4 +8,6 @@ public interface StatisticQueryUseCase {
     StatisticResponseDTO.WeeklySleepStatisticDTO getWeeklySleepStatistics(LocalDate today);
 
     StatisticResponseDTO.MonthlySleepStatisticDTO getMonthlySleepStatistics(LocalDate today);
+
+    StatisticResponseDTO.EmotionStatisticDTO getEmotionStatistics(LocalDate today, Integer range);
 }

@@ -4,12 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import umc.plantory.global.enums.Emotion;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 
 public class StatisticResponseDTO {
@@ -30,6 +31,17 @@ public class StatisticResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class DailySleepData {
+        private LocalDate date;
+        private DayOfWeek weekday;
+        private LocalTime sleepStartTime;
+        private LocalTime sleepEndTime;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class MonthlySleepStatisticDTO {
         private LocalDate startDate;
         private LocalDate endDate;
@@ -42,20 +54,21 @@ public class StatisticResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class DailySleepData {
-        private LocalDate date;
-        private DayOfWeek weekday;
-        private LocalTime sleepStartTime;
-        private LocalTime sleepEndTime;
+    public static class WeeklySleepData {
+        private Integer week;
+        private LocalTime averageSleepStartTime;
+        private LocalTime averageSleepEndTime;
     }
 
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class WeeklySleepData {
-        private Integer week;
-        private LocalTime averageSleepStartTime;
-        private LocalTime averageSleepEndTime;
+    public static class EmotionStatisticDTO {
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private DayOfWeek todayWeekday;
+        private Emotion mostFrequentEmotion;
+        private Map<Emotion, Integer> emotionFrequency;
     }
 }

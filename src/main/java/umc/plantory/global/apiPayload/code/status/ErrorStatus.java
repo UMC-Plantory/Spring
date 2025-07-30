@@ -37,7 +37,8 @@ public enum ErrorStatus implements BaseErrorCode {
     IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST, "S34003", "해당 이미지가 S3에 존재하지 않습니다."),
 
     // 통계 관련
-    SLEEP_STATISTIC_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATISTIC4001", "수면 통계가 존재하지 않습니다.")
+    SLEEP_STATISTIC_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATISTIC4001", "수면 통계가 존재하지 않습니다."),
+    EMOTION_STATISTIC_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATISTIC4002", "감정 통계가 존재하지 않습니다.")
     ;
     private final HttpStatus httpStatus;
     private final String code;

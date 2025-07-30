@@ -10,14 +10,13 @@ import umc.plantory.domain.statistic.dto.response.StatisticResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.StatisticHandler;
+import umc.plantory.global.enums.Emotion;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -123,6 +122,46 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         Integer averageSleepMinutes = calculateAverageSleepMinutes(diaries);
 
         return StatisticConverter.toMonthlySleepStatisticDTO(startDate, endDate, averageSleepMinutes, weeklySleepDataList);
+    }
+
+    @Override
+    public StatisticResponseDTO.EmotionStatisticDTO getEmotionStatistics(LocalDate today, Integer range) {
+
+        // 시작일 및 종료일 설정
+        LocalDate startDate = today.minusDays(range - 1);
+        LocalDate endDate = today;
+
+        // 최근 일기 데이터 조회 (startDate 부터 endDate 까지)
+        List<Diary> diaries = diaryRepository.findByMemberIdAndDiaryDateBetweenOrderByDiaryDateDesc(1L, startDate, endDate);
+
+        // 데이터 없는 경우 예외처리
+        if (diaries.isEmpty()) {
+            throw new StatisticHandler(ErrorStatus.EMOTION_STATISTIC_NOT_FOUND);
+        }
+
+        // 감정별 빈도 Map 초기화
+        Map<Emotion, Integer> emotionMap = new EnumMap<>(Emotion.class);
+        for (Emotion emotion : Emotion.values()) {
+            emotionMap.put(emotion, 0);
+        }
+
+        // 감정 빈도 계산
+        for (Diary diary : diaries) {
+            emotionMap.put(diary.getEmotion(), emotionMap.get(diary.getEmotion()) + 1);
+        }
+
+        // 최다 감정 계산 (동률일 경우엔??)
+        Emotion mostFrequentEmotion = null;
+        int max = -1;
+
+        for (Map.Entry<Emotion, Integer> entry : emotionMap.entrySet()) {
+            if (entry.getValue() > max) {
+                mostFrequentEmotion = entry.getKey();
+                max = entry.getValue();
+            }
+        }
+
+        return StatisticConverter.toEmotionStatisticDTO(startDate, endDate, mostFrequentEmotion, emotionMap);
     }
 
     // 평균 수면 시간(분) 계산

@@ -2,11 +2,12 @@ package umc.plantory.domain.statistic.converter;
 
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.statistic.dto.response.StatisticResponseDTO;
+import umc.plantory.global.enums.Emotion;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class StatisticConverter {
 
@@ -76,5 +77,22 @@ public class StatisticConverter {
                 .averageSleepEndTime(endTime)
                 .build();
 
+    }
+
+    // 감정 통계
+    public static StatisticResponseDTO.EmotionStatisticDTO toEmotionStatisticDTO(
+            LocalDate startDate,
+            LocalDate endDate,
+            Emotion mostFrequentEmotion,
+            Map<Emotion, Integer> emotionMap
+    ) {
+
+        return StatisticResponseDTO.EmotionStatisticDTO.builder()
+                .startDate(startDate)
+                .endDate(endDate)
+                .todayWeekday(endDate.getDayOfWeek())
+                .mostFrequentEmotion(mostFrequentEmotion)
+                .emotionFrequency(emotionMap)
+                .build();
     }
 }

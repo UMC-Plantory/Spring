@@ -45,4 +45,26 @@ public class StatisticRestController {
 
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getMonthlySleepStatistics(today)));
     }
+
+    @GetMapping("/emotion-stat/week")
+    @Operation(
+            summary = "최근 7일 감정 통계 조회",
+            description = "입력한 날짜 기준으로 사용자의 최근 7일간 감정 통계 정보를 조회합니다."
+    )
+    public ResponseEntity<ApiResponse<StatisticResponseDTO.EmotionStatisticDTO>> getWeeklyEmotionStatistic(
+            @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getEmotionStatistics(today, 7)));
+        }
+
+    @GetMapping("/emotion-stat/month")
+    @Operation(
+            summary = "최근 30일 감정 통계 조회",
+            description = "입력한 날짜 기준으로 사용자의 최근 30일간 감정 통계 정보를 조회합니다."
+    )
+    public ResponseEntity<ApiResponse<?>> getMonthlyEmotionStatistic(
+            @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getEmotionStatistics(today, 30)));
+    }
 }
