@@ -9,4 +9,5 @@ import java.util.List;
 public interface TerrariumQueryUseCase {
     TerrariumResponseDto.TerrariumResponse findCurrentTerrariumData(Long memberId);
     List<TerrariumResponseDto.CompletedTerrariumResponse> findCompletedTerrariumsByMonth(Long memberId, int year, int month);
+    TerrariumResponseDto.CompletedTerrariumDetatilResponse findCompletedTerrariumDetail(Long memberId, Long terrariumId);
 }

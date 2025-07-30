@@ -14,67 +14,78 @@ import umc.plantory.domain.wateringCan.entity.WateringCan;
 import umc.plantory.domain.wateringCan.repository.WateringCanRepository;
 import umc.plantory.domain.wateringCan.converter.WateringEventConverter;
 import umc.plantory.domain.wateringCan.entity.WateringEvent;
-import umc.plantory.domain.terrarium.exception.TerrariumApiException;
+import umc.plantory.global.apiPayload.exception.handler.TerrariumHandler;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
+import umc.plantory.global.apiPayload.exception.GeneralException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 @Slf4j
-public class TerrariumCommandService implements TerrariumCommandUseCase{
+public class TerrariumCommandService implements TerrariumCommandUseCase {
     private final MemberRepository memberRepository;
     private final TerrariumJpaRepository terrariumJpaRepository;
     private final WateringCanRepository wateringCanRepository;
     private final WateringEventJpaRepository wateringEventJpaRepository;
 
     /**
-     * 회원이 테라리움에 물을 주고, 성장 단계 및 물뿌리기 이력을 처리
-     * @param memberId  물을 주는 회원의 ID
-     * @param terrariumId  물을 줄 테라리움의 ID
+     회원의 테라리움을 물주는 작업을 수행합니다.
+      * @param memberId 물주기를 수행하는 회원의 고유 식별자
+     * @param terrariumId 물주기 대상인 테라리움의 고유 식별자
      */
     @Override
+    @Transactional
     public TerrariumResponseDto.WateringTerrariumResponse performTerrariumWatering(Long memberId, Long terrariumId) {
-        Integer wateringCanCntById = memberRepository.findWateringCanCntById(memberId);
-        int terrariumWateringCount = wateringEventJpaRepository.countByTerrariumId(terrariumId);
-        int memberWateringCount = wateringCanCntById != null ? wateringCanCntById : 0;
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+        Terrarium terrarium = terrariumJpaRepository.findById(terrariumId)
+                .orElseThrow(() -> new TerrariumHandler(ErrorStatus.TERRARIUM_NOT_FOUND));
 
-        if (wateringCanCntById != null && wateringCanCntById > 0) {
-            // 멤버 wateringCanCnt가 1 이상일 때만 실제 물주기 로직 수행
-            Member member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
-            member.decreaseWateringCanCount();
-            memberRepository.save(member);
-
-            List<WateringCan> availableWateringCans = wateringCanRepository.findAvailableByMemberIdOrderByDiaryCreatedAtAsc(memberId);
-            if (availableWateringCans.isEmpty()) {
-                log.info("물뿌리개 없음");
-                return TerrariumResponseDto.WateringTerrariumResponse.builder()
-                        .terrariumWateringCount(terrariumWateringCount)
-                        .memberWateringCount(member.getWateringCanCnt())
-                        .build();
-            }
-            WateringCan availableWateringCan = availableWateringCans.get(0);
-            availableWateringCan.setIsUsed();
-            wateringCanRepository.save(availableWateringCan);
-            Terrarium currentTerrarium = terrariumJpaRepository.findById(terrariumId)
-                    .orElseThrow(() -> new TerrariumApiException(TerrariumApiException.ErrorType.TERRARIUM_NOT_FOUND));
-
-            // 물뿌리기 이력 저장
-            WateringEvent wateringEvent = WateringEventConverter.toWateringEvent(availableWateringCan, currentTerrarium);
-            wateringEventJpaRepository.save(wateringEvent);
-
-            // 테라리움이 성장 단계 도달 시 성장 단계일 기록
-            currentTerrarium.recordStepIfNeeded(terrariumWateringCount, LocalDateTime.now());
-            terrariumJpaRepository.save(currentTerrarium);
-
-            terrariumWateringCount = wateringEventJpaRepository.countByTerrariumId(currentTerrarium.getId());
-            memberWateringCount = member.getWateringCanCnt();
+        WateringCan wateringCan = findAvailableWateringCan(memberId);
+        if (wateringCan == null) {
+            return buildCurrentStatusResponse(terrariumId, member.getWateringCanCnt());
+        }
+        if (member.getWateringCanCnt() <= 0) {
+            return buildCurrentStatusResponse(terrariumId, member.getWateringCanCnt());
         }
 
+        try {
+            int terrariumWateringCount = processWatering(member, terrarium, wateringCan);
+            int memberWateringCount = member.getWateringCanCnt();
+            return buildWateringResponse(terrariumWateringCount, memberWateringCount);
+        } catch (Exception e) {
+            throw new GeneralException(ErrorStatus.WATERING_PROCESS_FAILED);
+        }
+    }
+
+    private WateringCan findAvailableWateringCan(Long memberId) {
+        List<WateringCan> available = wateringCanRepository.findUnusedByMemberIdOrderByDiaryCreatedAtAsc(memberId);
+        return available.isEmpty() ? null : available.get(0);
+    }
+
+    private int processWatering(Member member, Terrarium terrarium, WateringCan wateringCan) {
+        member.decreaseWateringCanCount();
+        memberRepository.save(member);
+
+        WateringEvent wateringEvent = WateringEventConverter.toWateringEvent(wateringCan, terrarium);
+        wateringEventJpaRepository.save(wateringEvent);
+
+        int wateringCount = wateringEventJpaRepository.countByTerrariumId(terrarium.getId());
+        terrarium.recordStepIfNeeded(wateringCount, LocalDateTime.now());
+        terrariumJpaRepository.save(terrarium);
+
+        return wateringCount;
+    }
+
+    private TerrariumResponseDto.WateringTerrariumResponse buildCurrentStatusResponse(Long terrariumId, int memberWateringCount) {
+        int terrariumWateringCount = wateringEventJpaRepository.countByTerrariumId(terrariumId);
+        return buildWateringResponse(terrariumWateringCount, memberWateringCount);
+    }
+
+    private TerrariumResponseDto.WateringTerrariumResponse buildWateringResponse(int terrariumWateringCount, int memberWateringCount) {
         return TerrariumResponseDto.WateringTerrariumResponse.builder()
                 .terrariumWateringCount(terrariumWateringCount)
                 .memberWateringCount(memberWateringCount)

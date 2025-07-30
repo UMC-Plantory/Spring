@@ -3,6 +3,7 @@ package umc.plantory.domain.terrarium.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.terrarium.entity.Terrarium;
 
 import java.util.List;
@@ -17,4 +18,11 @@ public interface TerrariumJpaRepository extends JpaRepository<Terrarium, Long> {
             "AND FUNCTION('YEAR', t.bloomAt) = :year " +
             "AND FUNCTION('MONTH', t.bloomAt) = :month")
     List<Terrarium> findAllByMemberIdAndIsBloomTrueAndBloomAtYearAndMonth(@Param("memberId") Long memberId, @Param("year") int year, @Param("month") int month);
+
+
+    @Query("SELECT d FROM Diary d " +
+            "JOIN WateringCan wc ON wc.diary = d " +
+            "JOIN WateringEvent we ON we.wateringCan = wc " +
+            "WHERE we.terrarium.id = :terrariumId")
+    List<Diary> findDiariesByTerrariumId(@Param("terrariumId") Long terrariumId);
 }

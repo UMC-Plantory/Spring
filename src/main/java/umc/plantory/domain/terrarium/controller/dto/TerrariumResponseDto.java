@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class TerrariumResponseDto {
 
@@ -34,5 +35,18 @@ public class TerrariumResponseDto {
         private LocalDateTime bloomAt;
         private String flowerImgUrl;
         private String name;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    public static class CompletedTerrariumDetatilResponse{
+        private String mostEmotion;
+        private LocalDateTime startAt;
+        private LocalDateTime bloomAt;
+        private List<LocalDateTime> usedDiaries;
+        private LocalDateTime firstStepDate;
+        private LocalDateTime secondStepDate;
+        private LocalDateTime thirdStepDate;
     }
 }

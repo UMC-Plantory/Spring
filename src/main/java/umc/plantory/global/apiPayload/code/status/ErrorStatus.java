@@ -40,13 +40,21 @@ public enum ErrorStatus implements BaseErrorCode {
     // S3 관련
     INVALID_EXTENSION(HttpStatus.BAD_REQUEST, "S34001", "허용되지 않은 파일 확장자입니다."),
     INVALID_FILENAME(HttpStatus.BAD_REQUEST, "S34002", "파일 이름이 유효하지 않습니다."),
-    IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "S34003", "해당 이미지가 S3에 존재하지 않습니다."),
+    IMAGE_NOT_FOUND(HttpStatus.BAD_REQUEST, "S34003", "해당 이미지가 S3에 존재하지 않습니다."),
+
+    // 테라리움 관련
+    TERRARIUM_NOT_FOUND(HttpStatus.NOT_FOUND, "TERRARIUM404", "존재하지 않는 테라리움입니다."),
+    INVALID_MEMBER_ID(HttpStatus.BAD_REQUEST, "TERRARIUM4001", "유효하지 않은 회원 ID입니다."),
+    MEMBER_HAS_NO_TERRARIUM(HttpStatus.NOT_FOUND, "TERRARIUM4041", "해당 회원의 테라리움이 존재하지 않습니다."),
+    FLOWER_NOT_FOUND_IN_TERRARIUM(HttpStatus.NOT_FOUND, "TERRARIUM4042", "테라리움에 꽃 정보가 존재하지 않습니다."),
+    FLOWER_IMG_NOT_FOUND_IN_TERRARIUM(HttpStatus.NOT_FOUND, "TERRARIUM4043", "테라리움에 꽃 이미지 정보가 존재하지 않습니다."),
+    WATERING_PROCESS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "W4001", "물 주기에 실패했습니다."),
 
     // 일기 관련
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY4001", "존재하지 않는 일기입니다."),
     DIARY_MISSING_FIELDS(HttpStatus.BAD_REQUEST, "DIARY4002", "일기의 필수 항목이 누락되었습니다."),
     DIARY_UNAUTHORIZED(HttpStatus.FORBIDDEN,"DIARY4003","해당 일기에 대한 권한이 없습니다."),
-    DIARY_INVALID_STATUS(HttpStatus.BAD_REQUEST, "DIARY4004", "현재 일기의 상태에서는 해당 작업을 수행할 수 없습니다."),
+    DIARY_INVALID_STATUS(HttpStatus.BAD_REQUEST, "DIARY4004", "현재 일기의 상태에서는 해당 작업을 수행할 수 없습니다.");
 
     ;
     private final HttpStatus httpStatus;

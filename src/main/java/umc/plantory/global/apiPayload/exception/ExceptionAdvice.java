@@ -16,6 +16,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import umc.plantory.domain.chat.exception.ChatApiException;
+import umc.plantory.global.apiPayload.exception.handler.TerrariumHandler;
 import umc.plantory.global.apiPayload.ApiResponse;
 import umc.plantory.global.apiPayload.code.ErrorReasonDTO;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
@@ -138,4 +139,21 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
                 request
         );
     }
+
+    // 테라리움 예외 핸들러
+    @ExceptionHandler(TerrariumHandler.class)
+    public ResponseEntity<Object> handleTerrariumApiException(TerrariumHandler ex, WebRequest request) {
+        ErrorStatus errorStatus = ex.getErrorStatus();
+        String message = ex.getErrorMessage();
+
+        ApiResponse<Object> body = ApiResponse.onFailure(errorStatus.getCode(), message, null);
+        return super.handleExceptionInternal(
+                ex,
+                body,
+                HttpHeaders.EMPTY,
+                errorStatus.getHttpStatus(),
+                request
+        );
+}
+
 }
