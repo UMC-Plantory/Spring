@@ -1,6 +1,6 @@
 package umc.plantory.domain.image.converter;
 
-import umc.plantory.domain.image.dto.response.PresignedUrlResponseDTO;
+import umc.plantory.domain.image.dto.PresignedUrlResponseDTO;
 
 public class ImageConverter {
 

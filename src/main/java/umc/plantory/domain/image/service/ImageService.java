@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import umc.plantory.domain.image.converter.ImageConverter;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.ImageHandler;
-import umc.plantory.domain.image.dto.request.PresignedUrlRequestDTO;
-import umc.plantory.domain.image.dto.response.PresignedUrlResponseDTO;
+import umc.plantory.domain.image.dto.PresignedUrlRequestDTO;
+import umc.plantory.domain.image.dto.PresignedUrlResponseDTO;
 
 import java.net.URL;
 import java.util.Date;
@@ -73,6 +73,26 @@ public class ImageService implements ImageUseCase {
         try {
             String key = extractKeyFromUrl(imageUrl);
             if (!amazonS3.doesObjectExist(bucket, key)) {
+                throw new ImageHandler(ErrorStatus.IMAGE_NOT_FOUND);
+            }
+        } catch (Exception e) {
+            throw new ImageHandler(ErrorStatus.IMAGE_NOT_FOUND);
+        }
+    }
+
+    /**
+     * 이미지 URL에 해당하는 이미지를 S3에서 삭제
+     *
+     * @param imageUrl 이미지의 전체 접근 URL
+     * @throws ImageHandler 이미지가 존재하지 않거나 삭제에 실패한 경우 예외 발생
+     */
+    @Override
+    public void deleteImage(String imageUrl) {
+        try {
+            String key = extractKeyFromUrl(imageUrl);
+            if (amazonS3.doesObjectExist(bucket, key)) {
+                amazonS3.deleteObject(bucket, key);
+            } else {
                 throw new ImageHandler(ErrorStatus.IMAGE_NOT_FOUND);
             }
         } catch (Exception e) {
