@@ -14,6 +14,7 @@ import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.StatisticHandler;
+import umc.plantory.global.enums.DiaryStatus;
 import umc.plantory.global.enums.Emotion;
 
 import java.time.Duration;
@@ -30,6 +31,9 @@ public class StatisticQueryService implements StatisticQueryUseCase {
     private final DiaryRepository diaryRepository;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
+
+    // NORMAL 또는 SCRAP 상태인 일기만 조회
+    private static final List<DiaryStatus> VALID_STATUSES = List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP);
 
     /**
      * 전달받은 날짜를 기준으로, 사용자의 최근 7일간 수면 통계 정보를 반환합니다.
@@ -48,7 +52,7 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         LocalDate endDate = today;
 
         // 최근 7일 일기 데이터 조회 (startDate 부터 endDate 까지)
-        List<Diary> diaries = diaryRepository.findByMemberAndDiaryDateBetweenOrderByDiaryDate(member, startDate, endDate);
+        List<Diary> diaries = diaryRepository.findByMemberAndStatusInAndDiaryDateBetween(member, VALID_STATUSES, startDate, endDate);
 
         // 데이터 없는 경우 예외처리
         if (diaries.isEmpty()) {
@@ -99,7 +103,7 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         LocalDate endDate = today;
 
         // 최근 30일 일기 데이터 조회 (startDate 부터 endDate 까지)
-        List<Diary> diaries = diaryRepository.findByMemberAndDiaryDateBetweenOrderByDiaryDate(member, startDate, endDate);
+        List<Diary> diaries = diaryRepository.findByMemberAndStatusInAndDiaryDateBetween(member, VALID_STATUSES, startDate, endDate);
 
         // 데이터 없는 경우 예외처리
         if (diaries.isEmpty()) {
@@ -167,7 +171,7 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         LocalDate endDate = today;
 
         // 최근 일기 데이터 조회 (startDate 부터 endDate 까지)
-        List<Diary> diaries = diaryRepository.findByMemberAndDiaryDateBetweenOrderByDiaryDate(member, startDate, endDate);
+        List<Diary> diaries = diaryRepository.findByMemberAndStatusInAndDiaryDateBetween(member, VALID_STATUSES,startDate, endDate);
 
         // 데이터 없는 경우 예외처리
         if (diaries.isEmpty()) {
@@ -225,7 +229,7 @@ public class StatisticQueryService implements StatisticQueryUseCase {
     }
 
     // 최다 감정 계산 (동률일 경우 랜덤으로 선택)
-    private static Emotion selectMostFrequentEmotion(Map<Emotion, Integer> emotionMap) {
+    private Emotion selectMostFrequentEmotion(Map<Emotion, Integer> emotionMap) {
         List<Emotion> mostFrequentEmotions = new ArrayList<>();
         int max = -1;
 
