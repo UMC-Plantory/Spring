@@ -9,7 +9,10 @@ import java.time.LocalDateTime;
 
 public class TerrariumConverter {
 
-    public static TerrariumResponse toTerrariumResponse(Long terrariumId, String flowerImgUrl, int terrariumWateringCount, int memberWateringCount) {
+    public static TerrariumResponse toTerrariumResponse(Long terrariumId,
+                                                        String flowerImgUrl,
+                                                        int terrariumWateringCount,
+                                                        int memberWateringCount) {
         return TerrariumResponse.builder()
                 .terrariumId(terrariumId)
                 .flowerImgUrl(flowerImgUrl)
@@ -23,6 +26,7 @@ public class TerrariumConverter {
                 .member(member)
                 .flower(flower)
                 .startAt(LocalDateTime.now())
+                .firstStepDate(LocalDateTime.now())
                 .isBloom(false)
                 .build();
 

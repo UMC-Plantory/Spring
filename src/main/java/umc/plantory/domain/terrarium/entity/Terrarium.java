@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Getter
 @DynamicInsert
 @DynamicUpdate
-public class Terrarium extends BaseEntity {
+public class Terrarium {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "terrarium_id")
@@ -46,17 +46,17 @@ public class Terrarium extends BaseEntity {
 
     private LocalDateTime thirdStepDate;
 
-    private static final int FIRST_STEP = 1;
     private static final int SECOND_STEP = 4;
     private static final int THIRD_STEP = 7;
 
-    
+    public void changeFlower(Flower flower) {this.flower = flower;}
     public void recordStepIfNeeded(int wateringCount, LocalDateTime now) {
-        if (wateringCount == FIRST_STEP && this.firstStepDate == null) {
-            this.firstStepDate = now;
-        } else if (wateringCount == SECOND_STEP && this.secondStepDate == null) {
+
+        if (wateringCount == SECOND_STEP && this.secondStepDate == null) {
             this.secondStepDate = now;
         } else if (wateringCount == THIRD_STEP && this.thirdStepDate == null) {
+            this.thirdStepDate = now;
+            this.isBloom = true;
             this.thirdStepDate = now;
         }
     }

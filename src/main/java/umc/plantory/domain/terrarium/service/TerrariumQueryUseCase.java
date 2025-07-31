@@ -9,5 +9,5 @@ import java.util.List;
 public interface TerrariumQueryUseCase {
     TerrariumResponseDto.TerrariumResponse findCurrentTerrariumData(String authorization);
     List<TerrariumResponseDto.CompletedTerrariumResponse> findCompletedTerrariumsByMonth(String authorization, int year, int month);
-    TerrariumResponseDto.CompletedTerrariumDetatilResponse findCompletedTerrariumDetail(String authorization, Long terrariumId);
+    TerrariumResponseDto.CompletedTerrariumDetatilResponse findCompletedTerrariumDetail(Long terrariumId);
 }

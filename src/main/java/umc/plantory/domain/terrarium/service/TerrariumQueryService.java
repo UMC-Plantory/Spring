@@ -3,28 +3,22 @@ package umc.plantory.domain.terrarium.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
 import umc.plantory.domain.terrarium.entity.Terrarium;
+import umc.plantory.domain.terrarium.repository.TerrariumJpaRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
+import umc.plantory.domain.wateringCan.repository.WateringEventJpaRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.TerrariumHandler;
-import umc.plantory.domain.terrarium.repository.TerrariumJpaRepository;
-import umc.plantory.domain.wateringCan.repository.WateringEventJpaRepository;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.HashMap;
-import umc.plantory.global.enums.Emotion;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class TerrariumQueryService implements TerrariumQueryUseCase{
+public class TerrariumQueryService implements TerrariumQueryUseCase {
 
     private final TerrariumJpaRepository terrariumJpaRepository;
     private final MemberRepository memberRepository;
@@ -48,14 +42,12 @@ public class TerrariumQueryService implements TerrariumQueryUseCase{
             throw new TerrariumHandler(ErrorStatus.FLOWER_NOT_FOUND_IN_TERRARIUM);
         }
 
-
         String flowerImgUrl = currentTerrarium.getFlower().getFlowerImgUrl();
         if (flowerImgUrl == null) {
             throw new TerrariumHandler(ErrorStatus.FLOWER_IMG_NOT_FOUND_IN_TERRARIUM);
         }
 
         Integer wateringCanCnt = memberRepository.findWateringCanCntById(memberId);
-
         int wateringEventCnt = wateringEventJpaRepository.countByTerrariumId(currentTerrarium.getId());
 
         return TerrariumConverter.toTerrariumResponse(
@@ -75,31 +67,33 @@ public class TerrariumQueryService implements TerrariumQueryUseCase{
      * @return 지정한 회원이 해당 연도와 월에 개화가 완료된 테라리움 정보를 담은 CompletedTerrariumResponse 리스트
      */
     @Override
-    public List<TerrariumResponseDto.CompletedTerrariumResponse> findCompletedTerrariumsByMonth(String authorization, int year, int month) {
+    public List<TerrariumResponseDto.CompletedTerrariumResponse> findCompletedTerrariumsByMonth(
+            String authorization,
+            int year,
+            int month) {
         Long memberId = jwtProvider.getMemberId(authorization);
         return terrariumJpaRepository.findAllByMemberIdAndIsBloomTrueAndBloomAtYearAndMonth(memberId, year, month)
-                .stream().map(terrarium -> new TerrariumResponseDto.CompletedTerrariumResponse(
+                .stream()
+                .map(terrarium -> new TerrariumResponseDto.CompletedTerrariumResponse(
                         terrarium.getId(),
                         terrarium.getBloomAt(),
                         terrarium.getFlower().getFlowerImgUrl(),
                         terrarium.getFlower().getName()
-                )).collect(Collectors.toList());
+                ))
+                .collect(java.util.stream.Collectors.toList());
     }
 
+    /**
+     * 완료된 테라리움 상세 정보를 조회합니다.
+     *
+     * @param terrariumId 조회할 테라리움 ID
+     * @return 해당 테라리움 상세 DTO (감정 집계 정보는 포함하지 않음)
+     */
     @Override
-    public TerrariumResponseDto.CompletedTerrariumDetatilResponse findCompletedTerrariumDetail(String authorization, Long terrariumId) {
-        Long memberId = jwtProvider.getMemberId(authorization);
-        // 테라리움 id로 Diary 조회
-        List<Diary> diariesByTerrariumId = terrariumJpaRepository.findDiariesByTerrariumId(terrariumId);
-        List<LocalDate> usedDiaries = diariesByTerrariumId.stream()
-                .map(diary -> diary.getDiaryDate())
-                .collect(Collectors.toList());
+    public TerrariumResponseDto.CompletedTerrariumDetatilResponse findCompletedTerrariumDetail(Long terrariumId) {
 
         Terrarium terrarium = terrariumJpaRepository.findById(terrariumId)
                 .orElseThrow(() -> new TerrariumHandler(ErrorStatus.TERRARIUM_NOT_FOUND));
-        
-        // 가장 많이 나온 emotion 찾기
-        String mostEmotion = findMostFrequentEmotion(diariesByTerrariumId);
 
         return TerrariumResponseDto.CompletedTerrariumDetatilResponse.builder()
                 .startAt(terrarium.getStartAt())
@@ -107,37 +101,6 @@ public class TerrariumQueryService implements TerrariumQueryUseCase{
                 .firstStepDate(terrarium.getFirstStepDate())
                 .secondStepDate(terrarium.getSecondStepDate())
                 .thirdStepDate(terrarium.getThirdStepDate())
-                .mostEmotion(mostEmotion)
                 .build();
-    }
-
-    /**
-     * diary 리스트에서 가장 많이 나온 emotion을 찾습니다.
-     * @param diaries emotion을 확인할 diary 리스트
-     * @return 가장 많이 나온 emotion의 이름, 없으면 "UNKNOWN"
-     */
-    private String findMostFrequentEmotion(List<Diary> diaries) {
-        Map<Emotion, Long> emotionCounts = new HashMap<>();
-        
-        // emotion별 개수 세기
-        for (Diary diary : diaries) {
-            Emotion emotion = diary.getEmotion();
-            if (emotion != null) {
-                emotionCounts.put(emotion, emotionCounts.getOrDefault(emotion, 0L) + 1);
-            }
-        }
-        
-        // 가장 많이 나온 emotion 찾기
-        Emotion mostFrequentEmotion = null;
-        long maxCount = 0;
-        
-        for (Map.Entry<Emotion, Long> entry : emotionCounts.entrySet()) {
-            if (entry.getValue() > maxCount) {
-                maxCount = entry.getValue();
-                mostFrequentEmotion = entry.getKey();
-            }
-        }
-        
-        return mostFrequentEmotion != null ? mostFrequentEmotion.name() : "UNKNOWN";
     }
 }

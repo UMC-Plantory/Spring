@@ -68,11 +68,6 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(generalException,errorReasonHttpStatus,null,request);
     }
 
-    @ExceptionHandler(value = KakaoApiException.class)
-    public ResponseEntity<Object> handleKakaoApiException(KakaoApiException e, WebRequest request) {
-        return handleExceptionInternalFalse(e, ErrorStatus.KAKAO_API_ERROR, HttpHeaders.EMPTY, ErrorStatus.KAKAO_API_ERROR.getHttpStatus(), request, e.getMessage());
-    }
-
     private ResponseEntity<Object> handleExceptionInternal(Exception e, ErrorReasonDTO reason,
                                                            HttpHeaders headers, HttpServletRequest request) {
 
@@ -144,7 +139,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(TerrariumHandler.class)
     public ResponseEntity<Object> handleTerrariumApiException(TerrariumHandler ex, WebRequest request) {
         ErrorStatus errorStatus = ex.getErrorStatus();
-        String message = ex.getErrorMessage();
+        String message = ex.getMessage();
 
         ApiResponse<Object> body = ApiResponse.onFailure(errorStatus.getCode(), message, null);
         return super.handleExceptionInternal(

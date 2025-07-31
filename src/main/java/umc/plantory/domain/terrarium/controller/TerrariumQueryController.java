@@ -57,18 +57,16 @@ public class TerrariumQueryController implements TerrariumQueryApi {
     /**
      * 특정 완료된 테라리움의 상세 정보를 조회합니다.
      *
-     * @param authorization 인증용 JWT 토큰
      * @param terrariumId 상세 조회할 테라리움 ID
      * @return ApiResponse로 감싼 해당 테라리움 상세 DTO
      */
     @Override
     @GetMapping("/{terrarium-id}")
     public ResponseEntity<ApiResponse<TerrariumResponseDto.CompletedTerrariumDetatilResponse>> getCompletedTerrariumDetail(
-            @RequestHeader("Authorization") String authorization,
             @PathVariable("terrarium-id") Long terrariumId) {
 
         log.info("완료된 테라리움 상세 조회 - terrariumId: {}", terrariumId);
-        TerrariumResponseDto.CompletedTerrariumDetatilResponse response = terrariumQueryUseCase.findCompletedTerrariumDetail(authorization, terrariumId);
+        TerrariumResponseDto.CompletedTerrariumDetatilResponse response = terrariumQueryUseCase.findCompletedTerrariumDetail(terrariumId);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 }
