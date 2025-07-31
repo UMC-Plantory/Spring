@@ -2,6 +2,8 @@ package umc.plantory.global.apiPayload.exception.handler;
 
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 
+import static umc.plantory.global.apiPayload.code.status.ErrorStatus.*;
+
 public class TerrariumHandler extends RuntimeException {
     private final ErrorStatus errorStatus;
 

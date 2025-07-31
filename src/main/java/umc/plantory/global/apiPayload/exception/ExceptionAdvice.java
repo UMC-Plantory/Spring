@@ -20,7 +20,6 @@ import umc.plantory.global.apiPayload.exception.handler.TerrariumHandler;
 import umc.plantory.global.apiPayload.ApiResponse;
 import umc.plantory.global.apiPayload.code.ErrorReasonDTO;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
-import umc.plantory.global.exception.KakaoApiException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
