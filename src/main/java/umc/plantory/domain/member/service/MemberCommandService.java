@@ -139,7 +139,13 @@ public class MemberCommandService implements MemberCommandUseCase {
         if (request.getBirth() != null) {
             findMember.updateBirth(request.getBirth());
         }
-        if (request.getProfileImgUrl() != null) {
+        
+        // 프로필 이미지 처리
+        if (request.getDeleteProfileImg() != null && request.getDeleteProfileImg()) {
+            // 이미지 삭제 요청이면 기본 이미지로 설정
+            findMember.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
+        } else if (request.getProfileImgUrl() != null) {
+            // 새로운 이미지 URL이 제공되면 업데이트
             findMember.updateProfileImgUrl(request.getProfileImgUrl());
         }
 

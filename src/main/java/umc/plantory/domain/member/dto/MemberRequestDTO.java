@@ -43,6 +43,7 @@ public class MemberRequestDTO {
         private Gender gender;
         private LocalDate birth;
         private String profileImgUrl;
+        private Boolean deleteProfileImg; // 이미지 삭제 플래그 추가
     }
 
     @Getter
