@@ -29,13 +29,13 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
         // Refresh Token 생성
         String refreshToken = jwtProvider.generateRefreshToken(member);
         // Access Token 만료시간
-        LocalDateTime accessTokenExpiredAt = jwtProvider.getExpiredAt(accessToken);
+        LocalDateTime accessTokenExpireAt = jwtProvider.getExpiredAt(accessToken);
         // Refresh Token 만료 시간
-        LocalDateTime refreshTokenExpiredAt = jwtProvider.getExpiredAt(refreshToken);
+        LocalDateTime refreshTokenExpireAt = jwtProvider.getExpiredAt(refreshToken);
 
         // MemberToken 에 저장
-        memberTokenRepository.save(MemberTokenConverter.toMemberToken(member, refreshToken, refreshTokenExpiredAt));
+        memberTokenRepository.save(MemberTokenConverter.toMemberToken(member, refreshToken, refreshTokenExpireAt));
 
-        return KakaoConverter.toKkoOAuth2LoginResponse(accessToken, refreshToken, accessTokenExpiredAt);
+        return KakaoConverter.toKkoOAuth2LoginResponse(accessToken, refreshToken, accessTokenExpireAt);
     }
 }

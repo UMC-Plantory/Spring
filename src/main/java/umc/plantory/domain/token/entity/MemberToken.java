@@ -30,5 +30,5 @@ public class MemberToken extends BaseEntity {
     private String refreshToken;
 
     @Column(nullable = false)
-    private LocalDateTime expiredAt;
+    private LocalDateTime expireAt;
 }

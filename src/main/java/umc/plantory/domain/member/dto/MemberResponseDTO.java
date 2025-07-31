@@ -53,6 +53,6 @@ public class MemberResponseDTO {
     public static class KkoOAuth2LoginResponse {
         private String accessToken;
         private String refreshToken;
-        private LocalDateTime accessTokenExpiredAt;
+        private LocalDateTime accessTokenExpireAt;
     }
 }

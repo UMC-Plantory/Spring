@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 
 public class MemberTokenConverter {
 
-    public static MemberToken toMemberToken(Member member, String refreshToken, LocalDateTime expiredAt) {
+    public static MemberToken toMemberToken(Member member, String refreshToken, LocalDateTime expireAt) {
         return MemberToken.builder()
                 .member(member)
                 .refreshToken(refreshToken)
-                .expiredAt(expiredAt)
+                .expireAt(expireAt)
                 .build();
     }
 }
