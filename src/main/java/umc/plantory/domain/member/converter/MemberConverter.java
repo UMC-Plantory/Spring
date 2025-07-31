@@ -65,7 +65,7 @@ public class MemberConverter {
                 .provider(Provider.KAKAO)
                 .providerId(kakaoMemberData.getSub())
                 .gender(Gender.NONE) // 다시 추가
-                .status(MemberStatus.ACTIVE)
+                .status(MemberStatus.PENDING)
                 .role(MemberRole.USER)
                 .build();
     }
