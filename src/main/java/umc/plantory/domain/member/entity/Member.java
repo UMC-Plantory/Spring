@@ -81,10 +81,6 @@ public class Member extends BaseEntity {
     @ColumnDefault("0")
     private Integer totalBloomCnt;
 
-    public void increaseWateringCan() {
-        this.wateringCanCnt = this.wateringCanCnt + 1;
-    }
-
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
@@ -99,6 +95,10 @@ public class Member extends BaseEntity {
 
     public void updateGender(Gender gender) {
         this.gender = gender;
+    }
+
+    public void increaseWateringCan() {
+        this.wateringCanCnt = this.wateringCanCnt + 1;
     }
 
     public void updateProfileImgUrl(String profileImgUrl) {

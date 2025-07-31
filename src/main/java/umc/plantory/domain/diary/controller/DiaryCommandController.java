@@ -33,7 +33,7 @@ public class DiaryCommandController {
     })
     @PostMapping
     public ResponseEntity<ApiResponse<DiaryResponseDTO.DiaryInfoDTO>> saveDiary(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Valid @RequestBody DiaryRequestDTO.DiaryUploadDTO requestDTO
     ) {
         return ResponseEntity.ok(ApiResponse.onSuccess(diaryCommandUseCase.saveDiary(authorization, requestDTO)));
@@ -52,7 +52,7 @@ public class DiaryCommandController {
     })
     @PatchMapping("/{diaryId}")
     public ResponseEntity<ApiResponse<DiaryResponseDTO.DiaryInfoDTO>> updateDiary(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "수정할 일기의 ID", required = true)
             @PathVariable("diaryId") Long diaryId,
             @Valid @RequestBody DiaryRequestDTO.DiaryUpdateDTO requestDTO
@@ -72,7 +72,7 @@ public class DiaryCommandController {
     })
     @PatchMapping("/{diaryId}/scrap/on")
     public ResponseEntity<ApiResponse<Void>> scrapDiary(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "스크랩할 일기의 ID") @PathVariable Long diaryId
     ) {
         diaryCommandUseCase.scrapDiary(authorization, diaryId);
@@ -91,7 +91,7 @@ public class DiaryCommandController {
     })
     @PatchMapping("/{diaryId}/scrap/off")
     public ResponseEntity<ApiResponse<Void>> cancelScrapDiary(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "스크랩 취소할 일기의 ID") @PathVariable Long diaryId
     ) {
         diaryCommandUseCase.cancelScrapDiary(authorization, diaryId);
@@ -109,7 +109,7 @@ public class DiaryCommandController {
     })
     @PatchMapping("/temp")
     public ResponseEntity<ApiResponse<Void>> tempSaveDiaries(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Valid @RequestBody DiaryRequestDTO.DiaryIdsDTO requestDTO
     ) {
         diaryCommandUseCase.tempSaveDiaries(authorization, requestDTO);
@@ -127,7 +127,7 @@ public class DiaryCommandController {
     })
     @PatchMapping("/waste")
     public ResponseEntity<ApiResponse<Void>> moveDiariesToTrash(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Valid @RequestBody DiaryRequestDTO.DiaryIdsDTO request
     ) {
         diaryCommandUseCase.softDeleteDiaries(authorization, request);
@@ -145,7 +145,7 @@ public class DiaryCommandController {
     })
     @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> hardDeleteDiaries(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Valid @RequestBody DiaryRequestDTO.DiaryIdsDTO request
     ) {
         diaryCommandUseCase.hardDeleteDiaries(authorization, request);
