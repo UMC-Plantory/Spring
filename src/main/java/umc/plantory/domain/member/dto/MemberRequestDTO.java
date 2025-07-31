@@ -40,4 +40,12 @@ public class MemberRequestDTO {
     public static class KkoOAuth2LoginRequest {
         private String idToken;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RefreshAccessTokenRequest {
+        private String refreshToken;
+    }
 }
