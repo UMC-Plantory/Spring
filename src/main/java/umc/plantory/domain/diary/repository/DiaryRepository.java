@@ -8,5 +8,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
-    List<Diary> findByMemberAndDiaryDateBetweenOrderByDiaryDateDesc(Member member, LocalDate start, LocalDate end);
+    List<Diary> findByMemberAndDiaryDateBetweenOrderByDiaryDate(Member member, LocalDate start, LocalDate end);
 }

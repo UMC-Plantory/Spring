@@ -32,6 +32,7 @@ public class StatisticResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class DailySleepData {
+        private Integer day;
         private LocalDate date;
         private DayOfWeek weekday;
         private LocalTime sleepStartTime;

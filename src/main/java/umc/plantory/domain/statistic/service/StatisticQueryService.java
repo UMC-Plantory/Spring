@@ -48,7 +48,7 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         LocalDate endDate = today;
 
         // 최근 7일 일기 데이터 조회 (startDate 부터 endDate 까지)
-        List<Diary> diaries = diaryRepository.findByMemberAndDiaryDateBetweenOrderByDiaryDateDesc(member, startDate, endDate);
+        List<Diary> diaries = diaryRepository.findByMemberAndDiaryDateBetweenOrderByDiaryDate(member, startDate, endDate);
 
         // 데이터 없는 경우 예외처리
         if (diaries.isEmpty()) {
@@ -66,13 +66,13 @@ public class StatisticQueryService implements StatisticQueryUseCase {
 
         // 날짜별 수면 데이터 생성 (작성된 일기가 없는 경우, 빈 데이터로 채움)
         for (int i = 0; i < 7; i++) {
-            LocalDate targetDate = today.minusDays(6 - i);
+            LocalDate targetDate = endDate.minusDays(6 - i);
             Diary diary = diaryMap.get(targetDate);
 
             if (diary != null) {
-                dailySleepDataList.add(StatisticConverter.toDailySleepData(diary));
+                dailySleepDataList.add(StatisticConverter.toDailySleepData(i, diary));
             } else {
-                dailySleepDataList.add(StatisticConverter.toEmptyDailySleepData(targetDate));
+                dailySleepDataList.add(StatisticConverter.toEmptyDailySleepData(i, targetDate));
             }
         }
 
@@ -99,7 +99,7 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         LocalDate endDate = today;
 
         // 최근 30일 일기 데이터 조회 (startDate 부터 endDate 까지)
-        List<Diary> diaries = diaryRepository.findByMemberAndDiaryDateBetweenOrderByDiaryDateDesc(member, startDate, endDate);
+        List<Diary> diaries = diaryRepository.findByMemberAndDiaryDateBetweenOrderByDiaryDate(member, startDate, endDate);
 
         // 데이터 없는 경우 예외처리
         if (diaries.isEmpty()) {
@@ -122,12 +122,13 @@ public class StatisticQueryService implements StatisticQueryUseCase {
 
             for (int j = i * 7; j < (i + 1) * 7; j++) {
                 LocalDate targetDate = startDate.plusDays(j);
-                Diary diary = diaryMap.get(targetDate);
+                if (targetDate.isAfter(endDate)) break;
 
-                if (diary != null) {
-                    sleepStartTimes.add(LocalTime.from(diary.getSleepStartTime()));
-                    sleepEndTimes.add(LocalTime.from(diary.getSleepEndTime()));
-                }
+                Diary diary = diaryMap.get(targetDate);
+                if (diary == null) continue;
+
+                sleepStartTimes.add(LocalTime.from(diary.getSleepStartTime()));
+                sleepEndTimes.add(LocalTime.from(diary.getSleepEndTime()));
             }
 
             // 평균 수면 시각 및 평균 기상 시각 계산
@@ -166,7 +167,7 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         LocalDate endDate = today;
 
         // 최근 일기 데이터 조회 (startDate 부터 endDate 까지)
-        List<Diary> diaries = diaryRepository.findByMemberAndDiaryDateBetweenOrderByDiaryDateDesc(member, startDate, endDate);
+        List<Diary> diaries = diaryRepository.findByMemberAndDiaryDateBetweenOrderByDiaryDate(member, startDate, endDate);
 
         // 데이터 없는 경우 예외처리
         if (diaries.isEmpty()) {
@@ -184,16 +185,8 @@ public class StatisticQueryService implements StatisticQueryUseCase {
             emotionMap.put(diary.getEmotion(), emotionMap.get(diary.getEmotion()) + 1);
         }
 
-        // 최다 감정 계산 (동률일 경우엔??)
-        Emotion mostFrequentEmotion = null;
-        int max = -1;
-
-        for (Map.Entry<Emotion, Integer> entry : emotionMap.entrySet()) {
-            if (entry.getValue() > max) {
-                mostFrequentEmotion = entry.getKey();
-                max = entry.getValue();
-            }
-        }
+        // 최다 감정 계산 (동률일 경우 랜덤으로 선택)
+        Emotion mostFrequentEmotion = selectMostFrequentEmotion(emotionMap);
 
         return StatisticConverter.toEmotionStatisticDTO(startDate, endDate, mostFrequentEmotion, emotionMap);
     }
@@ -229,6 +222,25 @@ public class StatisticQueryService implements StatisticQueryUseCase {
 
         int avgSeconds = (int) ((avgAngle / (2 * Math.PI)) * 86400);
         return LocalTime.ofSecondOfDay(avgSeconds);
+    }
+
+    // 최다 감정 계산 (동률일 경우 랜덤으로 선택)
+    private static Emotion selectMostFrequentEmotion(Map<Emotion, Integer> emotionMap) {
+        List<Emotion> mostFrequentEmotions = new ArrayList<>();
+        int max = -1;
+
+        for (Map.Entry<Emotion, Integer> entry : emotionMap.entrySet()) {
+            int count = entry.getValue();
+
+            if (count > max) {
+                mostFrequentEmotions.clear();
+                mostFrequentEmotions.add(entry.getKey());
+                max = count;
+            } else if (entry.getValue() == max) {
+                mostFrequentEmotions.add(entry.getKey());
+            }
+        }
+        return mostFrequentEmotions.get(new Random().nextInt(mostFrequentEmotions.size()));
     }
 
     // 로그인한 사용자 정보 받아오기

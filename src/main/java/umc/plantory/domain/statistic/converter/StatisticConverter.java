@@ -28,9 +28,10 @@ public class StatisticConverter {
     }
 
     // 1일 수면 정보
-    public static StatisticResponseDTO.DailySleepData toDailySleepData(Diary diary) {
+    public static StatisticResponseDTO.DailySleepData toDailySleepData(int index, Diary diary) {
 
         return StatisticResponseDTO.DailySleepData.builder()
+                .day(index + 1)
                 .date(diary.getDiaryDate())
                 .weekday(diary.getDiaryDate().getDayOfWeek())
                 .sleepStartTime(LocalTime.from(diary.getSleepStartTime()))
@@ -39,9 +40,10 @@ public class StatisticConverter {
     }
 
     // 1일 수면 정보 (수면 정보 없음)
-    public static StatisticResponseDTO.DailySleepData toEmptyDailySleepData(LocalDate targetDate) {
+    public static StatisticResponseDTO.DailySleepData toEmptyDailySleepData(int index, LocalDate targetDate) {
 
         return StatisticResponseDTO.DailySleepData.builder()
+                .day(index + 1)
                 .date(targetDate)
                 .weekday(targetDate.getDayOfWeek())
                 .sleepStartTime(LocalTime.MIDNIGHT)
