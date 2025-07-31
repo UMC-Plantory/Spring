@@ -18,6 +18,7 @@ import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.enums.DiaryStatus;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * 일기 조회 비즈니스 로직을 처리하는 서비스
@@ -31,6 +32,9 @@ public class DiaryQueryService implements DiaryQueryUseCase {
     private final DiaryImgRepository diaryImgRepository;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
+
+    // 일기 조회 시 보여지는 일기 종류
+    private static final List<DiaryStatus> DIARY_VALID_STATUSES = List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP);
 
     /**
      * 특정 일기 ID에 대한 상세 정보를 조회
@@ -54,7 +58,7 @@ public class DiaryQueryService implements DiaryQueryUseCase {
     }
 
     /**
-     * 특정 날짜에 작성된 NORMAL 상태의 일기 요약 정보를 조회
+     * 특정 날짜에 작성된 NORMAL, SCRAP 상태의 일기 요약 정보를 조회
      *
      * @param authorization 요청 헤더의 JWT 토큰
      * @param date 조회할 날짜
@@ -64,8 +68,8 @@ public class DiaryQueryService implements DiaryQueryUseCase {
     public DiaryResponseDTO.DiarySimpleInfoDTO getDiarySimpleInfo(String authorization, LocalDate date) {
         Member member = getLoginMember(authorization);
 
-        // 해당 날짜의 NORMAL 상태인 일기 조회
-        Diary diary = diaryRepository.findByMemberIdAndDiaryDateAndStatus(member.getId(), date, DiaryStatus.NORMAL)
+        // 해당 날짜의 NORMAL, SCRAP 상태인 일기 조회
+        Diary diary = diaryRepository.findByMemberIdAndDiaryDateAndStatusIn(member.getId(), date, DIARY_VALID_STATUSES)
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
 
         return DiaryConverter.toDiarySimpleInfoDTO(diary);

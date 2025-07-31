@@ -35,7 +35,7 @@ public class DiaryQueryController {
     })
     @GetMapping("/{diaryId}")
     public ResponseEntity<ApiResponse<DiaryResponseDTO.DiaryInfoDTO>> getDiary(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "조회할 일기의 ID") @PathVariable("diaryId") Long diaryId
     ) {
         DiaryResponseDTO.DiaryInfoDTO response = diaryQueryUseCase.getDiaryInfo(authorization, diaryId);
@@ -44,7 +44,7 @@ public class DiaryQueryController {
 
     @Operation(
             summary = "특정 날짜 일기 조회 [홈 용]",
-            description = "yyyy-MM-dd 형식의 날짜를 기반으로 해당 사용자의 작성된 일기(NORMAL) 요약 정보를 반환합니다."
+            description = "yyyy-MM-dd 형식의 날짜를 기반으로 해당 사용자의 작성된 일기(NORMAL, SCRAP) 요약 정보를 반환합니다."
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
@@ -52,7 +52,7 @@ public class DiaryQueryController {
     })
     @GetMapping("/date")
     public ResponseEntity<ApiResponse<DiaryResponseDTO.DiarySimpleInfoDTO>> getDiarySimpleInfo(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "조회할 날짜 (yyyy-MM-dd)") @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         DiaryResponseDTO.DiarySimpleInfoDTO response = diaryQueryUseCase.getDiarySimpleInfo(authorization, date);
@@ -68,7 +68,7 @@ public class DiaryQueryController {
     })
     @GetMapping("/temp/check")
     public ResponseEntity<ApiResponse<DiaryResponseDTO.TempDiaryExistsDTO>> checkTempDiaryExistence(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "조회할 날짜 (yyyy-MM-dd)") @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         DiaryResponseDTO.TempDiaryExistsDTO response = diaryQueryUseCase.checkTempDiaryExistence(authorization, date);
