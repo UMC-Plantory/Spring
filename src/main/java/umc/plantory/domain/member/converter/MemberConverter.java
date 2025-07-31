@@ -64,7 +64,7 @@ public class MemberConverter {
                 .profileImgUrl(DEFAULT_PROFILE_IMG_URL)
                 .provider(Provider.KAKAO)
                 .providerId(kakaoMemberData.getSub())
-                .gender(Gender.NONE)
+                .gender(Gender.NONE) // 다시 추가
                 .status(MemberStatus.ACTIVE)
                 .role(MemberRole.USER)
                 .build();
