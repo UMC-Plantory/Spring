@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.member.converter.MemberConverter;
+import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
-import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.member.repository.MemberRepository;
@@ -111,6 +111,53 @@ public class MemberCommandService implements MemberCommandUseCase {
         return MemberConverter.toMemberSignupResponse(findMember);
     }
 
+    @Override
+    @Transactional
+    public MemberResponseDTO.ProfileUpdateResponse updateProfile(String authorization, MemberRequestDTO.ProfileUpdateRequest request) {
+        // Authorization 헤더에서 토큰 추출
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        // JWT 토큰 검증 및 멤버 ID 추출
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+
+        // 회원 조회
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // 프로필 정보 업데이트
+        if (request.getNickname() != null) {
+            findMember.updateNickname(request.getNickname());
+        }
+        if (request.getUserCustomId() != null) {
+            findMember.updateUserCustomId(request.getUserCustomId());
+        }
+        if (request.getGender() != null) {
+          
+          
+            findMember.updateGender(request.getGender());
+        }
+        if (request.getBirth() != null) {
+            findMember.updateBirth(request.getBirth());
+        }
+        
+        // 프로필 이미지 처리
+        if (request.getDeleteProfileImg() != null && request.getDeleteProfileImg()) {
+            // 이미지 삭제 요청이면 기본 이미지로 설정
+            findMember.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
+        } else if (request.getProfileImgUrl() != null) {
+            // 새로운 이미지 URL이 제공되면 업데이트
+            findMember.updateProfileImgUrl(request.getProfileImgUrl());
+        }
+
+        memberRepository.save(findMember);
+
+        // 응답 반환
+        return MemberConverter.toProfileUpdateResponse(findMember);
+  
     @Override
     @Transactional
     public void logout(String authorization) {
