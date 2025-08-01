@@ -76,7 +76,7 @@ public class DiaryQueryController {
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
-    @Operation(summary = "일기 목록 필터 조회", description = "날짜, 감정, 정렬 기준 + 커서로 일기 목록을 조회합니다.")
+    @Operation(summary = "일기 목록 필터 조회", description = "날짜, 감정, 정렬 기준 + 커서로 일기 리스트를 조회합니다.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공")
     })
@@ -85,11 +85,11 @@ public class DiaryQueryController {
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @ModelAttribute DiaryRequestDTO.DiaryFilterDTO request
     ) {
-        DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> result = diaryQueryUseCase.getDiaryList(authorization, request);
-        return ResponseEntity.ok(ApiResponse.onSuccess(result));
+        DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> response = diaryQueryUseCase.getDiaryList(authorization, request);
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
-    @Operation(summary = "스크랩 일기 목록 조회", description = "정렬 기준과 커서를 기준으로 스크랩한 일기 목록을 조회합니다.")
+    @Operation(summary = "스크랩 일기 리스트 조회", description = "정렬 기준과 커서를 기준으로 스크랩한 일기 목록을 조회합니다.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공")
     })
@@ -100,7 +100,33 @@ public class DiaryQueryController {
             @RequestParam(value = "cursor", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate cursor,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
-        DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> result = diaryQueryUseCase.getScrappedDiaries(authorization, sort, cursor, size);
-        return ResponseEntity.ok(ApiResponse.onSuccess(result));
+        DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> response = diaryQueryUseCase.getScrapDiaryList(authorization, sort, cursor, size);
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
+    }
+
+    @Operation(summary = "임시 보관 일기 리스트 조회", description = "임시 보관한 일기를 정렬 기준에 따라 조회합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공")
+    })
+    @GetMapping("/temp")
+    public ResponseEntity<ApiResponse<DiaryResponseDTO.DiaryListDTO>> getTempDiaryList(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestParam(value = "sort", defaultValue = "latest") String sort
+    ) {
+        DiaryResponseDTO.DiaryListDTO response = diaryQueryUseCase.getTempDiaryList(authorization, sort);
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
+    }
+
+    @Operation(summary = "삭제된 일기 리스트 조회", description = "삭제한 일기를 정렬 기준에 따라 조회합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공")
+    })
+    @GetMapping("/waste")
+    public ResponseEntity<ApiResponse<DiaryResponseDTO.DiaryListDTO>> getDeletedDiaryList(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestParam(value = "sort", defaultValue = "latest") String sort
+    ) {
+        DiaryResponseDTO.DiaryListDTO response = diaryQueryUseCase.getDeletedDiaryList(authorization, sort);
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 }

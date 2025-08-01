@@ -22,6 +22,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
+
     @Override
     public List<Diary> findFilteredDiaries(Long memberId, DiaryRequestDTO.DiaryFilterDTO request) {
         QDiary diary = QDiary.diary;
@@ -68,7 +69,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 .selectFrom(diary)
                 .where(builder)
                 .orderBy(order)
-                .limit(request.getSize() + 1)
+                .limit(request.getSize() + 1) // hasNext 판단을 위해 size + 1개 조회
                 .fetch();
     }
 

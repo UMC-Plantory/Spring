@@ -55,6 +55,14 @@ public class DiaryResponseDTO {
         private LocalDate nextCursor;
     }
 
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DiaryListDTO {
+        private List<DiaryListSimpleInfoDTO> diaries;
+    }
+
     @Builder
     @Getter
     @NoArgsConstructor
@@ -66,5 +74,15 @@ public class DiaryResponseDTO {
         private DiaryStatus status;
         private Emotion emotion;
         private String content;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DiaryListSimpleInfoDTO {
+        private Long diaryId;
+        private LocalDate diaryDate;
+        private String title;
     }
 }

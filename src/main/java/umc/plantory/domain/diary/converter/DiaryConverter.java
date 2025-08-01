@@ -78,4 +78,18 @@ public class DiaryConverter {
                 .nextCursor(nextCursor)
                 .build();
     }
+
+    public static DiaryResponseDTO.DiaryListSimpleInfoDTO toDiayListSimpleInfoDTO(Diary diary) {
+        return DiaryResponseDTO.DiaryListSimpleInfoDTO.builder()
+                .diaryId(diary.getId())
+                .diaryDate(diary.getDiaryDate())
+                .title(diary.getTitle())
+                .build();
+    }
+
+    public static DiaryResponseDTO.DiaryListDTO toDiaryListDTO(List<DiaryResponseDTO.DiaryListSimpleInfoDTO> diaries) {
+        return DiaryResponseDTO.DiaryListDTO.builder()
+                .diaries(diaries)
+                .build();
+    }
 }
