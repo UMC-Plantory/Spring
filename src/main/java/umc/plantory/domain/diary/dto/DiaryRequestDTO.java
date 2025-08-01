@@ -86,8 +86,6 @@ public class DiaryRequestDTO {
     }
 
     @Getter
-    @Setter
-    @NoArgsConstructor
     @AllArgsConstructor
     public static class DiaryFilterDTO {
 
