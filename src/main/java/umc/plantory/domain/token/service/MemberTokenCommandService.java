@@ -36,21 +36,21 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
         // Refresh Token 생성
         String refreshToken = jwtProvider.generateRefreshToken(member);
         // Access Token 만료시간
-        LocalDateTime accessTokenExpiredAt = jwtProvider.getExpiredAt(accessToken);
+        LocalDateTime accessTokenExpireAt = jwtProvider.getExpiredAt(accessToken);
         // Refresh Token 만료 시간
-        LocalDateTime refreshTokenExpiredAt = jwtProvider.getExpiredAt(refreshToken);
+        LocalDateTime refreshTokenExpireAt = jwtProvider.getExpiredAt(refreshToken);
 
         // 이미 MemberToken 이 있다면 UPDATE, 없다면 INSERT
         if (findMemberToken == null) {
             // MemberToken 에 저장
-            memberTokenRepository.save(MemberTokenConverter.toMemberToken(member, refreshToken, refreshTokenExpiredAt));
+            memberTokenRepository.save(MemberTokenConverter.toMemberToken(member, refreshToken, refreshTokenExpireAt));
         } else {
             // MemberToken Update
-            findMemberToken.updateRefreshTokenAndExpiredAt(refreshToken, refreshTokenExpiredAt);
+            findMemberToken.updateRefreshTokenAndExpireAt(refreshToken, refreshTokenExpireAt);
             memberTokenRepository.save(findMemberToken);
         }
 
-        return KakaoConverter.toKkoOAuth2LoginResponse(accessToken, refreshToken, accessTokenExpiredAt);
+        return KakaoConverter.toKkoOAuth2LoginResponse(accessToken, refreshToken, accessTokenExpireAt);
     }
 
     /**
@@ -67,7 +67,7 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
                 .orElseThrow(() -> new JwtHandler(ErrorStatus.INVALID_REFRESH_TOKEN));
 
         // 만료된 리프레시 토큰일 경우 예외처리
-        if (findMemberToken.getExpiredAt().isBefore(LocalDateTime.now())) throw new JwtHandler(ErrorStatus.EXPIRED_REFRESH_TOKEN);
+        if (findMemberToken.getExpireAt().isBefore(LocalDateTime.now())) throw new JwtHandler(ErrorStatus.EXPIRED_REFRESH_TOKEN);
 
         String newAccessToken = jwtProvider.generateAccessToken(findMemberToken.getMember());
         LocalDateTime accessTokenExpiredAt = jwtProvider.getExpiredAt(newAccessToken);

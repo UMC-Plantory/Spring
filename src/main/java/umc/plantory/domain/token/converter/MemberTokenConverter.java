@@ -8,18 +8,18 @@ import java.time.LocalDateTime;
 
 public class MemberTokenConverter {
 
-    public static MemberToken toMemberToken(Member member, String refreshToken, LocalDateTime expiredAt) {
+    public static MemberToken toMemberToken(Member member, String refreshToken, LocalDateTime expireAt) {
         return MemberToken.builder()
                 .member(member)
                 .refreshToken(refreshToken)
-                .expiredAt(expiredAt)
+                .expireAt(expireAt)
                 .build();
     }
 
-    public static MemberResponseDTO.RefreshAccessTokenResponse toRefreshAccessTokenResponse (String accessToken, LocalDateTime accessTokenExpiredAt) {
+    public static MemberResponseDTO.RefreshAccessTokenResponse toRefreshAccessTokenResponse (String accessToken, LocalDateTime accessTokenExpireAt) {
         return MemberResponseDTO.RefreshAccessTokenResponse.builder()
                 .accessToken(accessToken)
-                .accessTokenExpiredAt(accessTokenExpiredAt)
+                .accessTokenExpireAt(accessTokenExpireAt)
                 .build();
     }
 }

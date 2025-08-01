@@ -66,7 +66,7 @@ public class MemberResponseDTO {
     public static class KkoOAuth2LoginResponse {
         private String accessToken;
         private String refreshToken;
-        private LocalDateTime accessTokenExpiredAt;
+        private LocalDateTime accessTokenExpireAt;
     }
 
     @Builder
@@ -75,6 +75,6 @@ public class MemberResponseDTO {
     @AllArgsConstructor
     public static class RefreshAccessTokenResponse {
         private String accessToken;
-        private LocalDateTime accessTokenExpiredAt;
+        private LocalDateTime accessTokenExpireAt;
     }
 }

@@ -136,14 +136,14 @@ public class MemberCommandService implements MemberCommandUseCase {
             findMember.updateUserCustomId(request.getUserCustomId());
         }
         if (request.getGender() != null) {
-          
-          
+
+
             findMember.updateGender(request.getGender());
         }
         if (request.getBirth() != null) {
             findMember.updateBirth(request.getBirth());
         }
-        
+
         // 프로필 이미지 처리
         if (request.getDeleteProfileImg() != null && request.getDeleteProfileImg()) {
             // 이미지 삭제 요청이면 기본 이미지로 설정
@@ -157,6 +157,7 @@ public class MemberCommandService implements MemberCommandUseCase {
 
         // 응답 반환
         return MemberConverter.toProfileUpdateResponse(findMember);
+    }
   
     @Override
     @Transactional
