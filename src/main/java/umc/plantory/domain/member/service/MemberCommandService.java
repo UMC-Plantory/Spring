@@ -4,14 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.member.converter.MemberConverter;
+import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
-import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
+import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TermHandler;
@@ -25,6 +26,7 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final MemberRepository memberRepository;
     private final MemberTermRepository memberTermRepository;
     private final TermRepository termRepository;
+    private final JwtProvider jwtProvider;
 
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
@@ -106,6 +108,45 @@ public class MemberCommandService implements MemberCommandUseCase {
 
         // 응답 반환
         return MemberConverter.toMemberSignupResponse(findMember);
+    }
+
+    @Override
+    @Transactional
+    public MemberResponseDTO.ProfileUpdateResponse updateProfile(String authorization, MemberRequestDTO.ProfileUpdateRequest request) {
+        // JWT 토큰에서 memberId 추출
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+
+        // 회원 조회
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // 프로필 정보 업데이트
+        if (request.getNickname() != null) {
+            findMember.updateNickname(request.getNickname());
+        }
+        if (request.getUserCustomId() != null) {
+            findMember.updateUserCustomId(request.getUserCustomId());
+        }
+        if (request.getGender() != null) {
+            findMember.updateGender(request.getGender());
+        }
+        if (request.getBirth() != null) {
+            findMember.updateBirth(request.getBirth());
+        }
+        if (request.getProfileImgUrl() != null) {
+            findMember.updateProfileImgUrl(request.getProfileImgUrl());
+        }
+
+        memberRepository.save(findMember);
+
+        // 응답 반환
+        return MemberConverter.toProfileUpdateResponse(findMember);
     }
 
     // 추가 정보 필수 입력값 검증

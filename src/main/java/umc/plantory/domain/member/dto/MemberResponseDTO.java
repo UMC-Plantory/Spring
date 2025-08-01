@@ -1,6 +1,5 @@
 package umc.plantory.domain.member.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,6 +27,7 @@ public class MemberResponseDTO {
         private String profileImgUrl;
     }
 
+    @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
@@ -50,10 +50,23 @@ public class MemberResponseDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class ProfileUpdateResponse {
+        private Long memberId;
+        private String nickname;
+        private String userCustomId;
+        private String gender;
+        private String birth;
+        private String profileImgUrl;
+        private String message;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class KkoOAuth2LoginResponse {
         private String accessToken;
         private String refreshToken;
         private LocalDateTime accessTokenExpiredAt;
     }
 }
-

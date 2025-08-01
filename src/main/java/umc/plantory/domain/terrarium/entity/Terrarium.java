@@ -57,7 +57,7 @@ public class Terrarium {
         } else if (wateringCount == THIRD_STEP && this.thirdStepDate == null) {
             this.thirdStepDate = now;
             this.isBloom = true;
-            this.thirdStepDate = now;
+            this.bloomAt = now;
         }
     }
 }

@@ -18,11 +18,4 @@ public interface TerrariumJpaRepository extends JpaRepository<Terrarium, Long> {
             "AND FUNCTION('YEAR', t.bloomAt) = :year " +
             "AND FUNCTION('MONTH', t.bloomAt) = :month")
     List<Terrarium> findAllByMemberIdAndIsBloomTrueAndBloomAtYearAndMonth(@Param("memberId") Long memberId, @Param("year") int year, @Param("month") int month);
-
-
-    @Query("SELECT d FROM Diary d " +
-            "JOIN WateringCan wc ON wc.diary = d " +
-            "JOIN WateringEvent we ON we.wateringCan = wc " +
-            "WHERE we.terrarium.id = :terrariumId")
-    List<Diary> findDiariesByTerrariumId(@Param("terrariumId") Long terrariumId);
 }

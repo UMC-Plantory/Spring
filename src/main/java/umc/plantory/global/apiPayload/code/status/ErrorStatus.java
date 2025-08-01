@@ -46,6 +46,9 @@ public enum ErrorStatus implements BaseErrorCode {
     MEMBER_HAS_NO_TERRARIUM(HttpStatus.NOT_FOUND, "TERRARIUM4041", "해당 회원의 테라리움이 존재하지 않습니다."),
     FLOWER_NOT_FOUND_IN_TERRARIUM(HttpStatus.NOT_FOUND, "TERRARIUM4042", "테라리움에 꽃 정보가 존재하지 않습니다."),
     FLOWER_IMG_NOT_FOUND_IN_TERRARIUM(HttpStatus.NOT_FOUND, "TERRARIUM4043", "테라리움에 꽃 이미지 정보가 존재하지 않습니다."),
+    TERRARIUM_NOT_BLOOMED(HttpStatus.BAD_REQUEST, "TERRARIUM4002", "아직 개화하지 않은 테라리움입니다."),
+
+    // 물주기 관련
     WATERING_PROCESS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "W4001", "물 주기에 실패했습니다."),
 
     // 꽃 관련

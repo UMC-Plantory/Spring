@@ -30,11 +30,11 @@ public class Member extends BaseEntity {
     @Column(length = 25, nullable = false, unique = true)
     private String nickname;
 
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-
     @Column(length = 100, nullable = false)
     private String email;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Column(length = 25, nullable = false, unique = true)
     private String userCustomId;
@@ -101,15 +101,9 @@ public class Member extends BaseEntity {
         this.wateringCanCnt = this.wateringCanCnt + 1;
     }
 
-    public void decreaseWateringCan() {this.wateringCanCnt = this.wateringCanCnt - 1;}
-
     public void updateProfileImgUrl(String profileImgUrl) {
         this.profileImgUrl = profileImgUrl;
     }
-    public void decreaseWateringCanCount() {
-        if (wateringCanCnt <= 0) {
-            throw new IllegalStateException("남은 물뿌리개가 없습니다.");
-        }
-        wateringCanCnt--;
-    }
+
+    public void decreaseWateringCan() {this.wateringCanCnt -= 1;}
 }

@@ -38,8 +38,8 @@ public class TerrariumQueryController implements TerrariumQueryApi {
      * 회원의 월별 개화 완료된 테라리움 목록을 조회합니다.
      *
      * @param authorization 인증용 JWT 토큰
-     * @param year 조회할 연도 (YYYY)
-     * @param month 조회할 월 (1~12)
+     * @param year bloom_at 조회할 연도 (YYYY)
+     * @param month bloom_at 조회할 월 (1~12)
      * @return ApiResponse로 감싼 개화 완료된 테라리움 목록 DTO 리스트
      */
     @Override

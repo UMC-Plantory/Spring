@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import umc.plantory.global.enums.Emotion;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -47,7 +48,7 @@ public class TerrariumResponseDto {
     public static class CompletedTerrariumDetatilResponse{
         private LocalDateTime startAt;
         private LocalDateTime bloomAt;
-        private List<LocalDateTime> usedDiaries;
+        private List<LocalDate> usedDiaries;
         private LocalDateTime firstStepDate;
         private LocalDateTime secondStepDate;
         private LocalDateTime thirdStepDate;

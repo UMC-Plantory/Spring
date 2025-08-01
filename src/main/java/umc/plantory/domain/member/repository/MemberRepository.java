@@ -7,5 +7,4 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByProviderId(String sub);
-    Integer findWateringCanCntById(Long memberId);
 }

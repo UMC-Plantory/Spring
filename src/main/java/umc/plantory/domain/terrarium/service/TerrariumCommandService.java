@@ -52,7 +52,16 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
     public TerrariumResponseDto.WateringTerrariumResponse performTerrariumWatering(String authorization, Long terrariumId) {
 
         // 회원 정보, 테라리움 정보 조회 및 검증
-        Long memberId = jwtProvider.getMemberId(authorization);
+        // Authorization 헤더에서 토큰 추출
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        // JWT 토큰 검증 및 멤버 ID 추출
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
         Terrarium terrarium = terrariumJpaRepository.findById(terrariumId)
@@ -122,7 +131,9 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
     }
 
     // 현재 테라리움 상태 기반 응답 생성
-    private TerrariumResponseDto.WateringTerrariumResponse buildCurrentStatusResponse(Long terrariumId, int memberWateringCount, Flower flower) {
+    private TerrariumResponseDto.WateringTerrariumResponse buildCurrentStatusResponse(Long terrariumId,
+                                                                                      int memberWateringCount,
+                                                                                      Flower flower) {
         int terrariumWateringCount = wateringEventJpaRepository.countByTerrariumId(terrariumId);
         return buildWateringResponse(terrariumWateringCount, memberWateringCount, Collections.emptyList(), flower);
     }
@@ -164,10 +175,6 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
 
         public int getWateringCount() {
             return wateringCount;
-        }
-
-        public List<Object[]> getEmotionCounts() {
-            return emotionCounts;
         }
     }
 }

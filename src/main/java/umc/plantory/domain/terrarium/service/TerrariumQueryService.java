@@ -3,6 +3,7 @@ package umc.plantory.domain.terrarium.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
@@ -11,9 +12,12 @@ import umc.plantory.domain.terrarium.repository.TerrariumJpaRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.wateringCan.repository.WateringEventJpaRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TerrariumHandler;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +37,17 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
      */
     @Override
     public TerrariumResponseDto.TerrariumResponse findCurrentTerrariumData(String authorization) {
-        Long memberId = jwtProvider.getMemberId(authorization);
+        // Authorization 헤더에서 토큰 추출
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        // JWT 토큰 검증 및 멤버 ID 추출
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
         Terrarium currentTerrarium = terrariumJpaRepository.findByMemberIdAndIsBloomFalse(memberId);
         if (currentTerrarium == null) {
             throw new TerrariumHandler(ErrorStatus.MEMBER_HAS_NO_TERRARIUM);
@@ -47,7 +61,7 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
             throw new TerrariumHandler(ErrorStatus.FLOWER_IMG_NOT_FOUND_IN_TERRARIUM);
         }
 
-        Integer wateringCanCnt = memberRepository.findWateringCanCntById(memberId);
+        Integer wateringCanCnt = member.getWateringCanCnt();
         int wateringEventCnt = wateringEventJpaRepository.countByTerrariumId(currentTerrarium.getId());
 
         return TerrariumConverter.toTerrariumResponse(
@@ -71,7 +85,16 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
             String authorization,
             int year,
             int month) {
-        Long memberId = jwtProvider.getMemberId(authorization);
+        // Authorization 헤더에서 토큰 추출
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        // JWT 토큰 검증 및 멤버 ID 추출
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+
         return terrariumJpaRepository.findAllByMemberIdAndIsBloomTrueAndBloomAtYearAndMonth(memberId, year, month)
                 .stream()
                 .map(terrarium -> new TerrariumResponseDto.CompletedTerrariumResponse(
@@ -95,12 +118,22 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
         Terrarium terrarium = terrariumJpaRepository.findById(terrariumId)
                 .orElseThrow(() -> new TerrariumHandler(ErrorStatus.TERRARIUM_NOT_FOUND));
 
+        if (!terrarium.getIsBloom()) {
+            throw new TerrariumHandler(ErrorStatus.TERRARIUM_NOT_BLOOMED);
+        }
+
+        List<LocalDate> usedDiaries = wateringEventJpaRepository.findWateringCanListByTerrariumId(terrariumId).stream()
+                .map(wateringCan -> wateringCan.getDiaryDate())
+                .collect(Collectors.toList());
+
+
         return TerrariumResponseDto.CompletedTerrariumDetatilResponse.builder()
                 .startAt(terrarium.getStartAt())
                 .bloomAt(terrarium.getBloomAt())
                 .firstStepDate(terrarium.getFirstStepDate())
                 .secondStepDate(terrarium.getSecondStepDate())
                 .thirdStepDate(terrarium.getThirdStepDate())
+                .usedDiaries(usedDiaries)
                 .build();
     }
 }
