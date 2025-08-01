@@ -13,6 +13,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(
+        indexes = {
+                @Index(name = "idx_diary_member_date", columnList = "member_id, diary_date")
+        }
+)
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor

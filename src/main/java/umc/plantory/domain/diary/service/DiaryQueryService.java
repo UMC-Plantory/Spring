@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.diary.converter.DiaryConverter;
+import umc.plantory.domain.diary.dto.DiaryRequestDTO;
 import umc.plantory.domain.diary.dto.DiaryResponseDTO;
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.diary.entity.DiaryImg;
@@ -92,6 +93,20 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         return DiaryConverter.toTempDiaryExistsDTO(exists);
     }
 
+    @Override
+    public DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> getDiaryList(String authorization, DiaryRequestDTO.DiaryFilterDTO request) {
+        Long memberId = getLoginMember(authorization).getId();
+        List<Diary> diaries = diaryRepository.findFilteredDiaries(memberId, request);
+        return toCursorPagination(diaries, request.getSize());
+    }
+
+    @Override
+    public DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> getScrappedDiaries(String authorization, String sort, LocalDate cursor, int size) {
+        Long memberId = getLoginMember(authorization).getId();
+        List<Diary> diaries = diaryRepository.findScrappedDiaries(memberId, sort, cursor, size);
+        return toCursorPagination(diaries, size);
+    }
+
     // 로그인한 사용자 반환
     private Member getLoginMember(String authorization) {
         String token = jwtProvider.resolveToken(authorization);
@@ -117,5 +132,20 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         if (!diary.getMember().getId().equals(member.getId())) {
             throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
         }
+    }
+
+    private DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> toCursorPagination(List<Diary> diaries, int size) {
+        boolean hasNext = diaries.size() > size;
+        if (hasNext) {
+            diaries = diaries.subList(0, size);
+        }
+
+        List<DiaryResponseDTO.DiaryListInfoDTO> content = diaries.stream()
+                .map(DiaryConverter::toDiaryListInfoDTO)
+                .toList();
+
+        LocalDate nextCursor = hasNext ? diaries.get(diaries.size() - 1).getDiaryDate() : null;
+
+        return DiaryConverter.toCursorPaginationDTO(content, hasNext, nextCursor);
     }
 }

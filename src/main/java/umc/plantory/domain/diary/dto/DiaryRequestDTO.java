@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import umc.plantory.global.validation.annotation.ValidDiaryFields;
 
 import java.time.LocalDate;
@@ -80,5 +83,30 @@ public class DiaryRequestDTO {
         @Schema(description = "요청할 일기 ID 배열", example = "[1, 2, 3]")
         @NotNull(message = "diaryIds 항목은 필수입니다.")
         private List<Long> diaryIds;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DiaryFilterDTO {
+
+        @Schema(description = "정렬 기준 (latest: 최신순, oldest: 오래된순)", example = "latest")
+        private String sort;
+
+        @Schema(description = "조회 시작 달 (YYYY-MM)", example = "2025-07")
+        private String from;
+
+        @Schema(description = "조회 마지막 달 (YYYY-MM). 생략 시 from과 동일하게 처리", example = "2025-08")
+        private String to;
+
+        @Schema(description = "감정 필터 (복수 선택 가능)", example = "HAPPY")
+        private List<String> emotion;
+
+        @Schema(description = "조회한 마지막 일기 날짜", example = "2025-07-30")
+        private LocalDate cursor;
+
+        @Schema(description = "가져올 데이터 개수", example = "10", defaultValue = "10")
+        private int size = 10;
     }
 }

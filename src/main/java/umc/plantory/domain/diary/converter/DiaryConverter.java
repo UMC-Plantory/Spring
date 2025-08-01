@@ -8,6 +8,9 @@ import umc.plantory.domain.member.entity.Member;
 import umc.plantory.global.enums.DiaryStatus;
 import umc.plantory.global.enums.Emotion;
 
+import java.time.LocalDate;
+import java.util.List;
+
 public class DiaryConverter {
 
     public static Diary toDiary(DiaryRequestDTO.DiaryUploadDTO request, Member member) {
@@ -54,6 +57,25 @@ public class DiaryConverter {
     public static DiaryResponseDTO.TempDiaryExistsDTO toTempDiaryExistsDTO(boolean exists) {
         return DiaryResponseDTO.TempDiaryExistsDTO.builder()
                 .isExist(exists)
+                .build();
+    }
+
+    public static DiaryResponseDTO.DiaryListInfoDTO toDiaryListInfoDTO(Diary diary) {
+        return DiaryResponseDTO.DiaryListInfoDTO.builder()
+                .diaryId(diary.getId())
+                .diaryDate(diary.getDiaryDate())
+                .title(diary.getTitle())
+                .status(diary.getStatus())
+                .emotion(diary.getEmotion())
+                .content(diary.getContent())
+                .build();
+    }
+
+    public static <T> DiaryResponseDTO.CursorPaginationDTO<T> toCursorPaginationDTO(List<T> diaries, boolean hasNext, LocalDate nextCursor) {
+        return DiaryResponseDTO.CursorPaginationDTO.<T>builder()
+                .diaries(diaries)
+                .hasNext(hasNext)
+                .nextCursor(nextCursor)
                 .build();
     }
 }
