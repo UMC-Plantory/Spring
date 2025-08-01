@@ -1,0 +1,121 @@
+package umc.plantory.domain.diary.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.diary.converter.DiaryConverter;
+import umc.plantory.domain.diary.dto.DiaryResponseDTO;
+import umc.plantory.domain.diary.entity.Diary;
+import umc.plantory.domain.diary.entity.DiaryImg;
+import umc.plantory.domain.diary.repository.DiaryImgRepository;
+import umc.plantory.domain.diary.repository.DiaryRepository;
+import umc.plantory.domain.member.entity.Member;
+import umc.plantory.domain.member.repository.MemberRepository;
+import umc.plantory.domain.token.provider.JwtProvider;
+import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.exception.handler.DiaryHandler;
+import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
+import umc.plantory.global.enums.DiaryStatus;
+
+import java.time.LocalDate;
+import java.util.List;
+
+/**
+ * 일기 조회 비즈니스 로직을 처리하는 서비스
+ */
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class DiaryQueryService implements DiaryQueryUseCase {
+    private final DiaryRepository diaryRepository;
+    private final DiaryImgRepository diaryImgRepository;
+    private final MemberRepository memberRepository;
+    private final JwtProvider jwtProvider;
+
+    // 일기 조회 시 보여지는 일기 종류
+    private static final List<DiaryStatus> DIARY_VALID_STATUSES = List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP);
+
+    /**
+     * 특정 일기 ID에 대한 상세 정보를 조회
+     *
+     * @param authorization 요청 헤더의 JWT 토큰
+     * @param diaryId 조회할 일기의 ID
+     * @return DiaryInfoDTO 일기 상세 정보
+     */
+    @Override
+    public DiaryResponseDTO.DiaryInfoDTO getDiaryInfo(String authorization, Long diaryId) {
+        Member member = getLoginMember(authorization);
+        Diary diary = getDiaryOrThrow(diaryId);
+
+        validateDiaryOwnership(diary, member);
+
+        String imageUrl = diaryImgRepository.findByDiary(diary)
+                .map(DiaryImg::getDiaryImgUrl)
+                .orElse(null);
+
+        return DiaryConverter.toDiaryInfoDTO(diary, imageUrl);
+    }
+
+    /**
+     * 특정 날짜에 작성된 NORMAL, SCRAP 상태의 일기 요약 정보를 조회
+     *
+     * @param authorization 요청 헤더의 JWT 토큰
+     * @param date 조회할 날짜
+     * @return DiarySimpleInfoDTO 일기 요약 정보
+     */
+    @Override
+    public DiaryResponseDTO.DiarySimpleInfoDTO getDiarySimpleInfo(String authorization, LocalDate date) {
+        Member member = getLoginMember(authorization);
+
+        // 해당 날짜의 NORMAL, SCRAP 상태인 일기 조회
+        Diary diary = diaryRepository.findByMemberIdAndDiaryDateAndStatusIn(member.getId(), date, DIARY_VALID_STATUSES)
+                .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
+
+        return DiaryConverter.toDiarySimpleInfoDTO(diary);
+    }
+
+    /**
+     * 특정 날짜에 TEMP 상태(임시 저장) 일기가 존재하는지 확인
+     *
+     * @param authorization 요청 헤더의 JWT 토큰
+     * @param date 확인할 날짜
+     * @return TempDiaryExistsDTO 존재 여부
+     */
+    @Override
+    public DiaryResponseDTO.TempDiaryExistsDTO checkTempDiaryExistence(String authorization, LocalDate date) {
+        Member member = getLoginMember(authorization);
+
+        // 해당 날짜의 TEMP 상태인 일기 확인
+        boolean exists = diaryRepository.existsByMemberIdAndDiaryDateAndStatus(member.getId(), date, DiaryStatus.TEMP);
+
+        return DiaryConverter.toTempDiaryExistsDTO(exists);
+    }
+
+    // 로그인한 사용자 반환
+    private Member getLoginMember(String authorization) {
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    }
+
+    // 일기 ID로 일기 단건 조회
+    private Diary getDiaryOrThrow(Long diaryId) {
+        return diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
+    }
+
+    // 주어진 일기의 작성자가 현재 사용자인지 확인
+    private void validateDiaryOwnership(Diary diary, Member member) {
+        if (!diary.getMember().getId().equals(member.getId())) {
+            throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
+        }
+    }
+}

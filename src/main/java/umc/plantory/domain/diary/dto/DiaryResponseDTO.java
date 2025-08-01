@@ -24,4 +24,23 @@ public class DiaryResponseDTO {
         private String diaryImgUrl;
         private DiaryStatus status;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DiarySimpleInfoDTO {
+        private Long diaryId;
+        private LocalDate diaryDate;
+        private Emotion emotion;
+        private String title;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class TempDiaryExistsDTO {
+        private boolean isExist;
+    }
 }

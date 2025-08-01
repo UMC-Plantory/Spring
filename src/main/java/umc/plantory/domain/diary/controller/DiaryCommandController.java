@@ -19,7 +19,7 @@ import umc.plantory.global.apiPayload.ApiResponse;
 @RestController
 @RequestMapping("/v1/plantory/diary")
 @RequiredArgsConstructor
-public class DiaryRestController {
+public class DiaryCommandController {
 
     private final DiaryCommandUseCase diaryCommandUseCase;
     @Operation(
