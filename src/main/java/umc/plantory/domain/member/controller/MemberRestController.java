@@ -14,6 +14,10 @@ import umc.plantory.domain.member.service.MemberCommandUseCase;
 import umc.plantory.domain.member.service.MemberQueryUseCase;
 import umc.plantory.domain.token.service.MemberTokenCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
+import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/plantory/member")
@@ -30,6 +34,14 @@ public class MemberRestController {
     public ResponseEntity<ApiResponse<MemberResponseDTO.ProfileResponse>> getProfile(
             @RequestHeader(value = "Authorization", required = false) String authorization) {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.getProfile(authorization)));
+    }
+
+    @PatchMapping("/profile")
+    @Operation(summary = "프로필 수정 API", description = "회원의 프로필 정보(닉네임, 사용자 커스텀 ID, 성별, 생년월일, 프로필 이미지)를 수정하는 API입니다.")
+    public ResponseEntity<ApiResponse<MemberResponseDTO.ProfileUpdateResponse>> updateProfile(
+            @RequestHeader("Authorization") String authorization,
+            @RequestBody MemberRequestDTO.ProfileUpdateRequest request) {
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.updateProfile(authorization, request)));
     }
 
     @PostMapping("/term")
@@ -58,5 +70,21 @@ public class MemberRestController {
 
         // 토큰 생성 및 응답
         return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateToken(findOrCreateMember)));
+    }
+
+    @DeleteMapping("/logout")
+    @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다.")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @RequestHeader("Authorization") String authorization) {
+        memberCommandUseCase.logout(authorization);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
+    }
+
+    @PatchMapping("/delete")
+    @Operation(summary = "계정 탈퇴 API", description = "계정 탈퇴 API입니다.")
+    public ResponseEntity<ApiResponse<Void>> deleteMember(
+            @RequestHeader("Authorization") String authorization) {
+        memberCommandUseCase.delete(authorization);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
 }

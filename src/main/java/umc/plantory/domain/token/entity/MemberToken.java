@@ -30,10 +30,10 @@ public class MemberToken extends BaseEntity {
     private String refreshToken;
 
     @Column(nullable = false)
-    private LocalDateTime expiredAt;
+    private LocalDateTime expireAt;
 
-    public void updateRefreshTokenAndExpiredAt (String refreshToken, LocalDateTime expiredAt) {
+    public void updateRefreshTokenAndExpireAt (String refreshToken, LocalDateTime expireAt) {
         this.refreshToken = refreshToken;
-        this.expiredAt = expiredAt;
+        this.expireAt = expireAt;
     }
 }

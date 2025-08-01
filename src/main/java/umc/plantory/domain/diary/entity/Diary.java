@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 @Getter
 @DynamicInsert
 @DynamicUpdate
+@ToString
 public class Diary extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

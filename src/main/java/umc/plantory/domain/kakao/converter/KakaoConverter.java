@@ -16,11 +16,11 @@ public class KakaoConverter {
                 .build();
     }
 
-    public static MemberResponseDTO.KkoOAuth2LoginResponse toKkoOAuth2LoginResponse(String accessToken, String refreshToken, LocalDateTime accessTokenExpiredAt) {
+    public static MemberResponseDTO.KkoOAuth2LoginResponse toKkoOAuth2LoginResponse(String accessToken, String refreshToken, LocalDateTime accessTokenExpireAt) {
         return MemberResponseDTO.KkoOAuth2LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .accessTokenExpiredAt(accessTokenExpiredAt)
+                .accessTokenExpireAt(accessTokenExpireAt)
                 .build();
     }
 }
