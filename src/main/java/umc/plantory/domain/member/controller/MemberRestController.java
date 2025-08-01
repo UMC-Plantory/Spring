@@ -32,7 +32,7 @@ public class MemberRestController {
     @GetMapping("/profile")
     @Operation(summary = "마이페이지 프로필 조회 API", description = "회원의 프로필 정보와 통계를 조회하는 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.ProfileResponse>> getProfile(
-            @RequestHeader("Authorization") String authorization) {
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.getProfile(authorization)));
     }
 
