@@ -31,6 +31,7 @@ public class MemberResponseDTO {
         private String profileImgUrl;
     }
 
+    @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor

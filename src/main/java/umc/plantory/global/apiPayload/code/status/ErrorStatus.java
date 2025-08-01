@@ -48,6 +48,18 @@ public enum ErrorStatus implements BaseErrorCode {
     DIARY_UNAUTHORIZED(HttpStatus.FORBIDDEN,"DIARY4003","해당 일기에 대한 권한이 없습니다."),
     DIARY_INVALID_STATUS(HttpStatus.BAD_REQUEST, "DIARY4004", "현재 일기의 상태에서는 해당 작업을 수행할 수 없습니다."),
 
+    // 멤버 관련 추가 에러
+    MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER4003", "이미 존재하는 회원입니다."),
+    INVALID_USER_CUSTOM_ID_FORMAT(HttpStatus.BAD_REQUEST, "MEMBER4005", "사용자 커스텀 ID 형식이 올바르지 않습니다."),
+    DUPLICATE_USER_CUSTOM_ID(HttpStatus.CONFLICT, "MEMBER4006", "이미 사용 중인 사용자 커스텀 ID입니다."),
+    INVALID_BIRTH_DATE(HttpStatus.BAD_REQUEST, "MEMBER4007", "생년월일이 올바르지 않습니다."),
+    INVALID_GENDER_VALUE(HttpStatus.BAD_REQUEST, "MEMBER4008", "성별 값이 올바르지 않습니다."),
+    INVALID_PROFILE_IMAGE_URL(HttpStatus.BAD_REQUEST, "MEMBER4009", "프로필 이미지 URL이 올바르지 않습니다."),
+    MEMBER_NOT_SIGNED_UP(HttpStatus.BAD_REQUEST, "MEMBER4010", "회원가입이 완료되지 않은 회원입니다."),
+    MEMBER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "MEMBER4011", "이미 탈퇴한 회원입니다."),
+    MEMBER_ALREADY_AGREED_TERMS(HttpStatus.CONFLICT, "MEMBER4012", "이미 동의한 약관입니다."),
+    INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "MEMBER4013", "날짜 형식이 올바르지 않습니다."),
+
     ;
     private final HttpStatus httpStatus;
     private final String code;
