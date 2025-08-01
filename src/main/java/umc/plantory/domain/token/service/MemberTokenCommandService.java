@@ -46,7 +46,7 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
             memberTokenRepository.save(MemberTokenConverter.toMemberToken(member, refreshToken, refreshTokenExpireAt));
         } else {
             // MemberToken Update
-            findMemberToken.updateRefreshTokenAndExpiredAt(refreshToken, refreshTokenExpireAt);
+            findMemberToken.updateRefreshTokenAndExpireAt(refreshToken, refreshTokenExpireAt);
             memberTokenRepository.save(findMemberToken);
         }
 
