@@ -17,6 +17,7 @@ import umc.plantory.global.apiPayload.ApiResponse;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 @RestController
@@ -89,4 +90,6 @@ public class MemberRestController {
         memberCommandUseCase.delete(authorization);
         return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
+
+
 }
