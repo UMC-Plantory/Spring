@@ -84,13 +84,13 @@ jobs:
             fi
 
             echo "📦 최신 Docker 이미지 pull 중..."
-            docker pull plantory/plantory-image:latest
+            docker pull plantory/plantory:latest
 
             echo "🚀 새 컨테이너 실행 중..."
             docker run -dp 8080:8080 \
               --name plantory-app \
               -e JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul \
-              plantory/plantory-image:latest
+              plantory/plantory:latest
 #        env:
 #          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
 #          EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
