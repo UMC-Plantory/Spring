@@ -10,6 +10,8 @@ import umc.plantory.global.enums.Provider;
 import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.term.entity.Term;
 
+import java.time.LocalDate;
+
 public class MemberConverter {
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
     private static final String DEFAULT_NICKNAME = "토리";
@@ -48,6 +50,18 @@ public class MemberConverter {
                 .build();
     }
 
+    public static MemberResponseDTO.ProfileUpdateResponse toProfileUpdateResponse(Member member) {
+        return MemberResponseDTO.ProfileUpdateResponse.builder()
+                .memberId(member.getId())
+                .nickname(member.getNickname())
+                .userCustomId(member.getUserCustomId())
+                .gender(member.getGender() != null ? member.getGender().name().toLowerCase() : null)
+                .birth(member.getBirth() != null ? member.getBirth().toString() : null)
+                .profileImgUrl(member.getProfileImgUrl() != null ? member.getProfileImgUrl() : DEFAULT_PROFILE_IMG_URL)
+                .message("프로필 수정이 완료되었습니다.")
+                .build();
+    }
+
     public static MemberTerm toMemberTerm(Member member, Term term, Boolean isAgree) {
         return MemberTerm.builder()
                 .member(member)
@@ -58,13 +72,13 @@ public class MemberConverter {
 
     public static Member toMember (MemberDataDTO.KakaoMemberData kakaoMemberData) {
         return Member.builder()
-                .nickname(DEFAULT_NICKNAME)
                 .email(kakaoMemberData.getEmail())
+                .nickname(DEFAULT_NICKNAME)
                 .userCustomId(DEFAULT_USER_CUSTOM_ID)
                 .profileImgUrl(DEFAULT_PROFILE_IMG_URL)
                 .provider(Provider.KAKAO)
                 .providerId(kakaoMemberData.getSub())
-                .gender(Gender.NONE)
+                .gender(Gender.NONE) // 다시 추가
                 .status(MemberStatus.PENDING)
                 .role(MemberRole.USER)
                 .build();

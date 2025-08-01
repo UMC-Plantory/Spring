@@ -28,6 +28,9 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
     @Override
     @Transactional
     public MemberResponseDTO.KkoOAuth2LoginResponse generateToken(Member member) {
+        MemberToken findMemberToken = memberTokenRepository.findByMember(member)
+                .orElse(null);
+
         // Access Token 생성
         String accessToken = jwtProvider.generateAccessToken(member);
         // Refresh Token 생성
@@ -37,8 +40,15 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
         // Refresh Token 만료 시간
         LocalDateTime refreshTokenExpiredAt = jwtProvider.getExpiredAt(refreshToken);
 
-        // MemberToken 에 저장
-        memberTokenRepository.save(MemberTokenConverter.toMemberToken(member, refreshToken, refreshTokenExpiredAt));
+        // 이미 MemberToken 이 있다면 UPDATE, 없다면 INSERT
+        if (findMemberToken == null) {
+            // MemberToken 에 저장
+            memberTokenRepository.save(MemberTokenConverter.toMemberToken(member, refreshToken, refreshTokenExpiredAt));
+        } else {
+            // MemberToken Update
+            findMemberToken.updateRefreshTokenAndExpiredAt(refreshToken, refreshTokenExpiredAt);
+            memberTokenRepository.save(findMemberToken);
+        }
 
         return KakaoConverter.toKkoOAuth2LoginResponse(accessToken, refreshToken, accessTokenExpiredAt);
     }

@@ -104,4 +104,11 @@ public class Member extends BaseEntity {
     public void updateProfileImgUrl(String profileImgUrl) {
         this.profileImgUrl = profileImgUrl;
     }
+
+    public void updateStatus(MemberStatus status) {
+        this.status = status;
+        if (status == MemberStatus.INACTIVE) {
+            this.inactiveAt = LocalDateTime.now(); // 시간 업데이트
+        }
+    }
 }
