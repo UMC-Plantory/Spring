@@ -1,4 +1,4 @@
-package umc.plantory.domain.diary.dto.response;
+package umc.plantory.domain.diary.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

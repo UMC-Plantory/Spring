@@ -1,4 +1,4 @@
-package umc.plantory.domain.image.dto.response;
+package umc.plantory.domain.image.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

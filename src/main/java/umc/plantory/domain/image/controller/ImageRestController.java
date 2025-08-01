@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import umc.plantory.domain.image.service.ImageUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
-import umc.plantory.domain.image.dto.request.PresignedUrlRequestDTO;
-import umc.plantory.domain.image.dto.response.PresignedUrlResponseDTO;
+import umc.plantory.domain.image.dto.PresignedUrlRequestDTO;
+import umc.plantory.domain.image.dto.PresignedUrlResponseDTO;
 
 @Tag(name = "Image", description = "AWS S3 Presigned URL 관련 API")
 @RestController
@@ -23,7 +23,7 @@ import umc.plantory.domain.image.dto.response.PresignedUrlResponseDTO;
 @RequestMapping("/v1/plantory")
 public class ImageRestController {
 
-    private final ImageUseCase presignedUrlService;
+    private final ImageUseCase imageUseCase;
 
     @Operation(
             summary = "Presigned URL 발급",
@@ -42,7 +42,7 @@ public class ImageRestController {
     public ResponseEntity<ApiResponse<PresignedUrlResponseDTO>> getPresignedUrl(
             @Valid @RequestBody PresignedUrlRequestDTO request
     ) {
-        PresignedUrlResponseDTO response = presignedUrlService.createPresignedUrl(request);
+        PresignedUrlResponseDTO response = imageUseCase.createPresignedUrl(request);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 }

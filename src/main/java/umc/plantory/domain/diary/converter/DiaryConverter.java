@@ -1,7 +1,7 @@
 package umc.plantory.domain.diary.converter;
 
-import umc.plantory.domain.diary.dto.request.DiaryRequestDTO;
-import umc.plantory.domain.diary.dto.response.DiaryResponseDTO;
+import umc.plantory.domain.diary.dto.DiaryRequestDTO;
+import umc.plantory.domain.diary.dto.DiaryResponseDTO;
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.diary.entity.DiaryImg;
 import umc.plantory.domain.member.entity.Member;

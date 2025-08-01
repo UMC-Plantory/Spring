@@ -72,13 +72,13 @@ public class MemberConverter {
 
     public static Member toMember (MemberDataDTO.KakaoMemberData kakaoMemberData) {
         return Member.builder()
-                .nickname(DEFAULT_NICKNAME)
                 .email(kakaoMemberData.getEmail())
+                .nickname(DEFAULT_NICKNAME)
                 .userCustomId(DEFAULT_USER_CUSTOM_ID)
                 .profileImgUrl(DEFAULT_PROFILE_IMG_URL)
                 .provider(Provider.KAKAO)
                 .providerId(kakaoMemberData.getSub())
-                .gender(Gender.NONE)
+                .gender(Gender.NONE) // 다시 추가
                 .status(MemberStatus.PENDING)
                 .role(MemberRole.USER)
                 .build();
