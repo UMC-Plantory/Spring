@@ -12,9 +12,12 @@ import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
+import umc.plantory.domain.token.provider.JwtProvider;
+import umc.plantory.domain.token.repository.MemberTokenRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TermHandler;
+import umc.plantory.global.enums.MemberStatus;
 
 import java.util.List;
 import umc.plantory.domain.term.entity.Term;
@@ -25,6 +28,8 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final MemberRepository memberRepository;
     private final MemberTermRepository memberTermRepository;
     private final TermRepository termRepository;
+    private final JwtProvider jwtProvider;
+    private final MemberTokenRepository memberTokenRepository;
 
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
@@ -33,44 +38,44 @@ public class MemberCommandService implements MemberCommandUseCase {
     public MemberResponseDTO.TermAgreementResponse termAgreement(MemberRequestDTO.TermAgreementRequest request) {
         // 회원 조회
         Member findMember = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
         // 약관 동의 정보 저장
         List<Long> agreeTermIdList = request.getAgreeTermIdList();
         List<Long> disagreeTermIdList = request.getDisagreeTermIdList();
-
+        
         if (!validateRequiredTerms(agreeTermIdList)) {
             throw new TermHandler(ErrorStatus.REQUIRED_TERM_NOT_AGREED);
         }
-
+        
         // 동의한 약관
         for (Long termId : agreeTermIdList) {
             Term term = termRepository.findById(termId)
-                    .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
+                .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
             memberTermRepository.findByMemberAndTerm(findMember, term)
-                    .ifPresentOrElse(
-                            mt -> mt.updateIsAgree(true),
-                            () -> {
-                                MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, true);
-                                memberTermRepository.save(newMemberTerm);
-                            }
-                    );
+                .ifPresentOrElse(
+                    mt -> mt.updateIsAgree(true),
+                    () -> {
+                        MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, true);
+                        memberTermRepository.save(newMemberTerm);
+                    }
+                );
         }
-
+        
         // 미동의한 약관
         for (Long termId : disagreeTermIdList) {
             Term term = termRepository.findById(termId)
-                    .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
+                .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
             memberTermRepository.findByMemberAndTerm(findMember, term)
-                    .ifPresentOrElse(
-                            mt -> mt.updateIsAgree(false),
-                            () -> {
-                                MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, false);
-                                memberTermRepository.save(newMemberTerm);
-                            }
-                    );
+                .ifPresentOrElse(
+                    mt -> mt.updateIsAgree(false),
+                    () -> {
+                        MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, false);
+                        memberTermRepository.save(newMemberTerm);
+                    }
+                );
         }
-
+        
         // 응답 반환
         return MemberConverter.toTermAgreementResponse(findMember);
     }
@@ -80,7 +85,7 @@ public class MemberCommandService implements MemberCommandUseCase {
     public MemberResponseDTO.MemberSignupResponse memberSignup(MemberRequestDTO.MemberSignupRequest request) {
         // 회원 조회
         Member findMember = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
         // 필수 추가 정보 검증
         if (!validateAdditionalInfo(request)) {
@@ -92,7 +97,7 @@ public class MemberCommandService implements MemberCommandUseCase {
         findMember.updateUserCustomId(request.getUserCustomId());
         findMember.updateBirth(request.getBirth());
         findMember.updateGender(request.getGender());
-
+        
         // 프로필 이미지 설정
         String profileImgUrl = request.getProfileImgUrl();
         if (profileImgUrl != null && !profileImgUrl.trim().isEmpty()) {
@@ -102,18 +107,61 @@ public class MemberCommandService implements MemberCommandUseCase {
             findMember.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
         }
 
-        memberRepository.save(findMember);
-
         // 응답 반환
         return MemberConverter.toMemberSignupResponse(findMember);
+    }
+
+    @Override
+    @Transactional
+    public void logout(String authorization) {
+        // Authorization 헤더에서 토큰 추출
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        // JWT 토큰 검증 및 멤버 ID 추출
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+
+        // 회원 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // 해당 멤버의 토큰 정보 삭제
+        memberTokenRepository.deleteByMember(member);
+    }
+
+    @Override
+    @Transactional
+    public void delete(String authorization) {
+        // Authorization 헤더에서 토큰 추출
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        // JWT 토큰 검증 및 멤버 ID 추출
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+
+        // 회원 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // soft delete: status를 INACTIVE로 변경하고 inactiveAt 설정
+        member.updateStatus(MemberStatus.INACTIVE);
+        
+        // 해당 멤버의 토큰 정보 삭제
+        memberTokenRepository.deleteByMember(member);
     }
 
     // 추가 정보 필수 입력값 검증
     private boolean validateAdditionalInfo(MemberRequestDTO.MemberSignupRequest request) {
         return request.getNickname() != null &&
-                request.getUserCustomId() != null &&
-                request.getGender() != null &&
-                request.getBirth() != null;
+               request.getUserCustomId() != null &&
+               request.getGender() != null &&
+               request.getBirth() != null;
     }
 
     // 필수 약관 동의 여부 검증

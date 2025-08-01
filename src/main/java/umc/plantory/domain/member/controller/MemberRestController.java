@@ -14,6 +14,10 @@ import umc.plantory.domain.member.service.MemberCommandUseCase;
 import umc.plantory.domain.member.service.MemberQueryUseCase;
 import umc.plantory.domain.token.service.MemberTokenCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
+import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/plantory/member")
@@ -58,5 +62,21 @@ public class MemberRestController {
 
         // 토큰 생성 및 응답
         return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateToken(findOrCreateMember)));
+    }
+
+    @DeleteMapping("/logout")
+    @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다.")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @RequestHeader("Authorization") String authorization) {
+        memberCommandUseCase.logout(authorization);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
+    }
+
+    @PatchMapping("/delete")
+    @Operation(summary = "계정 탈퇴 API", description = "계정 탈퇴 API입니다.")
+    public ResponseEntity<ApiResponse<Void>> deleteMember(
+            @RequestHeader("Authorization") String authorization) {
+        memberCommandUseCase.delete(authorization);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
 }
