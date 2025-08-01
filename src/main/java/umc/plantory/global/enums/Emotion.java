@@ -1,5 +1,9 @@
 package umc.plantory.global.enums;
 
 public enum Emotion {
-    SAD, ANGRY, HAPPY, SOSO, AMAZING
+    HAPPY,
+    AMAZING,
+    SAD,
+    ANGRY,
+    SOSO,
 }

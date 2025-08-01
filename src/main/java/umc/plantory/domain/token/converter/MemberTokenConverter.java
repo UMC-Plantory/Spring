@@ -1,5 +1,6 @@
 package umc.plantory.domain.token.converter;
 
+import umc.plantory.domain.member.dto.MemberResponseDTO;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.token.entity.MemberToken;
 
@@ -12,6 +13,13 @@ public class MemberTokenConverter {
                 .member(member)
                 .refreshToken(refreshToken)
                 .expireAt(expireAt)
+                .build();
+    }
+
+    public static MemberResponseDTO.RefreshAccessTokenResponse toRefreshAccessTokenResponse (String accessToken, LocalDateTime accessTokenExpireAt) {
+        return MemberResponseDTO.RefreshAccessTokenResponse.builder()
+                .accessToken(accessToken)
+                .accessTokenExpireAt(accessTokenExpireAt)
                 .build();
     }
 }

@@ -37,7 +37,28 @@ public class MemberRequestDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class ProfileUpdateRequest {
+        private String nickname;
+        private String userCustomId;
+        private Gender gender;
+        private LocalDate birth;
+        private String profileImgUrl;
+        private Boolean deleteProfileImg; // 이미지 삭제 플래그 추가
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class KkoOAuth2LoginRequest {
         private String idToken;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RefreshAccessTokenRequest {
+        private String refreshToken;
     }
 }

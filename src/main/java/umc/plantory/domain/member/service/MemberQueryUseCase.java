@@ -4,4 +4,4 @@ import umc.plantory.domain.member.dto.MemberResponseDTO;
 
 public interface MemberQueryUseCase {
     MemberResponseDTO.ProfileResponse getProfile(String authorization);
-} 
+}

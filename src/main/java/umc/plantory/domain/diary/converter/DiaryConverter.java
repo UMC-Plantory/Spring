@@ -41,4 +41,19 @@ public class DiaryConverter {
                 .status(diary.getStatus())
                 .build();
     }
+
+    public static DiaryResponseDTO.DiarySimpleInfoDTO toDiarySimpleInfoDTO(Diary diary) {
+        return DiaryResponseDTO.DiarySimpleInfoDTO.builder()
+                .diaryId(diary.getId())
+                .diaryDate(diary.getDiaryDate())
+                .emotion(diary.getEmotion())
+                .title(diary.getTitle())
+                .build();
+    }
+
+    public static DiaryResponseDTO.TempDiaryExistsDTO toTempDiaryExistsDTO(boolean exists) {
+        return DiaryResponseDTO.TempDiaryExistsDTO.builder()
+                .isExist(exists)
+                .build();
+    }
 }
