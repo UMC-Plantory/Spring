@@ -52,4 +52,25 @@ public class Diary extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(length = 10, nullable = false)
     private DiaryStatus status;
+
+    public void update(Emotion emotion,
+                       String content,
+                       LocalDateTime sleepStartTime,
+                       LocalDateTime sleepEndTime,
+                       DiaryStatus status) {
+
+        this.emotion = emotion;
+        this.content = content;
+        this.sleepStartTime = sleepStartTime;
+        this.sleepEndTime = sleepEndTime;
+        this.status = status;
+    }
+
+    public void updateStatus(DiaryStatus status) {
+        this.status = status;
+    }
+
+    public void updateDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
 }

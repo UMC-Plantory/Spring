@@ -27,7 +27,6 @@ public class MemberResponseDTO {
         private String profileImgUrl;
     }
 
-    @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
@@ -44,6 +43,20 @@ public class MemberResponseDTO {
         private Integer avgSleepTime;
         private Integer totalBloomCnt;
         private String status;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ProfileUpdateResponse {
+        private Long memberId;
+        private String nickname;
+        private String userCustomId;
+        private String gender;
+        private String birth;
+        private String profileImgUrl;
+        private String message;
     }
 
     @Getter

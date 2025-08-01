@@ -1,4 +1,4 @@
-package umc.plantory.domain.image.dto.request;
+package umc.plantory.domain.image.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
