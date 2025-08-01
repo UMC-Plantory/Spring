@@ -30,6 +30,8 @@ public enum ErrorStatus implements BaseErrorCode {
     // JWT 관련
     INVALID_JWT_TOKEN(HttpStatus.BAD_REQUEST, "JWT4001", "유효하지 않은 JWT 토큰입니다."),
     EXPIRED_JWT_TOKEN(HttpStatus.BAD_REQUEST, "JWT4002", "만료된 JWT 토큰입니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "JWT4003", "유효하지 않은 리프레시 토큰입니다. 재로그인이 필요합니다."),
+    EXPIRED_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "JWT4004", "만료된 리프레시 토큰입니다. 재로그인이 필요합니다."),
 
     // S3 관련
     INVALID_EXTENSION(HttpStatus.BAD_REQUEST, "S34001", "허용되지 않은 파일 확장자입니다."),

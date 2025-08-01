@@ -68,4 +68,13 @@ public class MemberResponseDTO {
         private String refreshToken;
         private LocalDateTime accessTokenExpiredAt;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RefreshAccessTokenResponse {
+        private String accessToken;
+        private LocalDateTime accessTokenExpiredAt;
+    }
 }
