@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.diary.dto.DiaryResponseDTO;
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.diary.repository.DiaryRepository;
+import umc.plantory.domain.diary.service.DiaryQueryUseCase;
 import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.member.converter.MemberConverter;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
@@ -19,6 +20,7 @@ import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.enums.DiaryStatus;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +32,7 @@ public class MemberQueryService implements MemberQueryUseCase {
     private final MemberRepository memberRepository;
     private final DiaryRepository diaryRepository;
     private final TerrariumRepository terrariumRepository;
-
+    private final DiaryQueryUseCase diaryQueryUseCase;
     private final JwtProvider jwtProvider;
 
     @Override
@@ -53,7 +55,7 @@ public class MemberQueryService implements MemberQueryUseCase {
     }
 
     @Override
-    public MemberResponseDTO.HomeResponse getHome(String authorization, LocalDate selectedDate) {
+    public MemberResponseDTO.HomeResponse getHome(String authorization, YearMonth yearMonth) {
         // Authorization 헤더에서 토큰 추출
         String token = jwtProvider.resolveToken(authorization);
         if (token == null) {
@@ -75,37 +77,47 @@ public class MemberQueryService implements MemberQueryUseCase {
             flower = terrariumOpt.get().getFlower();
         }
 
-        // 캘린더 감정 데이터 조회 (현재 월의 모든 일기)
-        LocalDate currentDate = LocalDate.now();
+        // 해당 월의 일기 데이터 조회
         List<Diary> monthlyDiaries = diaryRepository.findByMemberAndYearAndMonthAndStatus(
-                member, currentDate.getYear(), currentDate.getMonthValue(), DiaryStatus.NORMAL);
+                member, yearMonth.getYear(), yearMonth.getMonthValue(), DiaryStatus.NORMAL);
 
-        List<MemberResponseDTO.HomeResponse.CalendarEmotion> calendarEmotions = new ArrayList<>();
+        // 월별 일기 데이터 변환
+        List<MemberResponseDTO.HomeResponse.MonthlyDiary> monthlyDiaryList = new ArrayList<>();
         for (Diary diary : monthlyDiaries) {
-            calendarEmotions.add(MemberResponseDTO.HomeResponse.CalendarEmotion.builder()
-                    .date(diary.getDiaryDate())
+            monthlyDiaryList.add(MemberResponseDTO.HomeResponse.MonthlyDiary.builder()
                     .diaryId(diary.getId())
-                    .isExist(true)
+                    .diaryDate(diary.getDiaryDate())
                     .emotion(diary.getEmotion())
                     .build());
         }
 
-        // selectedDate가 null이면 플랜토리 정보만 반환
-        if (selectedDate == null) {
-            return MemberConverter.toHomeResponse(member, (Diary) null, flower, calendarEmotions, null);
+        return MemberConverter.toHomeResponse(member, flower, yearMonth, monthlyDiaryList);
+    }
+
+    @Override
+    public MemberResponseDTO.DailyDiaryResponse getDailyDiary(String authorization, LocalDate date) {
+        // Authorization 헤더에서 토큰 추출
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
         }
 
-        // 선택된 날짜의 일기 조회
-        Diary selectedDiary = null;
-        
-        // DiaryRepository에서 직접 조회하여 예외 방지
-        Optional<Diary> diaryOpt = diaryRepository.findByMemberIdAndDiaryDateAndStatusIn(
-                member.getId(), selectedDate, List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP));
-        
-        if (diaryOpt.isPresent()) {
-            selectedDiary = diaryOpt.get();
+        // JWT 토큰 검증 및 멤버 ID 추출
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
+
+        // 회원 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // 미래 날짜 체크
+        if (date.isAfter(LocalDate.now())) {
+            throw new MemberHandler(ErrorStatus.INVALID_DATE);
         }
+
+        // DiaryQueryService를 사용하여 특정 날짜의 일기 정보 조회
+        DiaryResponseDTO.DiarySimpleInfoDTO diaryInfo = diaryQueryUseCase.getDiarySimpleInfo(authorization, date);
         
-        return MemberConverter.toHomeResponse(member, selectedDiary, flower, calendarEmotions, selectedDate);
+        return MemberConverter.toDailyDiaryResponse(diaryInfo);
     }
 } 

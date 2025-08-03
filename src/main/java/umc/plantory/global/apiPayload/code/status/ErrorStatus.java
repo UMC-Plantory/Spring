@@ -59,6 +59,7 @@ public enum ErrorStatus implements BaseErrorCode {
     MEMBER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "MEMBER4011", "이미 탈퇴한 회원입니다."),
     MEMBER_ALREADY_AGREED_TERMS(HttpStatus.CONFLICT, "MEMBER4012", "이미 동의한 약관입니다."),
     INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "MEMBER4013", "날짜 형식이 올바르지 않습니다."),
+    INVALID_DATE(HttpStatus.BAD_REQUEST, "MEMBER4014", "미래 날짜는 조회할 수 없습니다."),
 
     ;
     private final HttpStatus httpStatus;

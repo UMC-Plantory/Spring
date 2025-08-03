@@ -45,18 +45,18 @@ public class MemberRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.updateProfile(authorization, request)));
     }
 
-    @PostMapping("/member/term")
+    @PostMapping("/term")
     @Operation(summary = "약관 동의 API", description = "회원이 약관에 동의하는 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.TermAgreementResponse>> termAgreement(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestBody MemberRequestDTO.TermAgreementRequest request) {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.termAgreement(authorization, request)));
     }
 
-    @PatchMapping("/member/signup")
+    @PatchMapping("/signup")
     @Operation(summary = "회원가입 완료 API", description = "회원의 추가 정보(닉네임, 사용자 커스텀 ID, 성별, 생년월일, 프로필 이미지)를 입력하여 회원가입을 완료하는 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.MemberSignupResponse>> signup(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestBody MemberRequestDTO.MemberSignupRequest request) {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.memberSignup(authorization, request)));
     }

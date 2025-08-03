@@ -15,6 +15,7 @@ import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.term.entity.Term;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 public class MemberConverter {
@@ -89,84 +90,37 @@ public class MemberConverter {
                 .build();
     }
 
-    public static MemberResponseDTO.HomeResponse toHomeResponse(Member member, Diary selectedDiary, Flower flower, 
-                                                              List<MemberResponseDTO.HomeResponse.CalendarEmotion> calendarEmotions, 
-                                                              LocalDate selectedDate) {
-        return toHomeResponseInternal(member, selectedDiary, null, flower, calendarEmotions, selectedDate);
-    }
-
-    public static MemberResponseDTO.HomeResponse toHomeResponse(Member member, DiaryResponseDTO.DiarySimpleInfoDTO diarySimpleInfo, Flower flower, 
-                                                              List<MemberResponseDTO.HomeResponse.CalendarEmotion> calendarEmotions, 
-                                                              LocalDate selectedDate) {
-        return toHomeResponseInternal(member, null, diarySimpleInfo, flower, calendarEmotions, selectedDate);
-    }
-
-    private static MemberResponseDTO.HomeResponse toHomeResponseInternal(Member member, Diary selectedDiary, 
-                                                                       DiaryResponseDTO.DiarySimpleInfoDTO diarySimpleInfo, 
-                                                                       Flower flower, 
-                                                                       List<MemberResponseDTO.HomeResponse.CalendarEmotion> calendarEmotions, 
-                                                                       LocalDate selectedDate) {
-        // 현재 날짜 기준으로 연도와 월 설정
-        LocalDate currentDate = LocalDate.now();
-        
-        // 플랜토리 정보 계산
-        String flowerName = null;
-        String flowerStage = null;
-        Integer growthRate = 0;
+    public static MemberResponseDTO.HomeResponse toHomeResponse(Member member, Flower flower, YearMonth yearMonth, 
+        List<MemberResponseDTO.HomeResponse.MonthlyDiary> monthlyDiaries) {
+        // 테라리움 식물 정보 계산
+        Integer wateringProgress = 0;
         
         if (flower != null) {
-            flowerName = flower.getName();
             // 성장 단계 계산 (연속 기록 수에 따라)
             if (member.getContinuousRecordCnt() >= 30) {
-                flowerStage = "꽃나무";
-                growthRate = 100;
+                wateringProgress = 100;
             } else if (member.getContinuousRecordCnt() >= 7) {
-                flowerStage = "잎새";
-                growthRate = 70;
+                wateringProgress = 70;
             } else {
-                flowerStage = "새싹";
-                growthRate = 30;
+                wateringProgress = 30;
             }
         }
         
-        // 선택된 날짜의 일기 정보
-        Long diaryId = null;
-        LocalDate date = null;
-        Emotion emotion = null;
-        String title = null;
-        Boolean isExist = false;
-        
-        if (selectedDiary != null) {
-            diaryId = selectedDiary.getId();
-            date = selectedDiary.getDiaryDate();
-            emotion = selectedDiary.getEmotion();
-            title = selectedDiary.getTitle();
-            isExist = true;
-        } else if (diarySimpleInfo != null) {
-            diaryId = diarySimpleInfo.getDiaryId();
-            date = diarySimpleInfo.getDiaryDate();
-            emotion = diarySimpleInfo.getEmotion();
-            title = diarySimpleInfo.getTitle();
-            isExist = true;
-        } else if (selectedDate != null) {
-            date = selectedDate;
-            isExist = false;
-        }
-        
         return MemberResponseDTO.HomeResponse.builder()
-                .userCustomId(member.getUserCustomId())
-                .diaryId(diaryId)
-                .date(date)
-                .emotion(emotion)
-                .title(title)
-                .isExist(isExist)
-                .year(currentDate.getYear())
-                .month(currentDate.getMonthValue())
-                .calendarEmotions(calendarEmotions)
-                .flowerName(flowerName)
-                .flowerStage(flowerStage)
-                .growthRate(growthRate)
+                .yearMonth(yearMonth.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM")))
+                .wateringCount(member.getWateringCanCnt() != null ? member.getWateringCanCnt() : 0)
+                .wateringProgress(wateringProgress)
                 .continuousRecordCnt(member.getContinuousRecordCnt())
+                .monthlyDiaries(monthlyDiaries)
+                .build();
+    }
+
+    public static MemberResponseDTO.DailyDiaryResponse toDailyDiaryResponse(DiaryResponseDTO.DiarySimpleInfoDTO diaryInfo) {
+        return MemberResponseDTO.DailyDiaryResponse.builder()
+                .diaryId(diaryInfo.getDiaryId())
+                .title(diaryInfo.getTitle())
+                .emotion(diaryInfo.getEmotion())
                 .build();
     }
 }
+

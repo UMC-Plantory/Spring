@@ -10,6 +10,7 @@ import umc.plantory.domain.member.service.MemberQueryUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 @RestController
 @RequestMapping("/v1/plantory/home")
@@ -19,17 +20,26 @@ public class HomeRestController {
     private final MemberQueryUseCase memberQueryUseCase;
 
     @GetMapping
-    @Operation(summary = "홈화면 조회 API", description = "홈화면 정보를 조회하는 API입니다.")
+    @Operation(summary = "홈화면 조회 API", description = "특정 월의 홈화면 정보를 조회하는 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.HomeResponse>> getHome(
             @RequestHeader("Authorization") String authorization,
-            @RequestParam(value = "selected_date", required = false) String selectedDate) {
+            @RequestParam(value = "year_month", required = true) String yearMonth) {
 
-        // selected_date를 LocalDate로 파싱 (null이면 null)
-        LocalDate date = null;
-        if (selectedDate != null && !selectedDate.isEmpty()) {
-            date = LocalDate.parse(selectedDate);
-        }
+        // year_month를 YearMonth로 파싱 (예: "2024-01")
+        YearMonth parsedYearMonth = YearMonth.parse(yearMonth);
 
-        return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.getHome(authorization, date)));
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.getHome(authorization, parsedYearMonth)));
+    }
+
+    @GetMapping("/daily")
+    @Operation(summary = "특정 날짜 일기 조회 API", description = "캘린더의 특정 날짜를 눌렀을 때 해당 날짜의 일기 정보를 조회하는 API입니다.")
+    public ResponseEntity<ApiResponse<MemberResponseDTO.DailyDiaryResponse>> getDailyDiary(
+            @RequestHeader("Authorization") String authorization,
+            @RequestParam(value = "date", required = true) String date) {
+
+        // date를 LocalDate로 파싱 
+        LocalDate parsedDate = LocalDate.parse(date);
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.getDailyDiary(authorization, parsedDate)));
     }
 } 
