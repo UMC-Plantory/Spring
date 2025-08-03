@@ -25,7 +25,7 @@ public class HomeRestController {
             @RequestHeader("Authorization") String authorization,
             @RequestParam(value = "year_month", required = true) String yearMonth) {
 
-        // year_month를 YearMonth로 파싱 (예: "2024-01")
+        // year_month를 YearMonth로 파싱
         YearMonth parsedYearMonth = YearMonth.parse(yearMonth);
 
         return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.getHome(authorization, parsedYearMonth)));

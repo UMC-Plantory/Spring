@@ -15,6 +15,7 @@ import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
+import umc.plantory.domain.wateringCan.repository.WateringCanRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.enums.DiaryStatus;
@@ -32,6 +33,7 @@ public class MemberQueryService implements MemberQueryUseCase {
     private final MemberRepository memberRepository;
     private final DiaryRepository diaryRepository;
     private final TerrariumRepository terrariumRepository;
+    private final WateringCanRepository wateringCanRepository;
     private final DiaryQueryUseCase diaryQueryUseCase;
     private final JwtProvider jwtProvider;
 
@@ -91,7 +93,13 @@ public class MemberQueryService implements MemberQueryUseCase {
                     .build());
         }
 
-        return MemberConverter.toHomeResponse(member, flower, yearMonth, monthlyDiaryList);
+        // 연속 기록 횟수 실시간 계산
+        Integer continuousRecordCnt = calculateContinuousRecordCount(member);
+        
+        // 실제 물 준 횟수 계산
+        Integer wateringCount = calculateWateringCount(member);
+
+        return MemberConverter.toHomeResponse(member, flower, yearMonth, monthlyDiaryList, continuousRecordCnt, wateringCount);
     }
 
     @Override
@@ -119,5 +127,41 @@ public class MemberQueryService implements MemberQueryUseCase {
         DiaryResponseDTO.DiarySimpleInfoDTO diaryInfo = diaryQueryUseCase.getDiarySimpleInfo(authorization, date);
         
         return MemberConverter.toDailyDiaryResponse(diaryInfo);
+    }
+
+    /**
+     * 연속 기록 횟수를 실시간으로 계산
+     * 규칙: 자정 기준으로 연속성 판단
+     * 오늘 일기 작성 여부는 내일 자정에 반영됨
+     */
+    private Integer calculateContinuousRecordCount(Member member) {
+        LocalDate today = LocalDate.now();
+        
+        // 어제까지의 연속 기록을 계산
+        int continuousCount = 0;
+        LocalDate currentDate = today.minusDays(1); // 어제부터 확인
+        
+        // 어제부터 과거로 거슬러 올라가면서 연속성 확인
+        while (currentDate.isAfter(LocalDate.MIN) && currentDate.isBefore(today)) {
+            Boolean hasDiary = diaryRepository.existsByMemberAndDiaryDateAndStatus(member, currentDate, DiaryStatus.NORMAL);
+            
+            if (hasDiary) {
+                continuousCount++;
+                currentDate = currentDate.minusDays(1);
+            } else {
+                // 연속이 끊어지면 종료
+                break;
+            }
+        }
+        
+        return continuousCount;
+    }
+
+    /**
+     * 실제 물 준 횟수를 계산
+     */
+    private Integer calculateWateringCount(Member member) {
+        Integer wateringCount = wateringCanRepository.countByMember(member);
+        return wateringCount != null ? wateringCount : 0;
     }
 } 

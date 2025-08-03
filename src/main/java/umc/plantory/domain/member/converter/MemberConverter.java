@@ -90,27 +90,20 @@ public class MemberConverter {
                 .build();
     }
 
-    public static MemberResponseDTO.HomeResponse toHomeResponse(Member member, Flower flower, YearMonth yearMonth, 
-        List<MemberResponseDTO.HomeResponse.MonthlyDiary> monthlyDiaries) {
+    public static MemberResponseDTO.HomeResponse toHomeResponse(Member member, Flower flower, YearMonth yearMonth, List<MemberResponseDTO.HomeResponse.MonthlyDiary> monthlyDiaries, Integer continuousRecordCnt, Integer wateringCount) {
         // 테라리움 식물 정보 계산
         Integer wateringProgress = 0;
         
         if (flower != null) {
-            // 성장 단계 계산 (연속 기록 수에 따라)
-            if (member.getContinuousRecordCnt() >= 30) {
-                wateringProgress = 100;
-            } else if (member.getContinuousRecordCnt() >= 7) {
-                wateringProgress = 70;
-            } else {
-                wateringProgress = 30;
-            }
+            // 물 준 횟수에 따른 진행도 계산 (0~100%)
+            wateringProgress = Math.min((wateringCount * 100) / 6, 100); // 6단계를 100%로 환산
         }
         
         return MemberResponseDTO.HomeResponse.builder()
                 .yearMonth(yearMonth.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM")))
-                .wateringCount(member.getWateringCanCnt() != null ? member.getWateringCanCnt() : 0)
+                .wateringCount(wateringCount)
                 .wateringProgress(wateringProgress)
-                .continuousRecordCnt(member.getContinuousRecordCnt())
+                .continuousRecordCnt(continuousRecordCnt)
                 .monthlyDiaries(monthlyDiaries)
                 .build();
     }
