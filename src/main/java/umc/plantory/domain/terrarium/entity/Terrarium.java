@@ -18,17 +18,17 @@ import java.time.LocalDateTime;
 @Getter
 @DynamicInsert
 @DynamicUpdate
-public class Terrarium extends BaseEntity {
+public class Terrarium {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "terrarium_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "flower_id")
     private Flower flower;
 
@@ -40,10 +40,24 @@ public class Terrarium extends BaseEntity {
     @Column(nullable = false)
     private Boolean isBloom;
 
-    @Column(nullable = false)
     private LocalDateTime firstStepDate;
 
     private LocalDateTime secondStepDate;
 
     private LocalDateTime thirdStepDate;
+
+    private static final int SECOND_STEP = 4;
+    private static final int THIRD_STEP = 7;
+
+    public void changeFlower(Flower flower) {this.flower = flower;}
+    public void recordStepIfNeeded(int wateringCount, LocalDateTime now) {
+
+        if (wateringCount == SECOND_STEP && this.secondStepDate == null) {
+            this.secondStepDate = now;
+        } else if (wateringCount == THIRD_STEP && this.thirdStepDate == null) {
+            this.thirdStepDate = now;
+            this.isBloom = true;
+            this.bloomAt = now;
+        }
+    }
 }
