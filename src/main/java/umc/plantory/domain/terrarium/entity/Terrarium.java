@@ -9,6 +9,7 @@ import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.global.baseEntity.BaseEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -40,24 +41,25 @@ public class Terrarium {
     @Column(nullable = false)
     private Boolean isBloom;
 
-    private LocalDateTime firstStepDate;
+    @Column(nullable = false)
+    private LocalDate firstStepDate;
 
-    private LocalDateTime secondStepDate;
+    private LocalDate secondStepDate;
 
-    private LocalDateTime thirdStepDate;
+    private LocalDate thirdStepDate;
 
     private static final int SECOND_STEP = 4;
     private static final int THIRD_STEP = 7;
 
     public void changeFlower(Flower flower) {this.flower = flower;}
-    public void recordStepIfNeeded(int wateringCount, LocalDateTime now) {
+    public void recordStepIfNeeded(int wateringCount, LocalDate now) {
 
         if (wateringCount == SECOND_STEP && this.secondStepDate == null) {
             this.secondStepDate = now;
         } else if (wateringCount == THIRD_STEP && this.thirdStepDate == null) {
             this.thirdStepDate = now;
             this.isBloom = true;
-            this.bloomAt = now;
+            this.bloomAt = LocalDateTime.now();
         }
     }
 }

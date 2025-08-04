@@ -37,6 +37,7 @@ public class TerrariumResponseDto {
     @AllArgsConstructor
     public static class CompletedTerrariumResponse{
         private Long terrariumId;
+        private String nickname;
         private LocalDateTime bloomAt;
         private String flowerImgUrl;
         private String flowerName;
@@ -48,9 +49,10 @@ public class TerrariumResponseDto {
     public static class CompletedTerrariumDetatilResponse{
         private LocalDateTime startAt;
         private LocalDateTime bloomAt;
+        private Emotion mostEmotion;
         private List<LocalDate> usedDiaries;
-        private LocalDateTime firstStepDate;
-        private LocalDateTime secondStepDate;
-        private LocalDateTime thirdStepDate;
+        private LocalDate firstStepDate;
+        private LocalDate secondStepDate;
+        private LocalDate thirdStepDate;
     }
 }

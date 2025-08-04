@@ -25,6 +25,7 @@ import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.GeneralException;
 import umc.plantory.global.enums.Emotion;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -99,7 +100,7 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
 
         // 현재 테라리움에 대한 물주기 횟수 집계 및 단계 기록
         int TerrariumwateringCount = wateringEventRepository.countByTerrariumId(terrarium.getId());
-        terrarium.recordStepIfNeeded(TerrariumwateringCount, LocalDateTime.now());
+        terrarium.recordStepIfNeeded(TerrariumwateringCount, LocalDate.now());
 
         List<Object[]> emotionCounts = Collections.emptyList();
         // 7단계(꽃나무 단계) 도달 시 응답 형식이 달라야 하기 때문에 emotionCounts 생성

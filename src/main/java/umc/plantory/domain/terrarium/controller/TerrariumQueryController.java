@@ -1,13 +1,16 @@
 package umc.plantory.domain.terrarium.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto;
 import umc.plantory.domain.terrarium.service.TerrariumQueryUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -46,11 +49,10 @@ public class TerrariumQueryController implements TerrariumQueryApi {
     @GetMapping("/month")
     public ResponseEntity<ApiResponse<List<TerrariumResponseDto.CompletedTerrariumResponse>>> getCompletedTerrariumsByMonth(
             @RequestHeader("Authorization") String authorization,
-            @RequestParam int year,
-            @RequestParam int month) {
+           @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        log.info("월별 개화 완료 테라리움 조회 - year: {}, month: {}", year, month);
-        List<TerrariumResponseDto.CompletedTerrariumResponse> responseList = terrariumQueryUseCase.findCompletedTerrariumsByMonth(authorization, year, month);
+        log.info("월별 개화 완료 테라리움 조회");
+        List<TerrariumResponseDto.CompletedTerrariumResponse> responseList = terrariumQueryUseCase.findCompletedTerrariumsByMonth(authorization, date);
         return ResponseEntity.ok(ApiResponse.onSuccess(responseList));
     }
 

@@ -15,6 +15,7 @@ import umc.plantory.domain.wateringCan.repository.WateringEventRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TerrariumHandler;
+import umc.plantory.global.enums.Emotion;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -66,8 +67,8 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
         return TerrariumConverter.toTerrariumResponse(
                 currentTerrarium.getId(),
                 flowerImgUrl,
-                wateringCanCnt,
-                wateringEventCnt
+                wateringEventCnt,
+                wateringCanCnt
         );
     }
 
@@ -75,13 +76,12 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
      * 회원 ID와 연도, 월을 기준으로 개화가 완료된 테라리움 목록을 조회합니다.
      *
      * @param authorization 인증용 JWT 토큰
-     * @param year 조회할 연도 (예: 2025)
-     * @param month 조회할 월 (1~12)
+     * @param date 조회할 연도-월 (예: 2025-06)
      * @return 지정한 회원이 해당 연도와 월에 개화가 완료된 테라리움 정보를 담은 CompletedTerrariumResponse 리스트
      */
     @Override
     public List<TerrariumResponseDto.CompletedTerrariumResponse> findCompletedTerrariumsByMonth(
-            String authorization, int year, int month) {
+            String authorization, LocalDate date) {
         String token = jwtProvider.resolveToken(authorization);
         if (token == null) {
             throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
@@ -89,16 +89,16 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
         jwtProvider.validateToken(token);
         Long memberId = jwtProvider.getMemberId(token);
 
-        List<Terrarium> terrariumList = terrariumRepository.findAllByMemberIdAndIsBloomTrueAndBloomAtYearAndMonth(memberId, year, month);
+        String nickname = memberRepository.findNicknameById(memberId);
 
-        if (terrariumList.isEmpty()) {
-            throw new TerrariumHandler(ErrorStatus.NO_COMPLETED_TERRARIUM_IN_MONTH);
-        }
+        List<Terrarium> terrariumList = terrariumRepository.findAllByMemberIdAndIsBloomTrueAndBloomAtYearAndMonth(memberId, date.getYear(), date.getMonthValue());
+
         return terrariumList
                 .stream()
-                .map(terrarium -> new TerrariumResponseDto.CompletedTerrariumResponse(
+                .map(terrarium -> TerrariumConverter.toCompletedTerrariumResponse(
                         terrarium.getId(),
                         terrarium.getBloomAt(),
+                        nickname,
                         terrarium.getFlower().getFlowerImgUrl(),
                         terrarium.getFlower().getName()
                 ))
@@ -132,13 +132,13 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
                 .collect(Collectors.toList());
 
 
-        return TerrariumResponseDto.CompletedTerrariumDetatilResponse.builder()
-                .startAt(terrarium.getStartAt())
-                .bloomAt(terrarium.getBloomAt())
-                .firstStepDate(terrarium.getFirstStepDate())
-                .secondStepDate(terrarium.getSecondStepDate())
-                .thirdStepDate(terrarium.getThirdStepDate())
-                .usedDiaries(usedDiaries)
-                .build();
+        return TerrariumConverter.toCompletedTerrariumDetatilResponse(
+                terrarium.getStartAt(),
+                terrarium.getBloomAt(),
+                terrarium.getFlower().getEmotion(),
+                terrarium.getFirstStepDate(),
+                terrarium.getSecondStepDate(),
+                terrarium.getThirdStepDate(),
+                usedDiaries);
     }
 }

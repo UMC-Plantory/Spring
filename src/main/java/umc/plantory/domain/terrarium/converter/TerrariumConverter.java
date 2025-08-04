@@ -5,7 +5,9 @@ import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto;
 import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto.TerrariumResponse;
 import umc.plantory.domain.terrarium.entity.Terrarium;
+import umc.plantory.global.enums.Emotion;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,8 +20,8 @@ public class TerrariumConverter {
         return TerrariumResponse.builder()
                 .terrariumId(terrariumId)
                 .flowerImgUrl(flowerImgUrl)
-                .terrariumWateringCount(terrariumWateringCount)
                 .memberWateringCount(memberWateringCount)
+                .terrariumWateringCount(terrariumWateringCount)
                 .build();
     }
 
@@ -28,7 +30,7 @@ public class TerrariumConverter {
                 .member(member)
                 .flower(flower)
                 .startAt(LocalDateTime.now())
-                .firstStepDate(LocalDateTime.now())
+                .firstStepDate(LocalDate.now())
                 .isBloom(false)
                 .build();
 
@@ -44,6 +46,38 @@ public class TerrariumConverter {
                 .emotionCounts(emotionCounts)
                 .flowerName(flower.getName())
                 .flowerEmotion(flower.getEmotion())
+                .build();
+    }
+
+    public static TerrariumResponseDto.CompletedTerrariumResponse toCompletedTerrariumResponse(Long terrariumId,
+                                                                                               LocalDateTime bloomAt,
+                                                                                               String nickname,
+                                                                                               String flowerImgUrl,
+                                                                                               String flowerName) {
+        return TerrariumResponseDto.CompletedTerrariumResponse.builder()
+                .terrariumId(terrariumId)
+                .bloomAt(bloomAt)
+                .nickname(nickname)
+                .flowerImgUrl(flowerImgUrl)
+                .flowerName(flowerName)
+                .build();
+    }
+
+    public static TerrariumResponseDto.CompletedTerrariumDetatilResponse toCompletedTerrariumDetatilResponse(LocalDateTime startAt,
+                                                                                                             LocalDateTime bloomAt,
+                                                                                                             Emotion mostEmotion,
+                                                                                                             LocalDate firstStepDate,
+                                                                                                             LocalDate secondStepDate,
+                                                                                                             LocalDate thirdStepDate,
+                                                                                                             List<LocalDate> usedDiaries) {
+        return TerrariumResponseDto.CompletedTerrariumDetatilResponse.builder()
+                .startAt(startAt)
+                .bloomAt(bloomAt)
+                .mostEmotion(mostEmotion)
+                .firstStepDate(firstStepDate)
+                .secondStepDate(secondStepDate)
+                .thirdStepDate(thirdStepDate)
+                .usedDiaries(usedDiaries)
                 .build();
     }
 
