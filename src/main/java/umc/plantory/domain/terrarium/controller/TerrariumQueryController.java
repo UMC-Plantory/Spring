@@ -1,6 +1,5 @@
 package umc.plantory.domain.terrarium.controller;
 
-import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,7 +9,7 @@ import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto;
 import umc.plantory.domain.terrarium.service.TerrariumQueryUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Slf4j
@@ -41,15 +40,14 @@ public class TerrariumQueryController implements TerrariumQueryApi {
      * 회원의 월별 개화 완료된 테라리움 목록을 조회합니다.
      *
      * @param authorization 인증용 JWT 토큰
-     * @param year bloom_at 조회할 연도 (YYYY)
-     * @param month bloom_at 조회할 월 (1~12)
+     * @param date bloom_at 조회할 연/월 (YYYY-MM)
      * @return ApiResponse로 감싼 개화 완료된 테라리움 목록 DTO 리스트
      */
     @Override
     @GetMapping("/month")
     public ResponseEntity<ApiResponse<List<TerrariumResponseDto.CompletedTerrariumResponse>>> getCompletedTerrariumsByMonth(
             @RequestHeader("Authorization") String authorization,
-           @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM") YearMonth date) {
 
         log.info("월별 개화 완료 테라리움 조회");
         List<TerrariumResponseDto.CompletedTerrariumResponse> responseList = terrariumQueryUseCase.findCompletedTerrariumsByMonth(authorization, date);

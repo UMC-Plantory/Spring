@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto;
 import umc.plantory.global.apiPayload.ApiResponse;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Tag(name = "테라리움 API", description = "테라리움 관련 API")
@@ -38,7 +38,7 @@ public interface TerrariumQueryApi {
     ResponseEntity<ApiResponse<List<TerrariumResponseDto.CompletedTerrariumResponse>>> getCompletedTerrariumsByMonth(
             @Parameter(description = "JWT 토큰")
             @RequestHeader(value = "Authorization", required = false) String authorization,
-            @Parameter(description = "조회할 날짜 (yyyy-MM)") @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date);
+            @Parameter(description = "조회할 날짜 (yyyy-MM)") @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM") YearMonth date);
 
     @Operation(summary = "개화 완료 테라리움 상세 정보 페이지 조회", description = "테라리움 ID로 테라리움 상세 정보 페이지를 조회합니다.")
     @ApiResponses(value = {

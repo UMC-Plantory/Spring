@@ -1,18 +1,8 @@
 package umc.plantory.global.apiPayload.exception.handler;
 
-import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.code.BaseErrorCode;
+import umc.plantory.global.apiPayload.exception.GeneralException;
 
-import static umc.plantory.global.apiPayload.code.status.ErrorStatus.*;
-
-public class TerrariumHandler extends RuntimeException {
-    private final ErrorStatus errorStatus;
-
-    public TerrariumHandler(ErrorStatus errorStatus) {
-        super(errorStatus.getMessage());
-        this.errorStatus = errorStatus;
-    }
-
-    public ErrorStatus getErrorStatus() {
-        return errorStatus;
-    }
+public class TerrariumHandler extends GeneralException {
+    public TerrariumHandler(BaseErrorCode errorCode) {super(errorCode);}
 }

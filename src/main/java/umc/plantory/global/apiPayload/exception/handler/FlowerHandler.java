@@ -1,13 +1,8 @@
 package umc.plantory.global.apiPayload.exception.handler;
 
-import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.code.BaseErrorCode;
+import umc.plantory.global.apiPayload.exception.GeneralException;
 
-public class FlowerHandler extends RuntimeException {
-    private final ErrorStatus errorStatus;
-
-    public FlowerHandler(ErrorStatus errorStatus) {
-        super(errorStatus.getMessage());
-        this.errorStatus = errorStatus;
-    }
-    public ErrorStatus getErrorStatus() {return errorStatus;}
+public class FlowerHandler extends GeneralException {
+    public FlowerHandler(BaseErrorCode errorCode) {super(errorCode);}
 }

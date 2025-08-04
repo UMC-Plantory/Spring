@@ -15,9 +15,9 @@ import umc.plantory.domain.wateringCan.repository.WateringEventRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TerrariumHandler;
-import umc.plantory.global.enums.Emotion;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,7 +81,7 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
      */
     @Override
     public List<TerrariumResponseDto.CompletedTerrariumResponse> findCompletedTerrariumsByMonth(
-            String authorization, LocalDate date) {
+            String authorization, YearMonth date) {
         String token = jwtProvider.resolveToken(authorization);
         if (token == null) {
             throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
