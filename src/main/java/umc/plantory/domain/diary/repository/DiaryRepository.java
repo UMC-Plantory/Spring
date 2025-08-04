@@ -2,8 +2,6 @@ package umc.plantory.domain.diary.repository;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.global.enums.DiaryStatus;
