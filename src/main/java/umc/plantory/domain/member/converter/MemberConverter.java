@@ -43,16 +43,12 @@ public class MemberConverter {
         return MemberResponseDTO.ProfileResponse.builder()
                 .userCustomId(member.getUserCustomId())
                 .nickname(member.getNickname())
-                .email(member.getEmail())
-                .gender(member.getGender() != null ? member.getGender().name().toLowerCase() : null)
-                .birth(member.getBirth() != null ? member.getBirth().toString() : null)
                 .profileImgUrl(member.getProfileImgUrl() != null ? member.getProfileImgUrl() : DEFAULT_PROFILE_IMG_URL)
-                .wateringCanCnt(member.getWateringCanCnt())
                 .continuousRecordCnt(member.getContinuousRecordCnt())
                 .totalRecordCnt(member.getTotalRecordCnt())
                 .avgSleepTime(member.getAvgSleepTime()) // 분단위 수면 시간
                 .totalBloomCnt(member.getTotalBloomCnt())
-                .status(member.getStatus() != null ? member.getStatus().name() : null)
+                //.status(member.getStatus() != null ? member.getStatus().name() : null)
                 .build();
     }
 
