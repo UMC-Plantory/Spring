@@ -8,6 +8,7 @@ import umc.plantory.global.enums.DiaryStatus;
 import umc.plantory.global.enums.Emotion;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class DiaryResponseDTO {
 
@@ -42,5 +43,46 @@ public class DiaryResponseDTO {
     @AllArgsConstructor
     public static class TempDiaryExistsDTO {
         private boolean isExist;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CursorPaginationDTO<T> {
+        private List<T> diaries;
+        private boolean hasNext;
+        private LocalDate nextCursor;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DiaryListDTO {
+        private List<DiaryListSimpleInfoDTO> diaries;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DiaryListInfoDTO {
+        private Long diaryId;
+        private LocalDate diaryDate;
+        private String title;
+        private DiaryStatus status;
+        private Emotion emotion;
+        private String content;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DiaryListSimpleInfoDTO {
+        private Long diaryId;
+        private LocalDate diaryDate;
+        private String title;
     }
 }
