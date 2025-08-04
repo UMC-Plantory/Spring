@@ -8,9 +8,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChatJpaRepository extends JpaRepository<Chat, Long> {
-    // member의 최근 채팅 10개를 생성일 내림차순(최신→과거)으로 조회
-    // 멀티턴 방식 사용 시 삭제할 수도 있음
-    List<Chat> findTop10ByMemberOrderByCreatedAtDesc(Member member);
 
     // member의 최신 채팅 6개(최신 -> 과거) 조회
     List<Chat> findTop6ByMemberOrderByCreatedAtDesc(Member member);

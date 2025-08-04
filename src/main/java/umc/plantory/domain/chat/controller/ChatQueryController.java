@@ -1,12 +1,10 @@
 package umc.plantory.domain.chat.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import umc.plantory.domain.chat.controller.dto.ChatResponseDto;
+import org.springframework.web.bind.annotation.*;
+import umc.plantory.domain.chat.dto.ChatResponseDTO;
 import umc.plantory.domain.chat.service.ChatQueryUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
@@ -16,22 +14,32 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/plantory/chat")
-public class ChatQueryController implements ChatQueryApi {
+public class ChatQueryController {
     private final ChatQueryUseCase chatQueryUseCase;
 
     // 챗봇 채팅창 처음 최초 진입 : 최신 6개
-    @Override
     @GetMapping("/latest")
-    public ResponseEntity<ApiResponse<List<ChatResponseDto.ChatResponse>>> getChatHistoryLatest(@RequestParam("memberId") Long memberId) {
-        List<ChatResponseDto.ChatResponse> latestChats = chatQueryUseCase.findLatestChatsByMemberId(memberId);
+    @Operation(
+            summary = "챗봇 채팅창 이전 대화 기록 최초 조회",
+            description = "사용자가 챗봇과 나눈 이전 대화 중 가장 최근 6개를 조회합니다. "
+    )
+    public ResponseEntity<ApiResponse<List<ChatResponseDTO.ChatResponse>>> getChatHistoryLatest(
+            @RequestHeader(value = "Authorization", required = false) String authorization
+    ) {
+        List<ChatResponseDTO.ChatResponse> latestChats = chatQueryUseCase.findLatestChats(authorization);
         return ResponseEntity.ok(ApiResponse.onSuccess(latestChats));
     }
     // 최초 진입 이후, 스크롤 업: 특정 createdAt 이전 6개 조회 (커서 페이징)
-    @Override
     @GetMapping("/before")
-    public ResponseEntity<ApiResponse<List<ChatResponseDto.ChatResponse>>> getChatHistoryBefore(@RequestParam("memberId") Long memberId,
-                                                                                                @RequestParam("before") LocalDateTime before) {
-        List<ChatResponseDto.ChatResponse> beforeChats = chatQueryUseCase.findBeforeChatsByMemberId(memberId, before);
+    @Operation(
+            summary = "최초 진입 이후, 챗봇 채팅창 이전 채팅 스크롤 조회",
+            description = "스크롤 시, 기준 시각(before) 이전의 6개 채팅을 추가로 조회 "
+    )
+    public ResponseEntity<ApiResponse<List<ChatResponseDTO.ChatResponse>>> getChatHistoryBefore(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestParam("before") LocalDateTime before
+    ) {
+        List<ChatResponseDTO.ChatResponse> beforeChats = chatQueryUseCase.findBeforeChats(authorization, before);
         return ResponseEntity.ok(ApiResponse.onSuccess(beforeChats));
     }
 }
