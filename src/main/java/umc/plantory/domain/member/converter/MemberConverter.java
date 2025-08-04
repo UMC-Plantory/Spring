@@ -24,9 +24,8 @@ public class MemberConverter {
     private static final String DEFAULT_NICKNAME = "토리";
     private static final String DEFAULT_USER_CUSTOM_ID = "temp_plantory";
     
-    // 물 진행도 계산을 위한 상수
-    private static final int MAX_WATERING_STEPS = 6;
-    private static final int MAX_PROGRESS_PERCENTAGE = 100;
+    // 물 진행도 계산을 위한 상수 테이블 (0~6단계)
+    private static final int[] PROGRESS_TABLE = {0, 16, 33, 50, 66, 83, 100};
 
     public static MemberResponseDTO.TermAgreementResponse toTermAgreementResponse(Member member) {
         return MemberResponseDTO.TermAgreementResponse.builder()
@@ -100,16 +99,18 @@ public class MemberConverter {
                 .collect(Collectors.toList());
     }
 
-    // 물 진행도 계산 (상수 사용으로 성능 최적화)
+    // 물 진행도 계산 (테이블 사용)
     public static Integer calculateWateringProgress(Integer wateringCount) {
         if (wateringCount == null || wateringCount <= 0) {
             return 0;
         }
-        return Math.min((wateringCount * MAX_PROGRESS_PERCENTAGE) / MAX_WATERING_STEPS, MAX_PROGRESS_PERCENTAGE);
+        // 테이블에서 진행도 가져오기 (최대 6단계)
+        int index = Math.min(wateringCount, 6);
+        return PROGRESS_TABLE[index];
     }
 
     public static MemberResponseDTO.HomeResponse toHomeResponse(Member member, YearMonth yearMonth, List<MemberResponseDTO.HomeResponse.DiaryDate> diaryDates, Integer continuousRecordCnt, Integer wateringCount) {
-        // 물 진행도 계산 (상수 사용)
+        // 물 진행도 계산 (테이블)
         Integer wateringProgress = calculateWateringProgress(wateringCount);
         
         return MemberResponseDTO.HomeResponse.builder()

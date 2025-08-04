@@ -21,16 +21,11 @@ public class HomeRestController {
     @GetMapping
     @Operation(summary = "홈화면 조회 API", description = "홈화면 정보를 조회하는 API입니다. year_month가 없으면 이번 달 정보를 반환합니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.HomeResponse>> getHome(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestParam(value = "year_month", required = false) String yearMonth) {
 
         // year_month가 없으면 이번 달로 설정
-        YearMonth parsedYearMonth;
-        if (yearMonth == null || yearMonth.isEmpty()) {
-            parsedYearMonth = YearMonth.now();
-        } else {
-            parsedYearMonth = YearMonth.parse(yearMonth);
-        }
+        YearMonth parsedYearMonth = yearMonth != null ? YearMonth.parse(yearMonth) : YearMonth.now();
 
         return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.getHome(authorization, parsedYearMonth)));
     }

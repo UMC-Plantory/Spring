@@ -7,5 +7,5 @@ import umc.plantory.domain.terrarium.entity.Terrarium;
 import java.util.Optional;
 
 public interface TerrariumRepository extends JpaRepository<Terrarium, Long> {
-    Optional<Terrarium> findByMember(Member member);
-} 
+    Optional<Terrarium> findByMemberAndIsBloomFalse(Member member);
+}

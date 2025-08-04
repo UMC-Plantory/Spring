@@ -15,7 +15,7 @@ import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
-import umc.plantory.domain.wateringCan.repository.WateringCanRepository;
+import umc.plantory.domain.wateringCan.repository.WateringEventRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.enums.DiaryStatus;
@@ -32,7 +32,7 @@ public class MemberQueryService implements MemberQueryUseCase {
     private final MemberRepository memberRepository;
     private final DiaryRepository diaryRepository;
     private final TerrariumRepository terrariumRepository;
-    private final WateringCanRepository wateringCanRepository;
+    private final WateringEventRepository wateringEventRepository;
     private final DiaryQueryUseCase diaryQueryUseCase;
     private final JwtProvider jwtProvider;
 
@@ -71,11 +71,11 @@ public class MemberQueryService implements MemberQueryUseCase {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        // 해당 월의 일기 데이터 조회 (Between 사용)
+        // 해당 월의 일기 데이터 조회 (Between 사용) 
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
         List<Diary> monthlyDiaries = diaryRepository.findByMemberAndStatusInAndDiaryDateBetween(
-                member, List.of(DiaryStatus.NORMAL), startDate, endDate);
+                member, List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP), startDate, endDate);
 
         // 일기 존재 날짜만 변환
         List<MemberResponseDTO.HomeResponse.DiaryDate> diaryDateList = MemberConverter.toDiaryDateList(monthlyDiaries);
@@ -95,14 +95,14 @@ public class MemberQueryService implements MemberQueryUseCase {
      */
     private Integer calculateWateringCount(Member member) {
         // isBloom = false인 테라리움 조회
-        Optional<Terrarium> terrariumOpt = terrariumRepository.findByMember(member);
+        Optional<Terrarium> terrariumOpt = terrariumRepository.findByMemberAndIsBloomFalse(member);
         
         if (terrariumOpt.isPresent()) {
             Terrarium terrarium = terrariumOpt.get();
             // isBloom = false인 경우에만 물 준 횟수 계산
             if (!terrarium.getIsBloom()) {
-                Integer wateringCount = wateringCanRepository.countByTerrarium(terrarium);
-                return wateringCount != null ? wateringCount : 0;
+                Integer wateringEvent = wateringEventRepository.countByTerrarium(terrarium);
+                return wateringEvent != null ? wateringEvent : 0;
             }
         }
         
