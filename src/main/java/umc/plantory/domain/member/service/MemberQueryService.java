@@ -71,7 +71,9 @@ public class MemberQueryService implements MemberQueryUseCase {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        // 해당 월의 일기 데이터 조회 (Between 사용) 
+        // 해당 월의 일기 데이터 조회 (diaryDate 기준)
+        // diaryDate는 LocalDate 타입이므로 8월 31일 자정까지의 일기도 8월 31일로 저장됨
+        // 따라서 LocalDate 범위로도 8월 31일의 모든 일기가 정확히 포함됨
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
         List<Diary> monthlyDiaries = diaryRepository.findByMemberAndStatusInAndDiaryDateBetween(
@@ -99,11 +101,7 @@ public class MemberQueryService implements MemberQueryUseCase {
         
         if (terrariumOpt.isPresent()) {
             Terrarium terrarium = terrariumOpt.get();
-            // isBloom = false인 경우에만 물 준 횟수 계산
-            if (!terrarium.getIsBloom()) {
-                Integer wateringEvent = wateringEventRepository.countByTerrarium(terrarium);
-                return wateringEvent != null ? wateringEvent : 0;
-            }
+            return wateringEventRepository.countByTerrarium(terrarium);
         }
         
         return 0;

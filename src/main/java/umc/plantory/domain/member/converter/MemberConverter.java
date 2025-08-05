@@ -24,8 +24,8 @@ public class MemberConverter {
     private static final String DEFAULT_NICKNAME = "토리";
     private static final String DEFAULT_USER_CUSTOM_ID = "temp_plantory";
     
-    // 물 진행도 계산을 위한 상수 테이블 (0~6단계)
-    private static final int[] PROGRESS_TABLE = {0, 16, 33, 50, 66, 83, 100};
+    // 물 진행도 계산을 위한 상수 테이블 (0~7단계)
+    private static final int[] PROGRESS_TABLE = { 0, 14, 29, 43, 57, 71, 86, 100 };
 
     public static MemberResponseDTO.TermAgreementResponse toTermAgreementResponse(Member member) {
         return MemberResponseDTO.TermAgreementResponse.builder()
