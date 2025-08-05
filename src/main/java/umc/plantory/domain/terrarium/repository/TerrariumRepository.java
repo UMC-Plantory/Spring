@@ -6,11 +6,12 @@ import org.springframework.data.repository.query.Param;
 import umc.plantory.domain.terrarium.entity.Terrarium;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TerrariumRepository extends JpaRepository<Terrarium, Long> {
 
     Terrarium findByMemberIdAndIsBloomFalse(Long memberId);
-
+    Optional<Terrarium> findByIdAndIsBloomTrue(Long terrariumId);
     @Query("SELECT t FROM Terrarium t " +
             "WHERE t.member.id = :memberId " +
             "AND t.isBloom = true " +

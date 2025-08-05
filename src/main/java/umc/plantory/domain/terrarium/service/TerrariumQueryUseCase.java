@@ -1,7 +1,7 @@
 package umc.plantory.domain.terrarium.service;
 
 import org.springframework.transaction.annotation.Transactional;
-import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto;
+import umc.plantory.domain.terrarium.dto.TerrariumResponseDto;
 
 import java.time.YearMonth;
 import java.util.List;

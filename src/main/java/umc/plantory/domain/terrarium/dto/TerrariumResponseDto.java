@@ -1,4 +1,4 @@
-package umc.plantory.domain.terrarium.controller.dto;
+package umc.plantory.domain.terrarium.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

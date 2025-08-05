@@ -2,10 +2,9 @@ package umc.plantory.domain.terrarium.converter;
 
 import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.member.entity.Member;
-import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto;
-import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto.TerrariumResponse;
+import umc.plantory.domain.terrarium.dto.TerrariumResponseDto;
+import umc.plantory.domain.terrarium.dto.TerrariumResponseDto.TerrariumResponse;
 import umc.plantory.domain.terrarium.entity.Terrarium;
-import umc.plantory.global.enums.Emotion;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -63,20 +62,14 @@ public class TerrariumConverter {
                 .build();
     }
 
-    public static TerrariumResponseDto.CompletedTerrariumDetatilResponse toCompletedTerrariumDetatilResponse(LocalDateTime startAt,
-                                                                                                             LocalDateTime bloomAt,
-                                                                                                             Emotion mostEmotion,
-                                                                                                             LocalDate firstStepDate,
-                                                                                                             LocalDate secondStepDate,
-                                                                                                             LocalDate thirdStepDate,
-                                                                                                             List<LocalDate> usedDiaries) {
+    public static TerrariumResponseDto.CompletedTerrariumDetatilResponse toCompletedTerrariumDetatilResponse(Terrarium terrarium, List<LocalDate> usedDiaries) {
         return TerrariumResponseDto.CompletedTerrariumDetatilResponse.builder()
-                .startAt(startAt)
-                .bloomAt(bloomAt)
-                .mostEmotion(mostEmotion)
-                .firstStepDate(firstStepDate)
-                .secondStepDate(secondStepDate)
-                .thirdStepDate(thirdStepDate)
+                .startAt(terrarium.getStartAt())
+                .bloomAt(terrarium.getBloomAt())
+                .mostEmotion(terrarium.getFlower().getEmotion())
+                .firstStepDate(terrarium.getFirstStepDate())
+                .secondStepDate(terrarium.getSecondStepDate())
+                .thirdStepDate(terrarium.getThirdStepDate())
                 .usedDiaries(usedDiaries)
                 .build();
     }

@@ -8,7 +8,7 @@ import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.flower.repository.FlowerRepository;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
-import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto;
+import umc.plantory.domain.terrarium.dto.TerrariumResponseDto;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
 import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
@@ -18,7 +18,6 @@ import umc.plantory.domain.wateringCan.repository.WateringEventRepository;
 import umc.plantory.domain.wateringCan.entity.WateringCan;
 import umc.plantory.domain.wateringCan.repository.WateringCanRepository;
 import umc.plantory.domain.wateringCan.converter.WateringEventConverter;
-import umc.plantory.global.apiPayload.exception.handler.FlowerHandler;
 import umc.plantory.global.apiPayload.exception.handler.TerrariumHandler;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
@@ -26,7 +25,6 @@ import umc.plantory.global.apiPayload.exception.GeneralException;
 import umc.plantory.global.enums.Emotion;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 

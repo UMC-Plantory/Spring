@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
-import umc.plantory.domain.terrarium.controller.dto.TerrariumResponseDto;
+import umc.plantory.domain.terrarium.dto.TerrariumResponseDto;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
 import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
@@ -114,12 +114,8 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
     @Override
     public TerrariumResponseDto.CompletedTerrariumDetatilResponse findCompletedTerrariumDetail(Long terrariumId) {
 
-        Terrarium terrarium = terrariumRepository.findById(terrariumId)
+        Terrarium terrarium = terrariumRepository.findByIdAndIsBloomTrue(terrariumId)
                 .orElseThrow(() -> new TerrariumHandler(ErrorStatus.TERRARIUM_NOT_FOUND));
-
-        if (!terrarium.getIsBloom()) {
-            throw new TerrariumHandler(ErrorStatus.TERRARIUM_NOT_BLOOMED);
-        }
 
         List<WateringCan> usedWateringCan = wateringEventRepository.findWateringCanListByTerrariumId(terrariumId);
         if (usedWateringCan.isEmpty()) {
@@ -132,13 +128,6 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
                 .collect(Collectors.toList());
 
 
-        return TerrariumConverter.toCompletedTerrariumDetatilResponse(
-                terrarium.getStartAt(),
-                terrarium.getBloomAt(),
-                terrarium.getFlower().getEmotion(),
-                terrarium.getFirstStepDate(),
-                terrarium.getSecondStepDate(),
-                terrarium.getThirdStepDate(),
-                usedDiaries);
+        return TerrariumConverter.toCompletedTerrariumDetatilResponse(terrarium, usedDiaries);
     }
 }
