@@ -1,9 +1,11 @@
 package umc.plantory.domain.diary.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.diary.converter.DiaryConverter;
+import umc.plantory.domain.diary.dto.DiaryRequestDTO;
 import umc.plantory.domain.diary.dto.DiaryResponseDTO;
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.diary.entity.DiaryImg;
@@ -92,6 +94,62 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         return DiaryConverter.toTempDiaryExistsDTO(exists);
     }
 
+    /**
+     * 감정, 날짜, 정렬, 커서 기반 조건을 포함하여 NORMAL/SCRAP 상태의 일기 목록을 조회
+     *
+     * @param authorization 요청 헤더의 JWT 토큰
+     * @param request 일기 필터 조건 (정렬, 커서, 기간, 감정 등)
+     * @return CursorPaginationDTO 일기 목록 + 페이징 정보
+     */
+    @Override
+    public DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> getDiaryList(String authorization, DiaryRequestDTO.DiaryFilterDTO request) {
+        Long memberId = getLoginMember(authorization).getId();
+        List<Diary> diaries = diaryRepository.findFilteredDiaries(memberId, request);
+        return toCursorPagination(diaries, request.getSize());
+    }
+
+    /**
+     * SCRAP 상태의 일기들을 정렬 기준 및 커서 기반으로 조회
+     *
+     * @param authorization 요청 헤더의 JWT 토큰
+     * @param sort 정렬 기준 ("latest", "oldest")
+     * @param cursor 커서 기준 날짜 (LocalDate)
+     * @param size 한 번에 가져올 일기 개수
+     * @return CursorPaginationDTO 스크랩 일기 목록 + 페이징 정보
+     */
+    @Override
+    public DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> getScrapDiaryList(String authorization, String sort, LocalDate cursor, int size) {
+        Long memberId = getLoginMember(authorization).getId();
+        List<Diary> diaries = diaryRepository.findScrappedDiaries(memberId, sort, cursor, size);
+        return toCursorPagination(diaries, size);
+    }
+
+    /**
+     * TEMP 상태의 일기들을 정렬 기준에 따라 조회
+     *
+     * @param authorization 요청 헤더의 JWT 토큰
+     * @param sort 정렬 기준 ("latest", "oldest")
+     * @return DiaryListDTO 임시 보관 일기 리스트
+     */
+    @Override
+    public DiaryResponseDTO.DiaryListDTO getTempDiaryList(String authorization, String sort) {
+        Member member = getLoginMember(authorization);
+        return getDiaryListByStatus(member, DiaryStatus.TEMP, sort);
+    }
+
+    /**
+     * DELETE 상태의 일기들을 정렬 기준에 따라 조회
+     *
+     * @param authorization 요청 헤더의 JWT 토큰
+     * @param sort 정렬 기준 ("latest", "oldest")
+     * @return DiaryListDTO 삭제한 일기 리스트
+     */
+    @Override
+    public DiaryResponseDTO.DiaryListDTO getDeletedDiaryList(String authorization, String sort) {
+        Member member = getLoginMember(authorization);
+        return getDiaryListByStatus(member, DiaryStatus.DELETE, sort);
+    }
+
     // 로그인한 사용자 반환
     private Member getLoginMember(String authorization) {
         String token = jwtProvider.resolveToken(authorization);
@@ -117,5 +175,42 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         if (!diary.getMember().getId().equals(member.getId())) {
             throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
         }
+    }
+
+    // Cursor 기반 페이징 응답 변환
+    private DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> toCursorPagination(List<Diary> diaries, int size) {
+        // size + 1개를 받아온 경우 → 다음 페이지 있음
+        boolean hasNext = diaries.size() > size;
+
+        // size까지만 잘라 반환
+        if (hasNext) {
+            diaries = diaries.subList(0, size);
+        }
+
+        List<DiaryResponseDTO.DiaryListInfoDTO> content = diaries.stream()
+                .map(DiaryConverter::toDiaryListInfoDTO)
+                .toList();
+
+        // 다음 커서로 사용할 diaryDate
+        LocalDate nextCursor = hasNext ? diaries.get(diaries.size() - 1).getDiaryDate() : null;
+
+        return DiaryConverter.toCursorPaginationDTO(content, hasNext, nextCursor);
+    }
+
+    // DiaryStatus 기반 일기 리스트 조회 (정렬만 적용, 페이징 없음)
+    private DiaryResponseDTO.DiaryListDTO getDiaryListByStatus(Member member, DiaryStatus status, String sort) {
+        Sort.Direction direction = "oldest".equals(sort) ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        List<Diary> diaries = diaryRepository.findAllByMemberIdAndStatus(
+                member.getId(),
+                status,
+                Sort.by(direction, "diaryDate")
+        );
+
+        List<DiaryResponseDTO.DiaryListSimpleInfoDTO> result = diaries.stream()
+                .map(DiaryConverter::toDiayListSimpleInfoDTO)
+                .toList();
+
+        return DiaryConverter.toDiaryListDTO(result);
     }
 }

@@ -3,6 +3,7 @@ package umc.plantory.domain.member.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.flower.repository.FlowerRepository;
 import umc.plantory.domain.member.converter.MemberConverter;
 import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
@@ -12,11 +13,15 @@ import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
+import umc.plantory.domain.terrarium.converter.TerrariumConverter;
+import umc.plantory.domain.terrarium.entity.Terrarium;
+import umc.plantory.domain.terrarium.repository.TerrariumRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TermHandler;
+import umc.plantory.global.enums.Emotion;
 import umc.plantory.global.enums.MemberStatus;
 
 import java.util.List;
@@ -30,6 +35,8 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final TermRepository termRepository;
     private final JwtProvider jwtProvider;
     private final MemberTokenRepository memberTokenRepository;
+    private final TerrariumRepository terrariumRepository;
+    private final FlowerRepository flowerRepository;
 
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
@@ -106,6 +113,12 @@ public class MemberCommandService implements MemberCommandUseCase {
             // 기본 프로필 이미지 설정
             findMember.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
         }
+
+
+        // 초기 테라리움 생성
+        terrariumRepository.save(TerrariumConverter.toTerrarium(
+                findMember,
+                flowerRepository.findByEmotion(Emotion.DEFAULT)));
 
         // 응답 반환
         return MemberConverter.toMemberSignupResponse(findMember);
