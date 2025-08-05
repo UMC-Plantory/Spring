@@ -17,10 +17,10 @@ public class ChatResponseDTO {
     @AllArgsConstructor
     public static class ChatResponse {
         @Schema(description = "메시지 내용")
-        String content;
+        private String content;
         @Schema(description = "생성 시간", example = "2025-07-20T12:00:00")
-        LocalDateTime createAt;
+        private LocalDateTime createAt;
         @Schema(description = "사용자 요청인지 챗봇 응답인지", example = "USER")
-        MessageType messageType;
+        private MessageType messageType;
     }
 }
