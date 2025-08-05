@@ -32,7 +32,7 @@ public class ChatQueryService implements ChatQueryUseCase {
         return chatJpaRepository.findTop6ByMemberOrderByCreatedAtDesc(member)
                 .stream()
                 .map(chat -> new ChatResponseDTO.ChatResponse(
-                                chat.getContent(), chat.getCreatedAt(), chat.getType())
+                                chat.getContent(), chat.getCreatedAt(), chat.getIsMember())
                 ).collect(Collectors.toList());
     }
 
@@ -44,7 +44,7 @@ public class ChatQueryService implements ChatQueryUseCase {
         return chatJpaRepository.findTop6ByMemberAndCreatedAtLessThanOrderByCreatedAtDesc(member, before)
                 .stream()
                 .map(chat -> new ChatResponseDTO.ChatResponse(
-                        chat.getContent(), chat.getCreatedAt(), chat.getType()))
+                        chat.getContent(), chat.getCreatedAt(), chat.getIsMember()))
                 .collect(Collectors.toList());
     }
 

@@ -25,13 +25,16 @@ public class Chat extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @Column(length = 500, nullable = false) // 길이 제한 추가 가능성 있음
     private String content;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private MessageType type;
+    private Boolean isMember;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    private MessageType messageType;
 }

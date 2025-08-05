@@ -6,11 +6,12 @@ import umc.plantory.domain.member.entity.Member;
 
 public class ChatConverter {
 
-    public static Chat toChat(String message, Member member, MessageType type) {
+    public static Chat toChat(String message, Member member, Boolean isMember, MessageType type) {
         return Chat.builder()
                 .member(member)
                 .content(message)
-                .type(type)
+                .isMember(isMember)
+                .messageType(type)
                 .build();
     }
 

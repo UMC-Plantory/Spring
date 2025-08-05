@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.ai.chat.messages.MessageType;
 
 import java.time.LocalDateTime;
 
@@ -20,7 +19,7 @@ public class ChatResponseDTO {
         private String content;
         @Schema(description = "생성 시간", example = "2025-07-20T12:00:00")
         private LocalDateTime createAt;
-        @Schema(description = "사용자 요청인지 챗봇 응답인지", example = "USER")
-        private MessageType messageType;
+        @Schema(description = "사용자 요청인지 챗봇 응답인지", example = "false")
+        private Boolean isMember;
     }
 }
