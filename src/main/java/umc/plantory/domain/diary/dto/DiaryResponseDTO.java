@@ -59,6 +59,17 @@ public class DiaryResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    public static class CursorPaginationTotalDTO<T> {
+        private List<T> diaries;
+        private boolean hasNext;
+        private LocalDate nextCursor;
+        private long total;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class DiaryListDTO {
         private List<DiaryListSimpleInfoDTO> diaries;
     }

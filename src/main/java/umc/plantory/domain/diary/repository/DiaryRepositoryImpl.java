@@ -103,4 +103,46 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 .limit(size + 1)
                 .fetch();
     }
+
+    @Override
+    public List<Diary> searchDiaries(Long memberId, String keyword, LocalDate cursor, int size) {
+        QDiary diary = QDiary.diary;
+
+        // 해당 유저의 NORMAL, SCRAP 일기중 title이나 content에 검색 키워드가 포함된 일기 조회
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(diary.member.id.eq(memberId))
+                .and(diary.status.in(DiaryStatus.NORMAL, DiaryStatus.SCRAP))
+                .and(diary.title.containsIgnoreCase(keyword)
+                        .or(diary.content.containsIgnoreCase(keyword)));
+
+        // 커서 조건 (diaryDate)
+        if (cursor != null) {
+            builder.and(diary.diaryDate.lt(cursor));
+        }
+
+        return queryFactory
+                .selectFrom(diary)
+                .where(builder)
+                .orderBy(diary.diaryDate.desc())
+                .limit(size + 1)
+                .fetch();
+    }
+
+    @Override
+    public long countDiariesByKeyword(Long memberId, String keyword) {
+        QDiary diary = QDiary.diary;
+
+        // 해당 유저의 NORMAL, SCRAP 일기중 title이나 content에 검색 키워드가 포함된 일기 조회
+        BooleanBuilder builder = new BooleanBuilder()
+                .and(diary.member.id.eq(memberId))
+                .and(diary.status.in(DiaryStatus.NORMAL, DiaryStatus.SCRAP))
+                .and(diary.title.containsIgnoreCase(keyword)
+                        .or(diary.content.containsIgnoreCase(keyword)));
+
+        return queryFactory
+                .select(diary.count())
+                .from(diary)
+                .where(builder)
+                .fetchOne();
+    }
 }

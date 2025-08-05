@@ -35,9 +35,6 @@ public class DiaryQueryService implements DiaryQueryUseCase {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
-    // 일기 조회 시 보여지는 일기 종류
-    private static final List<DiaryStatus> DIARY_VALID_STATUSES = List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP);
-
     /**
      * 특정 일기 ID에 대한 상세 정보를 조회
      *
@@ -71,7 +68,7 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         Member member = getLoginMember(authorization);
 
         // 해당 날짜의 NORMAL, SCRAP 상태인 일기 조회
-        Diary diary = diaryRepository.findByMemberIdAndDiaryDateAndStatusIn(member.getId(), date, DIARY_VALID_STATUSES)
+        Diary diary = diaryRepository.findByMemberIdAndDiaryDateAndStatusIn(member.getId(), date, List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP))
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
 
         return DiaryConverter.toDiarySimpleInfoDTO(diary);
@@ -99,13 +96,52 @@ public class DiaryQueryService implements DiaryQueryUseCase {
      *
      * @param authorization 요청 헤더의 JWT 토큰
      * @param request 일기 필터 조건 (정렬, 커서, 기간, 감정 등)
-     * @return CursorPaginationDTO 일기 목록 + 페이징 정보
+     * @return CursorPaginationDTO 일기 목록 + 페이징 정보 + 검색된 개수
      */
     @Override
     public DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> getDiaryList(String authorization, DiaryRequestDTO.DiaryFilterDTO request) {
         Long memberId = getLoginMember(authorization).getId();
         List<Diary> diaries = diaryRepository.findFilteredDiaries(memberId, request);
-        return toCursorPagination(diaries, request.getSize());
+
+        // 페이징 처리
+        boolean hasNext = hasNext(diaries, request.getSize());
+        List<Diary> trimmed = trimToSize(diaries, request.getSize(), hasNext);
+        LocalDate nextCursor = getNextCursor(trimmed, hasNext);
+
+        List<DiaryResponseDTO.DiaryListInfoDTO> content = trimmed.stream()
+                .map(DiaryConverter::toDiaryListInfoDTO)
+                .toList();
+
+        return DiaryConverter.toCursorPaginationDTO(content, hasNext, nextCursor);
+    }
+
+    /**
+     * 검색 키워드가 포함된 NORMAL/SCRAP 상태의 일기 목록을 커서 기반으로 조회
+     *
+     * @param authorization 요청 헤더의 JWT 토큰
+     * @param keyword 검색어
+     * @param cursor 커서 기준 날짜 (LocalDate)
+     * @param size 한 번에 가져올 일기 개수
+     * @return CursorPaginationTotalDTO 일기 목록 + 페이징 정보 + 검색된 개수
+     */
+    @Override
+    public DiaryResponseDTO.CursorPaginationTotalDTO<DiaryResponseDTO.DiaryListInfoDTO> searchDiaries(String authorization, String keyword, LocalDate cursor, int size) {
+        Long memberId = getLoginMember(authorization).getId();
+        List<Diary> diaries = diaryRepository.searchDiaries(memberId, keyword, cursor, size);
+
+        // 페이징 처리
+        boolean hasNext = hasNext(diaries, size);
+        List<Diary> trimmed = trimToSize(diaries, size, hasNext);
+        LocalDate nextCursor = getNextCursor(trimmed, hasNext);
+
+        // 검색된 일기 총 개수
+        long total = diaryRepository.countDiariesByKeyword(memberId, keyword);
+
+        List<DiaryResponseDTO.DiaryListInfoDTO> content = trimmed.stream()
+                .map(DiaryConverter::toDiaryListInfoDTO)
+                .toList();
+
+        return DiaryConverter.toCursorPaginationWithTotalDTO(content, hasNext, nextCursor, total);
     }
 
     /**
@@ -121,7 +157,17 @@ public class DiaryQueryService implements DiaryQueryUseCase {
     public DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> getScrapDiaryList(String authorization, String sort, LocalDate cursor, int size) {
         Long memberId = getLoginMember(authorization).getId();
         List<Diary> diaries = diaryRepository.findScrappedDiaries(memberId, sort, cursor, size);
-        return toCursorPagination(diaries, size);
+
+        // 페이징 처리
+        boolean hasNext = hasNext(diaries, size);
+        List<Diary> trimmed = trimToSize(diaries, size, hasNext);
+        LocalDate nextCursor = getNextCursor(trimmed, hasNext);
+
+        List<DiaryResponseDTO.DiaryListInfoDTO> content = trimmed.stream()
+                .map(DiaryConverter::toDiaryListInfoDTO)
+                .toList();
+
+        return DiaryConverter.toCursorPaginationDTO(content, hasNext, nextCursor);
     }
 
     /**
@@ -177,24 +223,19 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         }
     }
 
-    // Cursor 기반 페이징 응답 변환
-    private DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> toCursorPagination(List<Diary> diaries, int size) {
-        // size + 1개를 받아온 경우 → 다음 페이지 있음
-        boolean hasNext = diaries.size() > size;
+    // 다음 페이지 여부 판단 (size + 1개를 조회한 경우 true)
+    private boolean hasNext(List<Diary> diaries, int size) {
+        return diaries.size() > size;
+    }
 
-        // size까지만 잘라 반환
-        if (hasNext) {
-            diaries = diaries.subList(0, size);
-        }
+    // 다음 페이지가 존재하는 경우 size만큼 잘라낸 리스트 반환
+    private List<Diary> trimToSize(List<Diary> diaries, int size, boolean hasNext) {
+        return hasNext ? diaries.subList(0, size) : diaries;
+    }
 
-        List<DiaryResponseDTO.DiaryListInfoDTO> content = diaries.stream()
-                .map(DiaryConverter::toDiaryListInfoDTO)
-                .toList();
-
-        // 다음 커서로 사용할 diaryDate
-        LocalDate nextCursor = hasNext ? diaries.get(diaries.size() - 1).getDiaryDate() : null;
-
-        return DiaryConverter.toCursorPaginationDTO(content, hasNext, nextCursor);
+    // 다음 커서로 사용할 diaryDate 추출
+    private LocalDate getNextCursor(List<Diary> diaries, boolean hasNext) {
+        return hasNext ? diaries.get(diaries.size() - 1).getDiaryDate() : null;
     }
 
     // DiaryStatus 기반 일기 리스트 조회 (정렬만 적용, 페이징 없음)

@@ -79,6 +79,15 @@ public class DiaryConverter {
                 .build();
     }
 
+    public static <T> DiaryResponseDTO.CursorPaginationTotalDTO<T> toCursorPaginationWithTotalDTO(List<T> diaries, boolean hasNext, LocalDate nextCursor, long total) {
+        return DiaryResponseDTO.CursorPaginationTotalDTO.<T>builder()
+                .diaries(diaries)
+                .hasNext(hasNext)
+                .nextCursor(nextCursor)
+                .total(total)
+                .build();
+    }
+
     public static DiaryResponseDTO.DiaryListSimpleInfoDTO toDiayListSimpleInfoDTO(Diary diary) {
         return DiaryResponseDTO.DiaryListSimpleInfoDTO.builder()
                 .diaryId(diary.getId())

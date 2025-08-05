@@ -89,6 +89,21 @@ public class DiaryQueryController {
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
+    @Operation(summary = "일기 검색", description = "제목 또는 내용에 특정 키워드가 포함된 일기 목록을 조회합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공")
+    })
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<DiaryResponseDTO.CursorPaginationTotalDTO<DiaryResponseDTO.DiaryListInfoDTO>>> searchDiaries(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "cursor", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate cursor,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        DiaryResponseDTO.CursorPaginationTotalDTO<DiaryResponseDTO.DiaryListInfoDTO> response = diaryQueryUseCase.searchDiaries(authorization, keyword, cursor, size);
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
+    }
+
     @Operation(summary = "스크랩 일기 리스트 조회", description = "정렬 기준과 커서를 기준으로 스크랩한 일기 목록을 조회합니다.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공")
