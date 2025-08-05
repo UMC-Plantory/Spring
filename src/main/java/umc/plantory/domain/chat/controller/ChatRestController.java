@@ -1,10 +1,13 @@
 package umc.plantory.domain.chat.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import umc.plantory.domain.chat.dto.ChatRequestDTO;
 import umc.plantory.domain.chat.dto.ChatResponseDTO;
+import umc.plantory.domain.chat.service.ChatCommandUseCase;
 import umc.plantory.domain.chat.service.ChatQueryUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
@@ -15,8 +18,23 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/plantory/chat")
-public class ChatQueryController {
+public class ChatRestController {
+
     private final ChatQueryUseCase chatQueryUseCase;
+    private final ChatCommandUseCase chatCommandUseCase;
+
+    @PostMapping
+    @Operation(
+            summary = "챗봇 채팅 요청",
+            description = "사용자가 챗봇에게 메시지를 보내면, 챗봇의 답변을 반환합니다."
+    )
+    public ResponseEntity<ApiResponse<String>> chat (
+            @RequestBody @Valid ChatRequestDTO.ChatMessageDTO request,
+            @RequestHeader(value = "Authorization", required = false) String authorization
+    ) {
+        String response = chatCommandUseCase.ask(authorization, request);
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
+    }
 
     // 챗봇 채팅창 처음 최초 진입 : 최신 6개
     @GetMapping("/latest")
@@ -24,7 +42,7 @@ public class ChatQueryController {
             summary = "챗봇 채팅창 이전 대화 기록 최초 조회",
             description = "사용자가 챗봇과 나눈 이전 대화 중 가장 최근 6개를 조회합니다. "
     )
-    public ResponseEntity<ApiResponse<List<ChatResponseDTO.ChatResponse>>> getChatHistoryLatest(
+    public ResponseEntity<ApiResponse<List<ChatResponseDTO.ChatResponse>>> getChatHistoryLatest (
             @RequestHeader(value = "Authorization", required = false) String authorization
     ) {
         List<ChatResponseDTO.ChatResponse> latestChats = chatQueryUseCase.findLatestChats(authorization);
@@ -36,7 +54,7 @@ public class ChatQueryController {
             summary = "최초 진입 이후, 챗봇 채팅창 이전 채팅 스크롤 조회",
             description = "스크롤 시, 기준 시각(before) 이전의 6개 채팅을 추가로 조회 "
     )
-    public ResponseEntity<ApiResponse<List<ChatResponseDTO.ChatResponse>>> getChatHistoryBefore(
+    public ResponseEntity<ApiResponse<List<ChatResponseDTO.ChatResponse>>> getChatHistoryBefore (
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestParam("before") LocalDateTime before
     ) {
