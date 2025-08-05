@@ -9,6 +9,7 @@ import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.wateringCan.entity.WateringCan;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface WateringCanRepository extends JpaRepository<WateringCan, Long> {
@@ -18,4 +19,11 @@ public interface WateringCanRepository extends JpaRepository<WateringCan, Long> 
     // WateringEvent 테이블을 사용하여 특정 테라리움의 물 준 횟수 계산
     @Query("SELECT COUNT(we) FROM WateringEvent we WHERE we.terrarium = :terrarium")
     Integer countByTerrarium(@Param("terrarium") Terrarium terrarium);
+    @Query("SELECT wc FROM WateringCan wc " +
+            "WHERE wc.diary.member.id = :memberId " +
+            "AND NOT EXISTS (" +
+            "SELECT we FROM WateringEvent we " +
+            "WHERE we.wateringCan = wc) " +
+            "ORDER BY wc.diary.createdAt ASC")
+    List<WateringCan> findUnusedByMemberIdOrderByDiaryCreatedAtAsc(@Param("memberId") Long memberId);
 }

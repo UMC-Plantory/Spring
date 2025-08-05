@@ -100,6 +100,8 @@ public class Member extends BaseEntity {
     public void increaseWateringCan() {
         this.wateringCanCnt = this.wateringCanCnt + 1;
     }
+    public void decreaseWateringCan() {this.wateringCanCnt -= 1;}
+    public void increaseTotalBloomCnt() {this.totalBloomCnt += 1;}
 
     public void updateProfileImgUrl(String profileImgUrl) {
         this.profileImgUrl = profileImgUrl;
