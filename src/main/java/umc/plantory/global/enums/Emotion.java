@@ -6,4 +6,5 @@ public enum Emotion {
     SAD,
     ANGRY,
     SOSO,
+    DEFAULT
 }
