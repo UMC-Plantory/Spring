@@ -7,7 +7,7 @@ import umc.plantory.domain.member.entity.Member;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface ChatJpaRepository extends JpaRepository<Chat, Long> {
+public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     // member의 최신 채팅 6개(최신 -> 과거) 조회
     List<Chat> findTop6ByMemberOrderByCreatedAtDesc(Member member);

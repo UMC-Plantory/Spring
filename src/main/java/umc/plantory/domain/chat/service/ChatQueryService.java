@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.chat.dto.ChatResponseDTO;
-import umc.plantory.domain.chat.repository.ChatJpaRepository;
+import umc.plantory.domain.chat.repository.ChatRepository;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class ChatQueryService implements ChatQueryUseCase {
 
     private final JwtProvider jwtProvider;
-    private final ChatJpaRepository chatJpaRepository;
+    private final ChatRepository chatRepository;
     private final MemberRepository memberRepository;
 
     // 챗봇 대화창 최초 진입: 최신 6개 채팅 조회
@@ -29,7 +29,7 @@ public class ChatQueryService implements ChatQueryUseCase {
     public List<ChatResponseDTO.ChatResponse> findLatestChats(String authorization) {
         Member member = getLoginedMember(authorization);
 
-        return chatJpaRepository.findTop6ByMemberOrderByCreatedAtDesc(member)
+        return chatRepository.findTop6ByMemberOrderByCreatedAtDesc(member)
                 .stream()
                 .map(chat -> new ChatResponseDTO.ChatResponse(
                                 chat.getContent(), chat.getCreatedAt(), chat.getIsMember())
@@ -41,7 +41,7 @@ public class ChatQueryService implements ChatQueryUseCase {
     public List<ChatResponseDTO.ChatResponse> findBeforeChats(String authorization, LocalDateTime before) {
         Member member = getLoginedMember(authorization);
 
-        return chatJpaRepository.findTop6ByMemberAndCreatedAtLessThanOrderByCreatedAtDesc(member, before)
+        return chatRepository.findTop6ByMemberAndCreatedAtLessThanOrderByCreatedAtDesc(member, before)
                 .stream()
                 .map(chat -> new ChatResponseDTO.ChatResponse(
                         chat.getContent(), chat.getCreatedAt(), chat.getIsMember()))

@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import umc.plantory.domain.chat.dto.ChatRequestDTO;
 import umc.plantory.domain.chat.converter.ChatConverter;
-import umc.plantory.domain.chat.repository.ChatJpaRepository;
+import umc.plantory.domain.chat.repository.ChatRepository;
 import umc.plantory.domain.chat.prompt.PromptFactory;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
@@ -37,7 +37,7 @@ import java.util.List;
 public class ChatCommandService implements ChatCommandUseCase {
     private final OpenAiChatModel openAiChatModel;
     private final ChatMemory chatMemory;
-    private final ChatJpaRepository chatJpaRepository;
+    private final ChatRepository chatRepository;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
@@ -58,8 +58,8 @@ public class ChatCommandService implements ChatCommandUseCase {
         chatMemory.add(String.valueOf(member.getId()), new AssistantMessage(request.getContent()));
         chatMemory.add(String.valueOf(member.getId()), new AssistantMessage(response));
         // 사용자 메시지 및 AI 응답 DB에 저장
-        chatJpaRepository.save(ChatConverter.toChat(request.getContent(), member, true, MessageType.USER));
-        chatJpaRepository.save(ChatConverter.toChat(response, member, false, MessageType.ASSISTANT));
+        chatRepository.save(ChatConverter.toChat(request.getContent(), member, true, MessageType.USER));
+        chatRepository.save(ChatConverter.toChat(response, member, false, MessageType.ASSISTANT));
 
         return response;
     }
