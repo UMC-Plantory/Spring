@@ -10,6 +10,7 @@ import umc.plantory.domain.chat.dto.ChatRequestDTO;
 import umc.plantory.domain.chat.service.ChatCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
+/** 심현민 & 박형진 공동 작업 **/
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/plantory/chat")
