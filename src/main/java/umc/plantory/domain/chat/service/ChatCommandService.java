@@ -55,7 +55,7 @@ public class ChatCommandService implements ChatCommandUseCase {
         String response = getResponse(prompt);
 
         // 사용자 메시지 및 AI 응답 메모리에 저장
-        chatMemory.add(String.valueOf(member.getId()), new AssistantMessage(request.getContent()));
+        chatMemory.add(String.valueOf(member.getId()), new UserMessage(request.getContent()));
         chatMemory.add(String.valueOf(member.getId()), new AssistantMessage(response));
         // 사용자 메시지 및 AI 응답 DB에 저장
         chatRepository.save(ChatConverter.toChat(request.getContent(), member, true, MessageType.USER));
