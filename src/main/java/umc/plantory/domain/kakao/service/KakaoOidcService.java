@@ -1,13 +1,10 @@
 package umc.plantory.domain.kakao.service;
 
-import com.auth0.jwk.Jwk;
-import com.auth0.jwk.JwkProvider;
-import com.auth0.jwk.UrlJwkProvider;
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.auth0.jwt.interfaces.JWTVerifier;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,8 +14,12 @@ import umc.plantory.domain.member.dto.MemberRequestDTO;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.KakaoHandler;
 
+import java.math.BigInteger;
 import java.net.URL;
+import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.RSAPublicKeySpec;
+import java.util.Base64;
 
 
 @Service
@@ -35,30 +36,47 @@ public class KakaoOidcService {
      */
     public MemberDataDTO.KakaoMemberData verifyAndParseIdToken(MemberRequestDTO.KkoOAuth2LoginRequest request) {
         try {
-            // id_token 디코딩 : 헤더와 payload 읽기 위해 필요
-            DecodedJWT decodedJWT = JWT.decode(request.getIdToken());
+            // JWT 디코드 (헤더 추출)
+            String[] parts = request.getIdToken().split("\\.");
+            if (parts.length != 3) throw new KakaoHandler(ErrorStatus.INVALID_JWT_TOKEN);
 
-            /*
-            Kakao 공개키 가져오기
-            decodedJWT.getKeyId() : JWT Header에 있는 kid 값
-            이 kid에 해당하는 공개키를 Kakao의 JWK 서버에서 찾아옴
-            반환된 Jwk 는 Kakao가 서명할 때 썼던 RSA 공개키를 포함
-            */
-            JwkProvider jwkProvider = new UrlJwkProvider(new URL((JWK_URL)));
-            Jwk jwk = jwkProvider.get(decodedJWT.getKeyId());
+            // 헤더 에서 kid(키 아이디) 추출
+            String headerJson = new String(Base64.getUrlDecoder().decode(parts[0]));
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode header = mapper.readTree(headerJson);
+            String kid = header.get("kid").asText();
 
-            // 가져온 공개키로 RSA256 서명 검증용 알고리즘 생성 -> JWT는 서명 검증에만 공개키 사용 (비밀키 X -> null)
-            Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
+            // JWKS 불러오기
+            JsonNode keys = mapper.readTree(new URL(JWK_URL)).get("keys");
 
-            // 알고리즘 + issuer 설정
-            JWTVerifier jwtVerifier = JWT.require(algorithm)
-                    .withIssuer(ISSUER)
+            JsonNode matchedKey = null;
+            for (JsonNode key : keys) {
+                if (key.get("kid").asText().equals(kid)) {
+                    matchedKey = key;
+                    break;
+                }
+            }
+
+            if (matchedKey == null) throw new KakaoHandler(ErrorStatus.ERROR_ON_VERIFYING);
+
+            // 공개키 추출 (n, e -> RSA public Key)
+            String n = matchedKey.get("n").asText();
+            String e = matchedKey.get("e").asText();
+            BigInteger modulus = new BigInteger(1, Base64.getUrlDecoder().decode(n));
+            BigInteger exponent = new BigInteger(1, Base64.getUrlDecoder().decode(e));
+
+            RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, exponent);
+            RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
+
+            // 검증 및 Claims 추출
+            JwtParser parser = Jwts.parserBuilder()
+                    .setSigningKey(publicKey)
+                    .requireIssuer(ISSUER)
                     .build();
 
-            // 실제 JWT 검증 수행
-            DecodedJWT verified = jwtVerifier.verify(request.getIdToken());
+            Claims claims = parser.parseClaimsJws(request.getIdToken()).getBody();
 
-            return KakaoConverter.toKakaoMemberData(verified);
+            return KakaoConverter.toKakaoMemberData(claims);
         } catch (Exception e) {
             log.error("KakaoOidcService Error Occurred: {}", e.getMessage());
             throw new KakaoHandler(ErrorStatus.ERROR_ON_VERIFYING);
