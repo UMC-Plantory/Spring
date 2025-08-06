@@ -36,7 +36,8 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/v1/plantory/member/kko/login"
+                                "/v1/plantory/member/kko/login",
+                                "v1/plantory/token/refresh"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
