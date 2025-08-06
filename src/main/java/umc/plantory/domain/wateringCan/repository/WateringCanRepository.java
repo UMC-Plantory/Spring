@@ -6,9 +6,11 @@ import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.wateringCan.entity.WateringCan;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface WateringCanRepository extends JpaRepository<WateringCan, Long> {
     Optional<WateringCan> findByDiary(Diary diary);
     boolean existsByDiaryDateAndMember(LocalDate diaryDate, Member member);
+    List<WateringCan> findByDiaryIn(List<Diary> diaryList);
 }

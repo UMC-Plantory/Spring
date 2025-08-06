@@ -7,6 +7,7 @@ import umc.plantory.domain.member.entity.Member;
 import umc.plantory.global.enums.DiaryStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,4 +16,6 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
     boolean existsByMemberIdAndDiaryDateAndStatus(Long memberId, LocalDate diaryDate, DiaryStatus status);
     List<Diary> findByMemberAndStatusInAndDiaryDateBetween(Member member, List<DiaryStatus> diaryStatuses, LocalDate start, LocalDate end);
     List<Diary> findAllByMemberIdAndStatus(Long memberId, DiaryStatus status, Sort sort);
+    List<Diary> findByStatusAndTempSavedAtBefore(DiaryStatus status, LocalDateTime threshold);
+    List<Diary> findByStatusAndDeletedAtBefore(DiaryStatus status, LocalDateTime threshold);
 }
