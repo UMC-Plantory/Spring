@@ -22,6 +22,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
+import static umc.plantory.global.enums.DiaryStatus.VALID_STATUSES;
+
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -31,9 +33,6 @@ public class StatisticQueryService implements StatisticQueryUseCase {
     private final DiaryRepository diaryRepository;
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
-
-    // NORMAL 또는 SCRAP 상태인 일기만 조회
-    private static final List<DiaryStatus> VALID_STATUSES = List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP);
 
     /**
      * 전달받은 날짜를 기준으로, 사용자의 최근 7일간 수면 통계 정보를 반환합니다.

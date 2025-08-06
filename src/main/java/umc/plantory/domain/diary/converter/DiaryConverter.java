@@ -13,9 +13,9 @@ import java.util.List;
 
 public class DiaryConverter {
 
-    public static Diary toDiary(DiaryRequestDTO.DiaryUploadDTO request, Member member) {
+    public static Diary toDiary(DiaryRequestDTO.DiaryUploadDTO request, Member member, String title) {
         return Diary.builder()
-                .title("임시 제목")
+                .title(title)
                 .diaryDate(request.getDiaryDate())
                 .emotion(request.getEmotion() != null ? Emotion.valueOf(request.getEmotion()) : null)
                 .content(request.getContent())

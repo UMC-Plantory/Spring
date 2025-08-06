@@ -51,7 +51,7 @@ public enum ErrorStatus implements BaseErrorCode {
     // 채팅 관련
     INVALID_API_KEY(HttpStatus.UNAUTHORIZED, "CHAT4001", "API 키가 잘못됐습니다."),
     QUOTA_EXCEEDED(HttpStatus.FORBIDDEN, "CHAT4002", "API 쿼터가 모두 소진되었습니다."),
-    SERVER_ERROR(HttpStatus.TOO_MANY_REQUESTS, "CHAT4003", "OPENAI 서버 오류."),
+    OPEN_AI_SERVER_ERROR(HttpStatus.TOO_MANY_REQUESTS, "CHAT4003", "OPENAI 서버 오류."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CHAT4004", "서버 오류"),
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "CHAT4005", "서버 과부하"),
       

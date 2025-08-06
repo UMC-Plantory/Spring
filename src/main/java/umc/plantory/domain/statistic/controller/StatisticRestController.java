@@ -27,7 +27,7 @@ public class StatisticRestController {
             description = "입력한 날짜 기준으로 사용자의 최근 7일간 수면 통계 정보를 조회합니다."
     )
     public ResponseEntity<ApiResponse<StatisticResponseDTO.WeeklySleepStatisticDTO>> getWeeklySleepStatistic(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getWeeklySleepStatistics(authorization, today)));
@@ -39,7 +39,7 @@ public class StatisticRestController {
             description = "입력한 날짜 기준으로 사용자의 최근 30일간 수면 통계 정보를 조회합니다."
     )
     public ResponseEntity<ApiResponse<StatisticResponseDTO.MonthlySleepStatisticDTO>> getMonthlySleepStatistic(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getMonthlySleepStatistics(authorization, today)));
@@ -51,7 +51,7 @@ public class StatisticRestController {
             description = "입력한 날짜 기준으로 사용자의 최근 7일간 감정 통계 정보를 조회합니다."
     )
     public ResponseEntity<ApiResponse<StatisticResponseDTO.EmotionStatisticDTO>> getWeeklyEmotionStatistic(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getEmotionStatistics(authorization, today, 7)));
@@ -63,7 +63,7 @@ public class StatisticRestController {
             description = "입력한 날짜 기준으로 사용자의 최근 30일간 감정 통계 정보를 조회합니다."
     )
     public ResponseEntity<ApiResponse<StatisticResponseDTO.EmotionStatisticDTO>> getMonthlyEmotionStatistic(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getEmotionStatistics(authorization, today, 30)));

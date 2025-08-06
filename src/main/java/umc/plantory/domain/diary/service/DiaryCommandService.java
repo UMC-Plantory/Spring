@@ -1,8 +1,11 @@
 package umc.plantory.domain.diary.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.global.ai.AIClient;
+import umc.plantory.global.ai.PromptFactory;
 import umc.plantory.domain.diary.converter.DiaryConverter;
 import umc.plantory.domain.diary.dto.DiaryRequestDTO;
 import umc.plantory.domain.diary.dto.DiaryResponseDTO;
@@ -40,6 +43,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     private final WateringCanRepository wateringCanRepository;
     private final ImageUseCase imageUseCase;
     private final JwtProvider jwtProvider;
+    private final AIClient aiClient;
 
     /**
      * 일기 등록
@@ -52,8 +56,12 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public DiaryResponseDTO.DiaryInfoDTO saveDiary(String authorization, DiaryRequestDTO.DiaryUploadDTO request) {
         Member member = getLoginMember(authorization);
 
+        // AI 프롬프트 생성 및 제목 응답 받기
+        Prompt prompt = PromptFactory.buildDiaryTitlePrompt(request.getContent());
+        String diaryTitle = aiClient.getResponse(prompt);
+
         // diary 엔티티 생성 및 저장
-        Diary diary = DiaryConverter.toDiary(request, member);
+        Diary diary = DiaryConverter.toDiary(request,member, diaryTitle);
         diaryRepository.save(diary);
 
         // 이미지 등록 처리
