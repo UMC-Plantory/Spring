@@ -113,12 +113,4 @@ public class Member extends BaseEntity {
             this.inactiveAt = LocalDateTime.now(); // 시간 업데이트
         }
     }
-
-    public void updateContinuousRecordCnt(Integer continuousRecordCnt) {
-        this.continuousRecordCnt = continuousRecordCnt;
-    }
-
-    public void updateTotalRecordCnt(Integer totalRecordCnt) {
-        this.totalRecordCnt = totalRecordCnt;
-    }
 }

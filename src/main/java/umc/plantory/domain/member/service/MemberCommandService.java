@@ -96,51 +96,51 @@ public class MemberCommandService implements MemberCommandUseCase {
         return MemberConverter.toTermAgreementResponse(findMember);
     }
 
-        @Override
-        @Transactional
-        public MemberResponseDTO.MemberSignupResponse memberSignup(String authorization, MemberRequestDTO.MemberSignupRequest request) {
-            // Authorization 헤더에서 토큰 추출
-            String token = jwtProvider.resolveToken(authorization);
-            if (token == null) {
-                throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-            }
+    @Override
+    @Transactional
+    public MemberResponseDTO.MemberSignupResponse memberSignup(String authorization, MemberRequestDTO.MemberSignupRequest request) {
+        // Authorization 헤더에서 토큰 추출
+        String token = jwtProvider.resolveToken(authorization);
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
 
-            // JWT 토큰 검증 및 멤버 ID 추출
-            jwtProvider.validateToken(token);
-            Long memberId = jwtProvider.getMemberId(token);
+        // JWT 토큰 검증 및 멤버 ID 추출
+        jwtProvider.validateToken(token);
+        Long memberId = jwtProvider.getMemberId(token);
 
-            // 회원 조회
-            Member findMember = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+        // 회원 조회
+        Member findMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-            // 필수 추가 정보 검증
-            if (!validateAdditionalInfo(request)) {
-                throw new MemberHandler(ErrorStatus.INVALID_MEMBER_INFO);
-            }
+        // 필수 추가 정보 검증
+        if (!validateAdditionalInfo(request)) {
+            throw new MemberHandler(ErrorStatus.INVALID_MEMBER_INFO);
+        }
 
-            // 추가 정보 저장
-            findMember.updateNickname(request.getNickname());
-            findMember.updateUserCustomId(request.getUserCustomId());
-            findMember.updateBirth(request.getBirth());
-            findMember.updateGender(request.getGender());
+        // 추가 정보 저장
+        findMember.updateNickname(request.getNickname());
+        findMember.updateUserCustomId(request.getUserCustomId());
+        findMember.updateBirth(request.getBirth());
+        findMember.updateGender(request.getGender());
 
-            // 프로필 이미지 설정
-            String profileImgUrl = request.getProfileImgUrl();
-            if (profileImgUrl != null && !profileImgUrl.trim().isEmpty()) {
-                findMember.updateProfileImgUrl(profileImgUrl);
-            } else {
-                // 기본 프로필 이미지 설정
-                findMember.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
-            }
+        // 프로필 이미지 설정
+        String profileImgUrl = request.getProfileImgUrl();
+        if (profileImgUrl != null && !profileImgUrl.trim().isEmpty()) {
+            findMember.updateProfileImgUrl(profileImgUrl);
+        } else {
+            // 기본 프로필 이미지 설정
+            findMember.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
+        }
 
-            memberRepository.save(findMember);
+        memberRepository.save(findMember);
 
-            // 초기 테라리움 생성
-            terrariumRepository.save(TerrariumConverter.toTerrarium(findMember,
+        // 초기 테라리움 생성
+        terrariumRepository.save(TerrariumConverter.toTerrarium(findMember,
                 flowerRepository.findByEmotion(Emotion.DEFAULT)));
 
-            // 응답 반환
-            return MemberConverter.toMemberSignupResponse(findMember);
+        // 응답 반환
+        return MemberConverter.toMemberSignupResponse(findMember);
     }
 
     @Override
@@ -168,8 +168,6 @@ public class MemberCommandService implements MemberCommandUseCase {
             findMember.updateUserCustomId(request.getUserCustomId());
         }
         if (request.getGender() != null) {
-
-
             findMember.updateGender(request.getGender());
         }
         if (request.getBirth() != null) {
