@@ -1,8 +1,10 @@
 package umc.plantory.domain.chat.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.plantory.domain.chat.dto.ChatRequestDTO;
@@ -11,6 +13,7 @@ import umc.plantory.domain.chat.service.ChatCommandUseCase;
 import umc.plantory.domain.chat.service.ChatQueryUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,6 +21,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/plantory/chat")
+@Tag(name = "Chat", description = "채팅 관련 API")
 public class ChatRestController {
 
     private final ChatQueryUseCase chatQueryUseCase;
@@ -36,29 +40,17 @@ public class ChatRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
-    // 챗봇 채팅창 처음 최초 진입 : 최신 6개
-    @GetMapping("/latest")
-    @Operation(
-            summary = "챗봇 채팅창 이전 대화 기록 최초 조회",
-            description = "사용자가 챗봇과 나눈 이전 대화 중 가장 최근 6개를 조회합니다. "
-    )
-    public ResponseEntity<ApiResponse<List<ChatResponseDTO.ChatResponse>>> getChatHistoryLatest (
-            @RequestHeader(value = "Authorization", required = false) String authorization
-    ) {
-        List<ChatResponseDTO.ChatResponse> latestChats = chatQueryUseCase.findLatestChats(authorization);
-        return ResponseEntity.ok(ApiResponse.onSuccess(latestChats));
-    }
-    // 최초 진입 이후, 스크롤 업: 특정 createdAt 이전 6개 조회 (커서 페이징)
-    @GetMapping("/before")
+    @GetMapping("/list")
     @Operation(
             summary = "최초 진입 이후, 챗봇 채팅창 이전 채팅 스크롤 조회",
-            description = "스크롤 시, 기준 시각(before) 이전의 6개 채팅을 추가로 조회 "
+            description = "스크롤 시, 기준 시각(cursor) 이전의 채팅을 추가로 조회 "
     )
-    public ResponseEntity<ApiResponse<List<ChatResponseDTO.ChatResponse>>> getChatHistoryBefore (
+    public ResponseEntity<ApiResponse<ChatResponseDTO.ChatsResponse>> getChats(
             @RequestHeader(value = "Authorization", required = false) String authorization,
-            @RequestParam("before") LocalDateTime before
+            @RequestParam(value = "cursor", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime cursor,
+            @RequestParam(value = "size", defaultValue = "6") int size
     ) {
-        List<ChatResponseDTO.ChatResponse> beforeChats = chatQueryUseCase.findBeforeChats(authorization, before);
-        return ResponseEntity.ok(ApiResponse.onSuccess(beforeChats));
+        ChatResponseDTO.ChatsResponse chatList = chatQueryUseCase.findChatList(authorization, cursor, size);
+        return ResponseEntity.ok(ApiResponse.onSuccess(chatList));
     }
 }

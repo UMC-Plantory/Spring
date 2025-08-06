@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ChatResponseDTO {
 
@@ -14,7 +14,17 @@ public class ChatResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ChatResponse {
+    public static class ChatsResponse {
+        private boolean hasNext;
+        private LocalDateTime nextCursor;
+        List<ChatsDetatil> chatsDetatilList;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChatsDetatil{
         @Schema(description = "메시지 내용")
         private String content;
         @Schema(description = "생성 시간", example = "2025-07-20T12:00:00")
