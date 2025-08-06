@@ -22,11 +22,17 @@ import umc.plantory.global.apiPayload.exception.handler.TerrariumHandler;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.GeneralException;
+import umc.plantory.global.apiPayload.exception.handler.WateringCanHandler;
 import umc.plantory.global.enums.Emotion;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,116 +48,79 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
 
     /**
      * 회원의 테라리움을 물주는 작업을 수행합니다.
-     *
-     * @param authorization 인증용 JWT 토큰
-     * @param terrariumId   현재 키우고 있는 중인 테라리움 id
      */
     @Override
     @Transactional
     public TerrariumResponseDto.WateringTerrariumResponse performTerrariumWatering(String authorization, Long terrariumId) {
-
-        String token = jwtProvider.resolveToken(authorization);
-        if (token == null) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-        jwtProvider.validateToken(token);
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
-
         Terrarium terrarium = terrariumRepository.findById(terrariumId)
                 .orElseThrow(() -> new TerrariumHandler(ErrorStatus.TERRARIUM_NOT_FOUND));
-        // 사용 가능한 물뿌리개 확인 및 WateringCan 개수 검증
-        WateringCan wateringCan = findAvailableWateringCan(memberId);
-        // 물주기 작업 수행
-        try {
-            WateringResult wateringResult = processWatering(member, terrarium, wateringCan);
-            return TerrariumConverter.toWateringTerrariumResponse(
-                    wateringResult.getWateringCount(),
-                    member.getWateringCanCnt(),
-                    wateringResult.emotionCounts
-                    ,terrarium.getFlower());
-        } catch (Exception e) {
-            throw new GeneralException(ErrorStatus.WATERING_PROCESS_FAILED);
-        }
-    }
 
-    // 사용 가능한 물뿌리개 조회 (가장 오래된 일기 기준)
-    private WateringCan findAvailableWateringCan(Long memberId) {
-        List<WateringCan> availableWateringCanList = wateringCanRepository.findUnusedByMemberIdOrderByDiaryCreatedAtAsc(memberId);
-        WateringCan wateringCan = availableWateringCanList.get(0);
-        if (wateringCan == null) {
-            throw new TerrariumHandler(ErrorStatus.NO_AVAILABLE_WATERING_CAN);
-        }
-        return wateringCan;
-    }
+        // 현재 테라리움에 준 물의 수
+        Integer currentWateringCnt = wateringEventRepository.countByTerrarium(terrarium);
 
-    // 물주기 처리 메서드
-    private WateringResult processWatering(Member member, Terrarium terrarium, WateringCan wateringCan) {
-        // WateringCan 개수 차감 후 저장
+        // 사용할 물뿌리개 조회
+        WateringCan selectedWateringCan = wateringCanRepository.findSelectedWateringCan(member)
+                .orElseThrow(() -> new WateringCanHandler(ErrorStatus.NO_AVAILABLE_WATERING_CAN));
+
+        // 물 사용 -> 해당 멤버의 물 Count - 1
         member.decreaseWateringCan();
+        currentWateringCnt++;
 
-        // 새로운 WateringEvent 생성 및 저장 후 즉시 DB 반영
-        WateringEvent wateringEvent = WateringEventConverter.toWateringEvent(wateringCan, terrarium);
-        wateringEventRepository.save(wateringEvent);
-        wateringEventRepository.flush();
+        if (currentWateringCnt == 3) {
+            // 사용한 물뿌리개 저장
+            saveNewWateringEvent(selectedWateringCan, terrarium);
 
-        // 현재 테라리움에 대한 물주기 횟수 집계 및 단계 기록
-        int TerrariumwateringCount = wateringEventRepository.countByTerrariumId(terrarium.getId());
-        terrarium.recordStepIfNeeded(TerrariumwateringCount, LocalDate.now());
+            // 2번째 단계 시간 업데이트
+            terrarium.updateSecondStepDate(LocalDate.now());
+            return TerrariumConverter.toDefaultWateringTerrariumResponse(currentWateringCnt, member.getWateringCanCnt());
+        } else if (currentWateringCnt == 7) {
+            // 사용한 물뿌리개 저장
+            saveNewWateringEvent(selectedWateringCan, terrarium);
 
-        List<Object[]> emotionCounts = Collections.emptyList();
-        // 7단계(꽃나무 단계) 도달 시 응답 형식이 달라야 하기 때문에 emotionCounts 생성
-        if (TerrariumwateringCount >= 7) {
-            emotionCounts = wateringEventRepository.findEmotionCountsByTerrariumId(terrarium.getId());
-
-            if (!emotionCounts.isEmpty()) {
-                Emotion mostEmotion = (Emotion) emotionCounts.get(0)[0];
-
-                Flower flowerForMostEmotion = flowerRepository.findByEmotion(mostEmotion);
-
-                // 테라리움의 꽃 변경
-                terrarium.changeFlower(flowerForMostEmotion);
-            }
-            // 새로운 테라리움 생성
+            // 3번째 단계 진입 시 업데이트 필요한 데이터 업데이트
+            terrarium.updateTerrariumDataForBloom(LocalDate.now(), LocalDateTime.now());
             member.increaseTotalBloomCnt();
-            createNewTerrarium(member);
-        }
 
-        memberRepository.save(member);
-        terrariumRepository.save(terrarium);
-        terrariumRepository.flush();
+            // 꽃 피는 부분 데이터 가져오는 로직 필요
+            List<WateringEvent> wateringEventList = wateringEventRepository.findAllByTerrarium(terrarium);
 
-        return new WateringResult(TerrariumwateringCount, emotionCounts);
-    }
+            Map<Emotion, Integer> emotionList = new HashMap<>();
+            for (WateringEvent wateringEvent : wateringEventList) {
+                Emotion emotion = wateringEvent.getWateringCan().getEmotion();
 
-    // 신규 테라리움 생성
-    private void createNewTerrarium(Member member) {
-        Flower baseflower = flowerRepository.findByEmotion(Emotion.DEFAULT);
+                // 해당 감정이 있으면 값 + 1, 없으면 1 PUT
+                emotionList.put(emotion, emotionList.getOrDefault(emotion, 0) + 1);
+            }
 
-        Terrarium terrariumCurrentIsBloomFalse = terrariumRepository.findByMemberIdAndIsBloomFalse(member.getId());
+            // Map에서 가장 큰 value 저장
+            int maxCount = Collections.max(emotionList.values());
+            // 해당 value 를 갖는 key(감정) List로 저장
+            List<Emotion> mostFrequentEmotions = emotionList.entrySet().stream()
+                    .filter(entry -> entry.getValue() == maxCount)
+                    .map(Map.Entry::getKey)
+                    .toList();
 
-        if (!(terrariumCurrentIsBloomFalse == null)) {
-            throw new TerrariumHandler(ErrorStatus.TERRARIUM_ALREADY_IN_PROGRESS);
+            // 랜덤 1개 선택
+            Emotion randomEmotion = mostFrequentEmotions.get(ThreadLocalRandom.current().nextInt(mostFrequentEmotions.size()));
+            // 해당 감정에 맞는 Flower 선택
+            Flower flower = flowerRepository.findByEmotion(randomEmotion);
+
+            return TerrariumConverter.toBloomWateringTerrariumResponse(currentWateringCnt, member.getWateringCanCnt(), emotionList, flower);
         } else {
-            Terrarium newTerrarium = TerrariumConverter.toTerrarium(member, baseflower);
-            terrariumRepository.save(newTerrarium);
-            log.info("신규 테라리움 생성 - memberId: {}, terrariumId: {}", member.getId(), newTerrarium.getId());
+            // 사용한 물뿌리개 저장
+            saveNewWateringEvent(selectedWateringCan, terrarium);
+
+            return TerrariumConverter.toDefaultWateringTerrariumResponse(currentWateringCnt, member.getWateringCanCnt());
         }
     }
 
-    // 결과 객체
-    public class WateringResult {
-        private final int wateringCount;
-        private final List<Object[]> emotionCounts;
-
-        public WateringResult(int wateringCount, List<Object[]> emotionCounts) {
-            this.wateringCount = wateringCount;
-            this.emotionCounts = emotionCounts;
-        }
-
-        public int getWateringCount() {
-            return wateringCount;
-        }
+    /**
+     * 새로운 물뿌리개 생성 메서드
+     */
+    private WateringEvent saveNewWateringEvent (WateringCan selectedWateringCan, Terrarium terrarium) {
+        return wateringEventRepository.save(WateringEventConverter.toWateringEvent(selectedWateringCan, terrarium));
     }
 }

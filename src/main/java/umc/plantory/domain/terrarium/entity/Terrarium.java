@@ -48,18 +48,15 @@ public class Terrarium {
 
     private LocalDate thirdStepDate;
 
-    private static final int SECOND_STEP = 4;
-    private static final int THIRD_STEP = 7;
+    // 2단계 진입 시 사용
+    public void updateSecondStepDate(LocalDate secondStepDate) {
+        this.secondStepDate = secondStepDate;
+    }
 
-    public void changeFlower(Flower flower) {this.flower = flower;}
-    public void recordStepIfNeeded(int wateringCount, LocalDate now) {
-
-        if (wateringCount == SECOND_STEP && this.secondStepDate == null) {
-            this.secondStepDate = now;
-        } else if (wateringCount == THIRD_STEP && this.thirdStepDate == null) {
-            this.thirdStepDate = now;
-            this.isBloom = true;
-            this.bloomAt = LocalDateTime.now();
-        }
+    // 3단계 진입 시 사용
+    public void updateTerrariumDataForBloom(LocalDate thirdStepDate, LocalDateTime bloomAt) {
+        this.thirdStepDate = thirdStepDate;
+        this.bloomAt = bloomAt;
+        this.isBloom = true;
     }
 }
