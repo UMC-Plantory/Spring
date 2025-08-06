@@ -20,6 +20,7 @@ import umc.plantory.domain.diary.repository.DiaryRepository;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
+import umc.plantory.global.ai.processor.ResponseProcessingService;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.enums.DiaryStatus;
@@ -42,6 +43,7 @@ public class ChatCommandService implements ChatCommandUseCase {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
     private final DiaryRepository diaryRepository;
+    private final ResponseProcessingService responseProcessingService;
 
     private static final List<DiaryStatus> VALID_STATUSES = List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP);
 
@@ -63,9 +65,19 @@ public class ChatCommandService implements ChatCommandUseCase {
         // AI 기반 응답 생성
         String response = aiClient.getResponse(prompt);
 
-        // 사용자 메시지 및 AI 응답 메모리에 저장
+        // 기존 대화 턴 수 = (전체 메시지 수 - 1) / 2
+        int conversationLength = chatHistory.size() / 2;
+
+        // 원본 응답을 후처리하여 메모리 저장용 버전 생성
+        String processedResponse = responseProcessingService.processResponseForMemory(
+                response,
+                conversationLength,
+                String.valueOf(member.getId())
+        );
+
+        // 사용자 메시지는 원본 그대로, AI 응답은 후처리된 버전으로 메모리에 저장
         chatMemory.add(String.valueOf(member.getId()), new UserMessage(request.getContent()));
-        chatMemory.add(String.valueOf(member.getId()), new AssistantMessage(response));
+        chatMemory.add(String.valueOf(member.getId()), new AssistantMessage(processedResponse));
         // 사용자 메시지 및 AI 응답 DB에 저장
         chatRepository.save(ChatConverter.toChat(request.getContent(), member, true, MessageType.USER));
         chatRepository.save(ChatConverter.toChat(response, member, false, MessageType.ASSISTANT));
