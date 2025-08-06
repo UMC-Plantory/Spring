@@ -86,17 +86,28 @@ public class JwtProvider {
     }
 
     /**
-     * JWT에서 사용자 ID 추출
+     * Bearer 삭제 후 검증하고 memberId 추출하는 메서드
      */
-    public Long getMemberId(String bearerToken) {
+    public Long getMemberIdAndValidateToken(String bearerToken) {
         try {
-            // Bearer 제거
+            // Bearer 삭제
             String token = resolveToken(bearerToken);
             if (token == null) throw new JwtHandler(ErrorStatus._UNAUTHORIZED);
 
             // 유효성 검증
             validateToken(token);
 
+            return getMemberId(token);
+        } catch (Exception e) {
+            throw new JwtHandler(ErrorStatus.INVALID_JWT_TOKEN);
+        }
+    }
+
+    /**
+     * JWT에서 사용자 ID 추출
+     */
+    public Long getMemberId(String token) {
+        try {
             // 추출
             Claims claims = Jwts.parserBuilder().setSigningKey(key).build()
                     .parseClaimsJws(token).getBody();
