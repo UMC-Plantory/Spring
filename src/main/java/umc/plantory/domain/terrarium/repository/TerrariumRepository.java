@@ -4,11 +4,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import umc.plantory.domain.terrarium.entity.Terrarium;
+import umc.plantory.domain.member.entity.Member;
+import umc.plantory.domain.terrarium.entity.Terrarium;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface TerrariumRepository extends JpaRepository<Terrarium, Long> {
+    Optional<Terrarium> findByMemberAndIsBloomFalse(Member member);
 
     Terrarium findByMemberIdAndIsBloomFalse(Long memberId);
     Optional<Terrarium> findByIdAndIsBloomTrue(Long terrariumId);

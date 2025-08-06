@@ -17,6 +17,7 @@ import umc.plantory.global.apiPayload.ApiResponse;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 @RestController
@@ -47,15 +48,17 @@ public class MemberRestController {
     @PostMapping("/term")
     @Operation(summary = "약관 동의 API", description = "회원이 약관에 동의하는 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.TermAgreementResponse>> termAgreement(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestBody MemberRequestDTO.TermAgreementRequest request) {
-        return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.termAgreement(request)));
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.termAgreement(authorization, request)));
     }
 
     @PatchMapping("/signup")
     @Operation(summary = "회원가입 완료 API", description = "회원의 추가 정보(닉네임, 사용자 커스텀 ID, 성별, 생년월일, 프로필 이미지)를 입력하여 회원가입을 완료하는 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.MemberSignupResponse>> signup(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestBody MemberRequestDTO.MemberSignupRequest request) {
-        return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.memberSignup(request)));
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.memberSignup(authorization, request)));
     }
 
     @PostMapping("/kko/login")
@@ -87,4 +90,6 @@ public class MemberRestController {
         memberCommandUseCase.delete(authorization);
         return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
+
+
 }

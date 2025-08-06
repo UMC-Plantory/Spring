@@ -61,7 +61,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         // 물뿌리개 처리
         handleWateringCan(diary, member);
-
         return DiaryConverter.toDiaryInfoDTO(diary, imageUrl);
     }
 
@@ -101,7 +100,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         diary.update(emotion, content, sleepStart, sleepEnd, status);
 
         handleWateringCan(diary, member);
-
         return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
     }
 

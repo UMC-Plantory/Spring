@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.member.entity.Member;
+import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.wateringCan.entity.WateringCan;
 
 import java.time.LocalDate;

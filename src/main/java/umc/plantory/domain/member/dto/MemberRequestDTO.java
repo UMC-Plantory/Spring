@@ -15,7 +15,6 @@ public class MemberRequestDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class TermAgreementRequest {
-        private Long memberId;
         private List<Long> agreeTermIdList;
         private List<Long> disagreeTermIdList;
     }
