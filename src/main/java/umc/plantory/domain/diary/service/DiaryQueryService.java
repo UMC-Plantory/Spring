@@ -35,9 +35,6 @@ public class DiaryQueryService implements DiaryQueryUseCase {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
-    // 일기 조회 시 보여지는 일기 종류
-    private static final List<DiaryStatus> DIARY_VALID_STATUSES = List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP);
-
     /**
      * 특정 일기 ID에 대한 상세 정보를 조회
      *
@@ -71,7 +68,7 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         Member member = getLoginMember(authorization);
 
         // 해당 날짜의 NORMAL, SCRAP 상태인 일기 조회
-        Diary diary = diaryRepository.findByMemberIdAndDiaryDateAndStatusIn(member.getId(), date, DIARY_VALID_STATUSES)
+        Diary diary = diaryRepository.findByMemberIdAndDiaryDateAndStatusIn(member.getId(), date, List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP))
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
 
         return DiaryConverter.toDiarySimpleInfoDTO(diary);
@@ -106,6 +103,36 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         Long memberId = getLoginMember(authorization).getId();
         List<Diary> diaries = diaryRepository.findFilteredDiaries(memberId, request);
         return toCursorPagination(diaries, request.getSize());
+    }
+
+    /**
+     * 검색 키워드가 포함된 NORMAL/SCRAP 상태의 일기 목록을 커서 기반으로 조회
+     *
+     * @param authorization 요청 헤더의 JWT 토큰
+     * @param keyword 검색어
+     * @param cursor 커서 기준 날짜 (LocalDate)
+     * @param size 한 번에 가져올 일기 개수
+     * @return CursorPaginationTotalDTO 일기 목록 + 페이징 정보 + 검색된 개수
+     */
+    @Override
+    public DiaryResponseDTO.CursorPaginationTotalDTO<DiaryResponseDTO.DiaryListInfoDTO> searchDiaries(String authorization, String keyword, LocalDate cursor, int size) {
+        Long memberId = getLoginMember(authorization).getId();
+        List<Diary> diaries = diaryRepository.searchDiaries(memberId, keyword, cursor, size);
+
+        // 페이징 처리
+        boolean hasNext = diaries.size() > size;
+        if (hasNext) {
+            diaries = diaries.subList(0, size);
+        }
+        List<DiaryResponseDTO.DiaryListInfoDTO> content = diaries.stream()
+                .map(DiaryConverter::toDiaryListInfoDTO)
+                .toList();
+        LocalDate nextCursor = hasNext ? diaries.get(diaries.size() - 1).getDiaryDate() : null;
+
+        // 검색된 일기 총 개수
+        long total = diaryRepository.countDiariesByKeyword(memberId, keyword);
+
+        return DiaryConverter.toCursorPaginationWithTotalDTO(content, hasNext, nextCursor, total);
     }
 
     /**
