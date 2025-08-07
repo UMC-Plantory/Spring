@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.ai.chat.messages.MessageType;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.global.baseEntity.BaseEntity;
 
@@ -24,7 +25,7 @@ public class Chat extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @Column(length = 500, nullable = false) // 길이 제한 추가 가능성 있음
@@ -32,4 +33,8 @@ public class Chat extends BaseEntity {
 
     @Column(nullable = false)
     private Boolean isMember;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    private MessageType messageType;
 }

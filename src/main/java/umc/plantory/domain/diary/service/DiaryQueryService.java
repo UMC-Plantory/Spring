@@ -21,6 +21,7 @@ import umc.plantory.global.enums.DiaryStatus;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 일기 조회 비즈니스 로직을 처리하는 서비스
@@ -58,6 +59,7 @@ public class DiaryQueryService implements DiaryQueryUseCase {
 
     /**
      * 특정 날짜에 작성된 NORMAL, SCRAP 상태의 일기 요약 정보를 조회
+     * 일기가 없으면 null 반환
      *
      * @param authorization 요청 헤더의 JWT 토큰
      * @param date 조회할 날짜

@@ -48,6 +48,44 @@ public enum ErrorStatus implements BaseErrorCode {
     DIARY_UNAUTHORIZED(HttpStatus.FORBIDDEN,"DIARY4003","해당 일기에 대한 권한이 없습니다."),
     DIARY_INVALID_STATUS(HttpStatus.BAD_REQUEST, "DIARY4004", "현재 일기의 상태에서는 해당 작업을 수행할 수 없습니다."),
 
+    // 멤버 관련 추가 에러
+    MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER4003", "이미 존재하는 회원입니다."),
+    INVALID_USER_CUSTOM_ID_FORMAT(HttpStatus.BAD_REQUEST, "MEMBER4005", "사용자 커스텀 ID 형식이 올바르지 않습니다."),
+    DUPLICATE_USER_CUSTOM_ID(HttpStatus.CONFLICT, "MEMBER4006", "이미 사용 중인 사용자 커스텀 ID입니다."),
+    INVALID_BIRTH_DATE(HttpStatus.BAD_REQUEST, "MEMBER4007", "생년월일이 올바르지 않습니다."),
+    INVALID_GENDER_VALUE(HttpStatus.BAD_REQUEST, "MEMBER4008", "성별 값이 올바르지 않습니다."),
+    INVALID_PROFILE_IMAGE_URL(HttpStatus.BAD_REQUEST, "MEMBER4009", "프로필 이미지 URL이 올바르지 않습니다."),
+    MEMBER_NOT_SIGNED_UP(HttpStatus.BAD_REQUEST, "MEMBER4010", "회원가입이 완료되지 않은 회원입니다."),
+    MEMBER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "MEMBER4011", "이미 탈퇴한 회원입니다."),
+    MEMBER_ALREADY_AGREED_TERMS(HttpStatus.CONFLICT, "MEMBER4012", "이미 동의한 약관입니다."),
+    INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "MEMBER4013", "날짜 형식이 올바르지 않습니다."),
+    INVALID_DATE(HttpStatus.BAD_REQUEST, "MEMBER4014", "미래 날짜는 조회할 수 없습니다."),
+
+    // 채팅 관련
+    INVALID_API_KEY(HttpStatus.UNAUTHORIZED, "CHAT4001", "API 키가 잘못됐습니다."),
+    QUOTA_EXCEEDED(HttpStatus.FORBIDDEN, "CHAT4002", "API 쿼터가 모두 소진되었습니다."),
+    OPEN_AI_SERVER_ERROR(HttpStatus.TOO_MANY_REQUESTS, "CHAT4003", "OPENAI 서버 오류."),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CHAT4004", "서버 오류"),
+    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "CHAT4005", "서버 과부하"),
+      
+    // 테라리움 관련
+    TERRARIUM_NOT_FOUND(HttpStatus.NOT_FOUND, "TERRARIUM404", "존재하지 않는 테라리움입니다."),
+    INVALID_MEMBER_ID(HttpStatus.BAD_REQUEST, "TERRARIUM4001", "유효하지 않은 회원 ID입니다."),
+    MEMBER_HAS_NO_TERRARIUM(HttpStatus.NOT_FOUND, "TERRARIUM4041", "해당 회원의 테라리움이 존재하지 않습니다."),
+    FLOWER_NOT_FOUND_IN_TERRARIUM(HttpStatus.NOT_FOUND, "TERRARIUM4042", "테라리움에 꽃 정보가 존재하지 않습니다."),
+    FLOWER_IMG_NOT_FOUND_IN_TERRARIUM(HttpStatus.NOT_FOUND, "TERRARIUM4043", "테라리움에 꽃 이미지 정보가 존재하지 않습니다."),
+    TERRARIUM_NOT_BLOOMED(HttpStatus.BAD_REQUEST, "TERRARIUM4002", "아직 개화하지 않은 테라리움입니다."),
+    NO_COMPLETED_TERRARIUM_IN_MONTH(HttpStatus.NOT_FOUND, "TERRARIUM4044", "해당 월에 개화 완료된 테라리움이 없습니다."),
+    TERRARIUM_ALREADY_IN_PROGRESS(HttpStatus.BAD_REQUEST, "TERRARIUM4003", "이미 진행 중인 테라리움이 존재합니다."),
+
+    // 물주기 관련
+    WATERING_PROCESS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "W4001", "물 주기에 실패했습니다."),
+    NO_AVAILABLE_WATERING_CAN(HttpStatus.BAD_REQUEST, "W4002", "사용 가능한 물뿌리개가 없습니다."),
+    WATERING_CAN_NOT_FOUND(HttpStatus.NOT_FOUND, "W404", "물뿌리개가 존재하지 않습니다."),
+
+    // 꽃 관련
+    FLOWER_NOT_FOUND(HttpStatus.NOT_FOUND, "FLOWER404", "존재하지 않는 꽃입니다."),
+
     ;
     private final HttpStatus httpStatus;
     private final String code;

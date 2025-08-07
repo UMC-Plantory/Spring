@@ -1,18 +1,17 @@
 package umc.plantory.domain.kakao.converter;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
+import io.jsonwebtoken.Claims;
 import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
-import umc.plantory.global.enums.Gender;
 
 import java.time.LocalDateTime;
 
 public class KakaoConverter {
 
-    public static MemberDataDTO.KakaoMemberData toKakaoMemberData(DecodedJWT verified) {
+    public static MemberDataDTO.KakaoMemberData toKakaoMemberData(Claims claims) {
         return MemberDataDTO.KakaoMemberData.builder()
-                .sub(verified.getSubject())
-                .email(verified.getClaim("email").asString())
+                .sub(claims.getSubject())
+                .email(claims.get("email", String.class))
                 .build();
     }
 
