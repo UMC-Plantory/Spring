@@ -21,7 +21,6 @@ import umc.plantory.domain.wateringCan.converter.WateringEventConverter;
 import umc.plantory.global.apiPayload.exception.handler.TerrariumHandler;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
-import umc.plantory.global.apiPayload.exception.GeneralException;
 import umc.plantory.global.apiPayload.exception.handler.WateringCanHandler;
 import umc.plantory.global.enums.Emotion;
 
@@ -32,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +58,8 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
 
         // 현재 테라리움에 준 물의 수
         Integer currentWateringCnt = wateringEventRepository.countByTerrarium(terrarium);
+
+        if (currentWateringCnt == 7) throw new TerrariumHandler(ErrorStatus.ALREADY_BLOOMED_TERRARIUM);
 
         // 사용할 물뿌리개 조회
         WateringCan selectedWateringCan = wateringCanRepository.findSelectedWateringCan(member)
@@ -105,8 +105,13 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
 
             // 랜덤 1개 선택
             Emotion randomEmotion = mostFrequentEmotions.get(ThreadLocalRandom.current().nextInt(mostFrequentEmotions.size()));
+
             // 해당 감정에 맞는 Flower 선택
             Flower flower = flowerRepository.findByEmotion(randomEmotion);
+
+            // 새 테라리움 생성
+            Flower defaultFlower = flowerRepository.findByEmotion(Emotion.DEFAULT);
+            terrariumRepository.save(TerrariumConverter.toTerrarium(member, defaultFlower));
 
             return TerrariumConverter.toBloomWateringTerrariumResponse(currentWateringCnt, member.getWateringCanCnt(), emotionList, flower);
         } else {
