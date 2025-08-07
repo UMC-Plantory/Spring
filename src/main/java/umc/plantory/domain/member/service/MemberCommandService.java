@@ -14,7 +14,6 @@ import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
-import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
@@ -92,6 +91,10 @@ public class MemberCommandService implements MemberCommandUseCase {
                     );
         }
 
+        // 회원 상태 AGREE로 변경
+        findMember.updateStatus(MemberStatus.AGREE);
+        memberRepository.save(findMember);
+
         // 응답 반환
         return MemberConverter.toTermAgreementResponse(findMember);
     }
@@ -133,6 +136,8 @@ public class MemberCommandService implements MemberCommandUseCase {
             findMember.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
         }
 
+        // 회원 상태 ACTIVE로 변경
+        findMember.updateStatus(MemberStatus.ACTIVE);
         memberRepository.save(findMember);
 
         // 초기 테라리움 생성

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import umc.plantory.global.enums.Emotion;
+import umc.plantory.global.enums.MemberStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ public class MemberResponseDTO {
     public static class TermAgreementResponse {
         private Long memberId;
         private String message;
+        private MemberStatus status;
     }
 
     @Getter
@@ -29,6 +31,7 @@ public class MemberResponseDTO {
         private String nickname;
         private String userCustomId;
         private String profileImgUrl;
+        private MemberStatus status;
     }
 
     @Getter
