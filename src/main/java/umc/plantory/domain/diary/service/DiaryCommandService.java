@@ -56,12 +56,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public DiaryResponseDTO.DiaryInfoDTO saveDiary(String authorization, DiaryRequestDTO.DiaryUploadDTO request) {
         Member member = getLoginMember(authorization);
 
-        // AI 프롬프트 생성 및 제목 응답 받기
-        Prompt prompt = PromptFactory.buildDiaryTitlePrompt(request.getContent());
-        String generatedTitle = aiClient.getResponse(prompt);
+        // 일기 제목 생성
+        String generatedTitle = generateDiaryTitle(request.getContent());
 
         // diary 엔티티 생성 및 저장
-        Diary diary = DiaryConverter.toDiary(request,member, generatedTitle);
+        Diary diary = DiaryConverter.toDiary(request, member, generatedTitle);
         diaryRepository.save(diary);
 
         // 이미지 등록 처리
@@ -105,11 +104,10 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             throw new DiaryHandler(ErrorStatus.DIARY_MISSING_FIELDS);
         }
 
-        // AI 프롬프트 생성 및 제목 응답 받기
-        Prompt prompt = PromptFactory.buildDiaryTitlePrompt(content);
-        String generatedTitle = aiClient.getResponse(prompt);
+        // 일기 본문 변경 시, 제목 다시 생성
+        String title = request.getContent() != null ? generateDiaryTitle(content) : diary.getTitle();
 
-        diary.update(emotion, generatedTitle, content, sleepStart, sleepEnd, status);
+        diary.update(emotion, title, content, sleepStart, sleepEnd, status);
 
         handleWateringCan(diary, member);
         return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
@@ -315,5 +313,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             WateringCan wateringCan = WateringCanConverter.toWateringCan(diary, member);
             wateringCanRepository.save(wateringCan);
         }
+    }
+
+    // 프롬프트 생성 및 AI 호출 후, 제목 응답 받기
+    private String generateDiaryTitle(String content) {
+        Prompt prompt = PromptFactory.buildDiaryTitlePrompt(content);
+        return aiClient.getResponse(prompt);
     }
 }
