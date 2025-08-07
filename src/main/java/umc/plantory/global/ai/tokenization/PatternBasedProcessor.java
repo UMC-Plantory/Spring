@@ -1,4 +1,4 @@
-package umc.plantory.global.ai.processor.cleaner;
+package umc.plantory.global.ai.tokenization;
 
 import org.springframework.stereotype.Component;
 

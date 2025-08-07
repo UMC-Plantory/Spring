@@ -1,4 +1,4 @@
-package umc.plantory.global.ai.monitoring;
+package umc.plantory.global.ai.tokenization;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;

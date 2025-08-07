@@ -20,7 +20,8 @@ import umc.plantory.domain.diary.repository.DiaryRepository;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
-import umc.plantory.global.ai.processor.ResponseProcessingService;
+import umc.plantory.global.ai.tokenization.TokenCounter;
+import umc.plantory.global.ai.tokenization.ResponseProcessingService;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.enums.DiaryStatus;
@@ -28,6 +29,7 @@ import umc.plantory.global.enums.DiaryStatus;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 챗봇 대화 처리 서비스. 사용자 메시지 저장, 프롬프트 생성, 챗봇 응답 저장을 담당합니다.
@@ -44,6 +46,7 @@ public class ChatCommandService implements ChatCommandUseCase {
     private final JwtProvider jwtProvider;
     private final DiaryRepository diaryRepository;
     private final ResponseProcessingService responseProcessingService;
+    private final TokenCounter tokenCounter;
 
     private static final List<DiaryStatus> VALID_STATUSES = List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP);
 
@@ -68,11 +71,18 @@ public class ChatCommandService implements ChatCommandUseCase {
         // 기존 대화 턴 수 = (전체 메시지 수 - 1) / 2
         int conversationLength = chatHistory.size() / 2;
 
+        // 인메모리 DB에 저장된 누적 토큰 수 계산
+        List<String> inMemoryTexts = chatHistory.stream()
+                .map(Message::getText)
+                .collect(Collectors.toList());
+        int totalTokensInMemory = tokenCounter.calculateTotalTokens(inMemoryTexts);
+
         // 원본 응답을 후처리하여 메모리 저장용 버전 생성
         String processedResponse = responseProcessingService.processResponseForMemory(
                 response,
                 conversationLength,
-                String.valueOf(member.getId())
+                String.valueOf(member.getId()),
+                totalTokensInMemory
         );
 
         // 사용자 메시지는 원본 그대로, AI 응답은 후처리된 버전으로 메모리에 저장
