@@ -113,4 +113,12 @@ public class Member extends BaseEntity {
             this.inactiveAt = LocalDateTime.now(); // 시간 업데이트
         }
     }
+
+    public void increaseTotalRecordCnt() {
+        this.totalRecordCnt += 1;
+    }
+
+    public void decreaseTotalRecordCnt() {
+        this.totalRecordCnt -= 1;
+    }
 }

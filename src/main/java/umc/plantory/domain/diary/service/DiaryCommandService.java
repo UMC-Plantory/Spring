@@ -60,18 +60,19 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         Prompt prompt = PromptFactory.buildDiaryTitlePrompt(request.getContent());
         String diaryTitle = aiClient.getResponse(prompt);
 
-        // diary 엔티티 생성 및 저장
+        // diary 엔티티 생성 및 저장, 이미지 처리
         Diary diary = DiaryConverter.toDiary(request,member, diaryTitle);
+        diaryRepository.save(diary);
+        String imageUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), false);
+
+        // NORMAL 상태일 경우 totalRecordCnt 증가
+        if (diary.getStatus() == DiaryStatus.NORMAL) {
+            member.increaseTotalRecordCnt();
 
         // TEMP 상태일 경우 tempSavedAt 기록
-        if (diary.getStatus() == DiaryStatus.TEMP) {
+        } else if (diary.getStatus() == DiaryStatus.TEMP) {
             diary.updateTempSavedAt(LocalDateTime.now());
         }
-
-        diaryRepository.save(diary);
-
-        // 이미지 등록 처리
-        String imageUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), false);
 
         // 물뿌리개 처리
         handleWateringCan(diary, member);
@@ -95,8 +96,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 작성자 확인
         validateDiaryOwnership(diary, member);
 
-        // 이미지 업데이트 처리
-        String diaryImgUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), Boolean.TRUE.equals(request.getIsImgDeleted()));
+        // 상태 변경 전 기록
+        DiaryStatus beforeStatus = diary.getStatus();
 
         // 일기 내용 업데이트
         Emotion emotion = request.getEmotion() != null ? Emotion.valueOf(request.getEmotion()) : diary.getEmotion();
@@ -105,18 +106,24 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         LocalDateTime sleepEnd = request.getSleepEndTime() != null ? request.getSleepEndTime() : diary.getSleepEndTime();
         DiaryStatus status = request.getStatus() != null ? DiaryStatus.valueOf(request.getStatus()) : diary.getStatus();
 
-        // TEMP 상태일 경우 tempSavedAt 기록
-        if (diary.getStatus() == DiaryStatus.TEMP) {
-            diary.updateTempSavedAt(LocalDateTime.now());
-        }
-
-        // 임시 저장 → 정식 저장일때 필수 필드 다 있는지 확인
+        // 정식 저장일때 필수 필드 다 있는지 확인
         if (status == DiaryStatus.NORMAL &&
                 (emotion == null || content == null || sleepStart == null || sleepEnd == null)) {
             throw new DiaryHandler(ErrorStatus.DIARY_MISSING_FIELDS);
         }
 
+        // 일기, 이미지 업데이트 처리
         diary.update(emotion, content, sleepStart, sleepEnd, status);
+        String diaryImgUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), Boolean.TRUE.equals(request.getIsImgDeleted()));
+
+        // TEMP 상태일 경우 tempSavedAt 기록
+        if (status == DiaryStatus.TEMP) {
+            diary.updateTempSavedAt(LocalDateTime.now());
+
+        // TEMP → NORMAL 상태일 경우 totalRecordCnt 증가
+        } else if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {
+            member.increaseTotalRecordCnt();
+        }
 
         handleWateringCan(diary, member);
 
@@ -182,6 +189,12 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 작성자 확인 및 상태 TEMP로 변경
         for (Diary diary : diaries) {
             validateDiaryOwnership(diary, member);
+
+            // NORMAL → TEMP 상태일 경우 member의 totalRecordCnt 감소
+            if (diary.getStatus() == DiaryStatus.NORMAL) {
+                member.decreaseTotalRecordCnt();
+            }
+
             diary.updateStatus(DiaryStatus.TEMP);
 
             // 임시 보관 일시 기록
@@ -204,6 +217,12 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 작성자 확인 및 상태 DELETE로 변경
         for (Diary diary : diaries) {
             validateDiaryOwnership(diary, member);
+
+            // NORMAL → DELETE 상태일 경우 member의 totalRecordCnt 감소
+            if (diary.getStatus() == DiaryStatus.NORMAL) {
+                member.decreaseTotalRecordCnt();
+            }
+
             diary.updateStatus(DiaryStatus.DELETE);
 
             // 삭제 일시 기록
