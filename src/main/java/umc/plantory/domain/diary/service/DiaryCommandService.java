@@ -58,10 +58,10 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         // AI 프롬프트 생성 및 제목 응답 받기
         Prompt prompt = PromptFactory.buildDiaryTitlePrompt(request.getContent());
-        String diaryTitle = aiClient.getResponse(prompt);
+        String generatedTitle = aiClient.getResponse(prompt);
 
         // diary 엔티티 생성 및 저장
-        Diary diary = DiaryConverter.toDiary(request,member, diaryTitle);
+        Diary diary = DiaryConverter.toDiary(request,member, generatedTitle);
         diaryRepository.save(diary);
 
         // 이미지 등록 처리
@@ -105,7 +105,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             throw new DiaryHandler(ErrorStatus.DIARY_MISSING_FIELDS);
         }
 
-        diary.update(emotion, content, sleepStart, sleepEnd, status);
+        // AI 프롬프트 생성 및 제목 응답 받기
+        Prompt prompt = PromptFactory.buildDiaryTitlePrompt(content);
+        String generatedTitle = aiClient.getResponse(prompt);
+
+        diary.update(emotion, generatedTitle, content, sleepStart, sleepEnd, status);
 
         handleWateringCan(diary, member);
         return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
