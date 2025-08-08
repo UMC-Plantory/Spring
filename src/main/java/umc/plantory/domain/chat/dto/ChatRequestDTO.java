@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 public class ChatRequestDTO {
-    @Schema(description = "채팅 내용", example = "오늘 너무 우울해", maxLength = 400)
+    @Schema(description = "채팅 내용", example = "오늘 너무 우울해", maxLength = 500)
     @NotNull(message = "채팅 내용은 필수입니다")
     private String content;
 }
