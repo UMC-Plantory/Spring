@@ -46,7 +46,7 @@ public class ChatCommandService implements ChatCommandUseCase {
     private static final List<DiaryStatus> VALID_STATUSES = List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP);
 
     @Override
-    public String ask(String authorization, ChatRequestDTO.ChatMessageDTO request) {
+    public String ask(String authorization, ChatRequestDTO request) {
         Member member = getLoginedMember(authorization);
 
         LocalDate startDate = LocalDate.now().minusDays(6);
