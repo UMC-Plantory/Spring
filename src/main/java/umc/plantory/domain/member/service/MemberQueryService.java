@@ -37,15 +37,8 @@ public class MemberQueryService implements MemberQueryUseCase {
 
     @Override
     public MemberResponseDTO.ProfileResponse getProfile(String authorization) {
-        // Authorization 헤더에서 토큰 추출
-        String token = jwtProvider.resolveToken(authorization);
-        if (token == null) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-
         // JWT 토큰 검증 및 멤버 ID 추출
-        jwtProvider.validateToken(token);
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
 
         // 회원 조회
         Member member = memberRepository.findById(memberId)
@@ -56,15 +49,8 @@ public class MemberQueryService implements MemberQueryUseCase {
 
     @Override
     public MemberResponseDTO.HomeResponse getHome(String authorization, YearMonth yearMonth) {
-        // Authorization 헤더에서 토큰 추출
-        String token = jwtProvider.resolveToken(authorization);
-        if (token == null) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-
         // JWT 토큰 검증 및 멤버 ID 추출
-        jwtProvider.validateToken(token);
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
 
         // 회원 조회
         Member member = memberRepository.findById(memberId)
