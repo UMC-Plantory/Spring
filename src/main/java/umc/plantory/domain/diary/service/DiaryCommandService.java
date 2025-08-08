@@ -56,12 +56,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public DiaryResponseDTO.DiaryInfoDTO saveDiary(String authorization, DiaryRequestDTO.DiaryUploadDTO request) {
         Member member = getLoginMember(authorization);
 
-        // AI 프롬프트 생성 및 제목 응답 받기
-        Prompt prompt = PromptFactory.buildDiaryTitlePrompt(request.getContent());
-        String diaryTitle = aiClient.getResponse(prompt);
+        // 일기 제목 생성
+        String generatedTitle = generateDiaryTitle(request.getContent());
 
         // 일기 & 이미지 엔티티 생성 및 저장
-        Diary diary = DiaryConverter.toDiary(request,member, diaryTitle);
+        Diary diary = DiaryConverter.toDiary(request,member, generatedTitle);
         diaryRepository.save(diary);
         String imageUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), false);
 
@@ -112,8 +111,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             throw new DiaryHandler(ErrorStatus.DIARY_MISSING_FIELDS);
         }
 
+        // 일기 본문 변경 시, 제목 다시 생성
+        String title = request.getContent() != null ? generateDiaryTitle(content) : diary.getTitle();
+
         // 일기, 이미지 업데이트 처리
-        diary.update(emotion, content, sleepStart, sleepEnd, status);
+        diary.update(emotion, title, content, sleepStart, sleepEnd, status);
         String diaryImgUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), Boolean.TRUE.equals(request.getIsImgDeleted()));
 
         // TEMP 상태일 경우 tempSavedAt 기록
@@ -126,7 +128,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         }
 
         handleWateringCan(diary, member);
-
         return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
     }
 
@@ -345,5 +346,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             WateringCan wateringCan = WateringCanConverter.toWateringCan(diary, member);
             wateringCanRepository.save(wateringCan);
         }
+    }
+
+    // 프롬프트 생성 및 AI 호출 후, 제목 응답 받기
+    private String generateDiaryTitle(String content) {
+        Prompt prompt = PromptFactory.buildDiaryTitlePrompt(content);
+        return aiClient.getResponse(prompt);
     }
 }
