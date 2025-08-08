@@ -60,12 +60,12 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         Prompt prompt = PromptFactory.buildDiaryTitlePrompt(request.getContent());
         String diaryTitle = aiClient.getResponse(prompt);
 
-        // diary 엔티티 생성 및 저장, 이미지 처리
+        // 일기 & 이미지 엔티티 생성 및 저장
         Diary diary = DiaryConverter.toDiary(request,member, diaryTitle);
         diaryRepository.save(diary);
         String imageUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), false);
 
-        // NORMAL 상태일 경우 totalRecordCnt 증가
+        // NORMAL 상태일 경우 누적 감정 기록 횟수 증가
         if (diary.getStatus() == DiaryStatus.NORMAL) {
             member.increaseTotalRecordCnt();
 
@@ -96,7 +96,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 작성자 확인
         validateDiaryOwnership(diary, member);
 
-        // 상태 변경 전 기록
+        // 변경 전 상태
         DiaryStatus beforeStatus = diary.getStatus();
 
         // 일기 내용 업데이트
@@ -106,7 +106,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         LocalDateTime sleepEnd = request.getSleepEndTime() != null ? request.getSleepEndTime() : diary.getSleepEndTime();
         DiaryStatus status = request.getStatus() != null ? DiaryStatus.valueOf(request.getStatus()) : diary.getStatus();
 
-        // 정식 저장일때 필수 필드 다 있는지 확인
+        // NORMAL 저장일때 필수 필드 다 있는지 확인
         if (status == DiaryStatus.NORMAL &&
                 (emotion == null || content == null || sleepStart == null || sleepEnd == null)) {
             throw new DiaryHandler(ErrorStatus.DIARY_MISSING_FIELDS);
@@ -120,7 +120,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         if (status == DiaryStatus.TEMP) {
             diary.updateTempSavedAt(LocalDateTime.now());
 
-        // TEMP → NORMAL 상태일 경우 totalRecordCnt 증가
+        // TEMP → NORMAL 상태일 경우 누적 감정 기록 횟수 증가
         } else if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {
             member.increaseTotalRecordCnt();
         }
@@ -144,7 +144,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         validateDiaryOwnership(diary, member);
 
-        // Normal 상태인 일기만 스크랩 가능
+        // NORMAL 상태인 일기만 스크랩 가능
         if (diary.getStatus() != DiaryStatus.NORMAL) {
             throw new DiaryHandler(ErrorStatus.DIARY_INVALID_STATUS);
         }
@@ -166,7 +166,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         validateDiaryOwnership(diary, member);
 
-        // Scrap 상태였던 일기만 취소 가능
+        // SCRAP 상태였던 일기만 취소 가능
         if (diary.getStatus() != DiaryStatus.SCRAP) {
             throw new DiaryHandler(ErrorStatus.DIARY_INVALID_STATUS);
         }
@@ -190,14 +190,14 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         for (Diary diary : diaries) {
             validateDiaryOwnership(diary, member);
 
-            // NORMAL → TEMP 상태일 경우 member의 totalRecordCnt 감소
+            diary.updateStatus(DiaryStatus.TEMP);
+
+            // NORMAL → TEMP 상태일 경우 누적 감정 기록 횟수 감소
             if (diary.getStatus() == DiaryStatus.NORMAL) {
                 member.decreaseTotalRecordCnt();
             }
 
-            diary.updateStatus(DiaryStatus.TEMP);
-
-            // 임시 보관 일시 기록
+            // tempSavedAt 기록
             diary.updateTempSavedAt(LocalDateTime.now());
         }
     }
@@ -218,14 +218,14 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         for (Diary diary : diaries) {
             validateDiaryOwnership(diary, member);
 
-            // NORMAL → DELETE 상태일 경우 member의 totalRecordCnt 감소
+            diary.updateStatus(DiaryStatus.DELETE);
+
+            // NORMAL → DELETE 상태일 경우 누적 감정 기록 횟수 감소
             if (diary.getStatus() == DiaryStatus.NORMAL) {
                 member.decreaseTotalRecordCnt();
             }
 
-            diary.updateStatus(DiaryStatus.DELETE);
-
-            // 삭제 일시 기록
+            // deletedAt 기록
             diary.updateDeletedAt(LocalDateTime.now());
         }
     }
