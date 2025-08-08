@@ -20,8 +20,8 @@ import umc.plantory.domain.diary.repository.DiaryRepository;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
-import umc.plantory.global.ai.tokenization.TokenCounter;
-import umc.plantory.global.ai.tokenization.ResponseProcessingService;
+import umc.plantory.global.ai.token.util.TokenCounter;
+import umc.plantory.global.ai.token.application.ResponseProcessingService;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.enums.DiaryStatus;
@@ -69,6 +69,8 @@ public class ChatCommandService implements ChatCommandUseCase {
         String response = aiClient.getResponse(prompt);
 
         // 기존 대화 턴 수 = (전체 메시지 수 - 1) / 2
+        // 사용자 메시지 1개 + 챗봇 메시지 1개 = 1 대화 턴으로 간주하여
+        // 전체 메시지 수를 2로 나누어 대화 턴 수를 계산함
         int conversationLength = chatHistory.size() / 2;
 
         // 인메모리 DB에 저장된 누적 토큰 수 계산
@@ -77,7 +79,7 @@ public class ChatCommandService implements ChatCommandUseCase {
                 .collect(Collectors.toList());
         int totalTokensInMemory = tokenCounter.calculateTotalTokens(inMemoryTexts);
 
-        // 원본 응답을 후처리하여 메모리 저장용 버전 생성
+        // 원본 응답을 후처리하여 인메모리 DB 저장용 버전 생성
         String processedResponse = responseProcessingService.processResponseForMemory(
                 response,
                 conversationLength,

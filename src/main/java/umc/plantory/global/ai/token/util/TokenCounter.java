@@ -1,4 +1,4 @@
-package umc.plantory.global.ai.tokenization;
+package umc.plantory.global.ai.token.util;
 
 import com.knuddels.jtokkit.Encodings;
 import com.knuddels.jtokkit.api.Encoding;

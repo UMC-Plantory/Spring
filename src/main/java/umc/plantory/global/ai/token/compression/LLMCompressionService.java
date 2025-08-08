@@ -1,4 +1,4 @@
-package umc.plantory.global.ai.tokenization;
+package umc.plantory.global.ai.token.compression;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -29,12 +29,6 @@ public class LLMCompressionService {
     Essential:
     """;
 
-    /**
-     * LLM API를 호출해 원본 응답을 핵심 내용 위주로 요약/압축
-     *
-     * @param originalResponse - 압축 대상 원본 텍스트
-     * @return 압축된 요약 결과
-     */
     public String compressToEssential(String originalResponse) {
         // 별도 API 호출로 응답 압축
         String prompt = String.format(COMPRESSION_PROMPT, originalResponse);
