@@ -57,25 +57,24 @@ public class StatisticQueryService implements StatisticQueryUseCase {
             throw new StatisticHandler(ErrorStatus.SLEEP_STATISTIC_NOT_FOUND);
         }
 
-        // 일기 데이터를 날짜 기준으로 매핑 (시간 복잡도 고려)
+        // 일기 데이터를 날짜 기준으로 매핑
         Map<LocalDate, Diary> diaryMap = new HashMap<>();
         for (Diary diary : diaries) {
             diaryMap.put(diary.getDiaryDate(), diary);
         }
 
-        // 날짜별 수면 데이터 리스트
+        // 최근 7일을 순회하며 일일 수면 데이터 생성. 일기 없으면 빈 데이터 생성.
         List<StatisticResponseDTO.DailySleepData> dailySleepDataList = new ArrayList<>();
-
-        // 날짜별 수면 데이터 생성 (작성된 일기가 없는 경우, 빈 데이터로 채움)
         for (int i = 0; i < 7; i++) {
             LocalDate targetDate = startDate.plusDays(i);
-            Diary diary = diaryMap.get(targetDate);
+            int day = i + 1;
 
-            if (diary != null) {
-                dailySleepDataList.add(StatisticConverter.toDailySleepData(i, diary));
-            } else {
-                dailySleepDataList.add(StatisticConverter.toEmptyDailySleepData(i, targetDate));
-            }
+            Diary diary = diaryMap.get(targetDate);
+            dailySleepDataList.add(
+                    (diary != null)
+                            ? StatisticConverter.toDailySleepData(day, diary)
+                            : StatisticConverter.toEmptyDailySleepData(day, targetDate)
+            );
         }
 
         // 7일 평균 수면 시간 계산 (단위: 분)
