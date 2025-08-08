@@ -6,7 +6,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.ai.chat.messages.MessageType;
 import umc.plantory.domain.member.entity.Member;
-import umc.plantory.global.baseEntity.BaseEntity;
+
+import java.time.LocalDateTime;
 
 /**
  * 채팅 메시지 엔티티. 사용자와 챗봇 간의 대화 내용을 저장합니다.
@@ -18,7 +19,7 @@ import umc.plantory.global.baseEntity.BaseEntity;
 @Getter
 @DynamicInsert
 @DynamicUpdate
-public class Chat extends BaseEntity {
+public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "chat_id")
@@ -33,6 +34,9 @@ public class Chat extends BaseEntity {
 
     @Column(nullable = false)
     private Boolean isMember;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
