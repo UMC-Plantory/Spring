@@ -68,7 +68,7 @@ public class StatisticQueryService implements StatisticQueryUseCase {
 
         // 날짜별 수면 데이터 생성 (작성된 일기가 없는 경우, 빈 데이터로 채움)
         for (int i = 0; i < 7; i++) {
-            LocalDate targetDate = endDate.minusDays(6 - i);
+            LocalDate targetDate = startDate.plusDays(i);
             Diary diary = diaryMap.get(targetDate);
 
             if (diary != null) {
