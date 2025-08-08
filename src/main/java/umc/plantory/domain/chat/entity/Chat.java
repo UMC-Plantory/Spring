@@ -29,7 +29,7 @@ public class Chat {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @Column(length = 500, nullable = false) // 길이 제한 추가 가능성 있음
+    @Column(length = 2000, nullable = false)
     private String content;
 
     @Column(nullable = false)

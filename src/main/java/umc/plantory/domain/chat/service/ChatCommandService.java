@@ -22,6 +22,7 @@ import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.exception.handler.ChatHandler;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.enums.DiaryStatus;
 
@@ -46,6 +47,7 @@ public class ChatCommandService implements ChatCommandUseCase {
     private final DiaryRepository diaryRepository;
 
     private static final List<DiaryStatus> VALID_STATUSES = List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP);
+    private static final int MAX_RESPONSE_CHARS = 500; // 응답 최대 글자 수
 
     @Override
     public ChatResponseDTO ask(String authorization, ChatRequestDTO request) {
@@ -73,6 +75,9 @@ public class ChatCommandService implements ChatCommandUseCase {
         // AI 기반 응답 생성
         String response = aiClient.getResponse(prompt);
 
+        // 챗봇 답변 검사
+        validationResponse(response);
+
         // AI 답변 시간 기록
         LocalDateTime assistantSentAt = LocalDateTime.now();
 
@@ -85,6 +90,19 @@ public class ChatCommandService implements ChatCommandUseCase {
         chatRepository.save(ChatConverter.toChat(response, member, false, assistantSentAt, MessageType.ASSISTANT));
 
         return ChatConverter.toChatResponseDTO(response, assistantSentAt, false);
+    }
+
+    // 챗봇 응답 에러 처리
+    private void validationResponse(String response) {
+        // 답변이 없는 경우
+        if (response == null || response.trim().isEmpty()) {
+            throw new ChatHandler(ErrorStatus.CHAT_RESPONSE_NONE);
+        }
+
+        // 글자수 500자 초과한 경우
+        if (response.codePointCount(0, response.length()) > MAX_RESPONSE_CHARS) {
+            throw new ChatHandler(ErrorStatus.CHAT_RESPONSE_TOO_LONG);
+        }
     }
 
     // 로그인한 사용자 정보 받아오기
