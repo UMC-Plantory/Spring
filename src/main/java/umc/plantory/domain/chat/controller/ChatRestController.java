@@ -28,11 +28,11 @@ public class ChatRestController {
             summary = "챗봇 채팅 요청",
             description = "사용자가 챗봇에게 메시지를 보내면, 챗봇의 답변을 반환합니다."
     )
-    public ResponseEntity<ApiResponse<String>> chat (
+    public ResponseEntity<ApiResponse<ChatResponseDTO>> chat (
             @RequestBody @Valid ChatRequestDTO request,
             @RequestHeader(value = "Authorization", required = false) String authorization
     ) {
-        String response = chatCommandUseCase.ask(authorization, request);
+        ChatResponseDTO response = chatCommandUseCase.ask(authorization, request);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
