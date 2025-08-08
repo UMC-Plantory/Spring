@@ -3,6 +3,7 @@ package umc.plantory.domain.chat.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.chat.converter.ChatConverter;
 import umc.plantory.domain.chat.dto.ChatResponseDTO;
 import umc.plantory.domain.chat.repository.ChatRepository;
 import umc.plantory.domain.member.entity.Member;
@@ -31,9 +32,8 @@ public class ChatQueryService implements ChatQueryUseCase {
 
         return chatRepository.findTop6ByMemberOrderByCreatedAtDesc(member)
                 .stream()
-                .map(chat -> new ChatResponseDTO.ChatResponse(
-                                chat.getContent(), chat.getCreatedAt(), chat.getIsMember())
-                ).collect(Collectors.toList());
+                .map(ChatConverter::toChatResponseDTO)
+                .collect(Collectors.toList());
     }
 
     // 최초 이후, 커서 페이징: 특정 시점 이전 6개
@@ -43,8 +43,7 @@ public class ChatQueryService implements ChatQueryUseCase {
 
         return chatRepository.findTop6ByMemberAndCreatedAtLessThanOrderByCreatedAtDesc(member, before)
                 .stream()
-                .map(chat -> new ChatResponseDTO.ChatResponse(
-                        chat.getContent(), chat.getCreatedAt(), chat.getIsMember()))
+                .map(ChatConverter::toChatResponseDTO)
                 .collect(Collectors.toList());
     }
 
