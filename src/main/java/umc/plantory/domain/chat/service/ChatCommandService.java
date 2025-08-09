@@ -10,6 +10,7 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.chat.dto.ChatResponseDTO;
 import umc.plantory.global.ai.AIClient;
 import umc.plantory.domain.chat.dto.ChatRequestDTO;
 import umc.plantory.domain.chat.converter.ChatConverter;
@@ -21,10 +22,12 @@ import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.exception.handler.ChatHandler;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.enums.DiaryStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,33 +47,62 @@ public class ChatCommandService implements ChatCommandUseCase {
     private final DiaryRepository diaryRepository;
 
     private static final List<DiaryStatus> VALID_STATUSES = List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP);
+    private static final int MAX_RESPONSE_CHARS = 500; // 응답 최대 글자 수
 
     @Override
-    public String ask(String authorization, ChatRequestDTO.ChatMessageDTO request) {
+    public ChatResponseDTO ask(String authorization, ChatRequestDTO request) {
         Member member = getLoginedMember(authorization);
 
+        // 사용자가 메시지 시간 기록
+        LocalDateTime userSentAt = LocalDateTime.now();
+
+        // 시작일 및 종료일 설정
         LocalDate startDate = LocalDate.now().minusDays(6);
         LocalDate endDate = LocalDate.now();
 
+        // 일기 리스트 가져오기
         List<Diary> diaries = diaryRepository.findByMemberAndStatusInAndDiaryDateBetween(member, VALID_STATUSES, startDate, endDate);
 
         // 메모리에서 사용자 대화 이력 불러오기
         List<Message> chatHistory = new ArrayList<>(chatMemory.get(String.valueOf(member.getId())));
+
         // 사용자가 입력한 메시지 추가
         chatHistory.add(new UserMessage(request.getContent()));
+
         // 프롬프트 생성
         Prompt prompt = PromptFactory.buildChatPrompt(chatHistory, diaries);
+
         // AI 기반 응답 생성
         String response = aiClient.getResponse(prompt);
+
+        // 챗봇 답변 검사
+        validationResponse(response);
+
+        // AI 답변 시간 기록
+        LocalDateTime assistantSentAt = LocalDateTime.now();
 
         // 사용자 메시지 및 AI 응답 메모리에 저장
         chatMemory.add(String.valueOf(member.getId()), new UserMessage(request.getContent()));
         chatMemory.add(String.valueOf(member.getId()), new AssistantMessage(response));
-        // 사용자 메시지 및 AI 응답 DB에 저장
-        chatRepository.save(ChatConverter.toChat(request.getContent(), member, true, MessageType.USER));
-        chatRepository.save(ChatConverter.toChat(response, member, false, MessageType.ASSISTANT));
 
-        return response;
+        // 사용자 메시지 및 AI 응답 DB에 저장
+        chatRepository.save(ChatConverter.toChat(request.getContent(), member, true, userSentAt, MessageType.USER));
+        chatRepository.save(ChatConverter.toChat(response, member, false, assistantSentAt, MessageType.ASSISTANT));
+
+        return ChatConverter.toChatResponseDTO(response, assistantSentAt, false);
+    }
+
+    // 챗봇 응답 에러 처리
+    private void validationResponse(String response) {
+        // 답변이 없는 경우
+        if (response == null || response.trim().isEmpty()) {
+            throw new ChatHandler(ErrorStatus.CHAT_RESPONSE_NONE);
+        }
+
+        // 글자수 500자 초과한 경우
+        if (response.codePointCount(0, response.length()) > MAX_RESPONSE_CHARS) {
+            throw new ChatHandler(ErrorStatus.CHAT_RESPONSE_TOO_LONG);
+        }
     }
 
     // 로그인한 사용자 정보 받아오기

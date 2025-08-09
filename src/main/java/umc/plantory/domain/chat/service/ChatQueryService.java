@@ -3,6 +3,7 @@ package umc.plantory.domain.chat.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.chat.converter.ChatConverter;
 import umc.plantory.domain.chat.dto.ChatResponseDTO;
 import umc.plantory.domain.chat.repository.ChatRepository;
 import umc.plantory.domain.member.entity.Member;
@@ -26,25 +27,23 @@ public class ChatQueryService implements ChatQueryUseCase {
 
     // 챗봇 대화창 최초 진입: 최신 6개 채팅 조회
     @Override
-    public List<ChatResponseDTO.ChatResponse> findLatestChats(String authorization) {
+    public List<ChatResponseDTO> findLatestChats(String authorization) {
         Member member = getLoginedMember(authorization);
 
         return chatRepository.findTop6ByMemberOrderByCreatedAtDesc(member)
                 .stream()
-                .map(chat -> new ChatResponseDTO.ChatResponse(
-                                chat.getContent(), chat.getCreatedAt(), chat.getIsMember())
-                ).collect(Collectors.toList());
+                .map(ChatConverter::toChatResponseDTO)
+                .collect(Collectors.toList());
     }
 
     // 최초 이후, 커서 페이징: 특정 시점 이전 6개
     @Override
-    public List<ChatResponseDTO.ChatResponse> findBeforeChats(String authorization, LocalDateTime before) {
+    public List<ChatResponseDTO> findBeforeChats(String authorization, LocalDateTime before) {
         Member member = getLoginedMember(authorization);
 
         return chatRepository.findTop6ByMemberAndCreatedAtLessThanOrderByCreatedAtDesc(member, before)
                 .stream()
-                .map(chat -> new ChatResponseDTO.ChatResponse(
-                        chat.getContent(), chat.getCreatedAt(), chat.getIsMember()))
+                .map(ChatConverter::toChatResponseDTO)
                 .collect(Collectors.toList());
     }
 
