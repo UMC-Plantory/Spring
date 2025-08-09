@@ -3,8 +3,6 @@ package umc.plantory.domain.member.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import umc.plantory.domain.member.entity.QMember;
@@ -18,9 +16,6 @@ import java.time.LocalDate;
 public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    @PersistenceContext
-    private EntityManager em;
 
     @Override
     public long resetStreak(LocalDate yesterday) {
@@ -49,8 +44,6 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 )
                 .execute();
 
-        // bulk update 이후 영속성 컨텍스트 초기화
-        em.clear();
         return updated;
     }
 }
