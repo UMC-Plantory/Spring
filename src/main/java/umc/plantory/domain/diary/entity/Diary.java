@@ -49,6 +49,8 @@ public class Diary extends BaseEntity {
 
     private LocalDateTime sleepStartTime;
 
+    private LocalDateTime tempSavedAt;
+
     private LocalDateTime deletedAt;
 
     @Column(nullable = false, updatable = false)
@@ -59,12 +61,14 @@ public class Diary extends BaseEntity {
     private DiaryStatus status;
 
     public void update(Emotion emotion,
+                       String title,
                        String content,
                        LocalDateTime sleepStartTime,
                        LocalDateTime sleepEndTime,
                        DiaryStatus status) {
 
         this.emotion = emotion;
+        this.title = title;
         this.content = content;
         this.sleepStartTime = sleepStartTime;
         this.sleepEndTime = sleepEndTime;
@@ -73,6 +77,10 @@ public class Diary extends BaseEntity {
 
     public void updateStatus(DiaryStatus status) {
         this.status = status;
+    }
+
+    public void updateTempSavedAt(LocalDateTime tempSavedAt) {
+        this.tempSavedAt = tempSavedAt;
     }
 
     public void updateDeletedAt(LocalDateTime deletedAt) {

@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.member.entity.Member;
-import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.wateringCan.entity.WateringCan;
 
 import java.time.LocalDate;
@@ -22,4 +21,5 @@ public interface WateringCanRepository extends JpaRepository<WateringCan, Long> 
             "WHERE we.wateringCan = wc) " +
             "ORDER BY wc.diary.createdAt ASC")
     List<WateringCan> findUnusedByMemberIdOrderByDiaryCreatedAtAsc(@Param("memberId") Long memberId);
+    List<WateringCan> findByDiaryIn(List<Diary> diaryList);
 }
