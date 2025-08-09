@@ -27,7 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/v3/api-docs/**",
             "/auth/**",
             "/v1/plantory/member/kko/login",
-            "v1/plantory/token/refresh"
+            "/v1/plantory/token/refresh"
     );
 
     private final JwtProvider jwtProvider;
