@@ -57,9 +57,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         Member member = getLoginMember(authorization);
 
         // 일기 제목 생성
-        // AI 프롬프트 생성 및 제목 응답 받기
-        Prompt prompt = PromptFactory.buildDiaryTitlePrompt(request.getContent());
-        String diaryTitle = aiClient.getResponse(prompt);
+        String diaryTitle = generateDiaryTitle(request.getContent());
 
         // diary 엔티티 생성 및 저장
         Diary diary = DiaryConverter.toDiary(request,member, diaryTitle);
