@@ -60,7 +60,13 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         String generatedTitle = generateDiaryTitle(request.getContent());
 
         // diary 엔티티 생성 및 저장
-        Diary diary = DiaryConverter.toDiary(request, member, generatedTitle);
+        Diary diary = DiaryConverter.toDiary(request,member, diaryTitle);
+
+        // TEMP 상태일 경우 tempSavedAt 기록
+        if (diary.getStatus() == DiaryStatus.TEMP) {
+            diary.updateTempSavedAt(LocalDateTime.now());
+        }
+
         diaryRepository.save(diary);
 
         // 이미지 등록 처리
@@ -98,6 +104,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         LocalDateTime sleepEnd = request.getSleepEndTime() != null ? request.getSleepEndTime() : diary.getSleepEndTime();
         DiaryStatus status = request.getStatus() != null ? DiaryStatus.valueOf(request.getStatus()) : diary.getStatus();
 
+        // TEMP 상태일 경우 tempSavedAt 기록
+        if (diary.getStatus() == DiaryStatus.TEMP) {
+            diary.updateTempSavedAt(LocalDateTime.now());
+        }
+
         // 임시 저장 → 정식 저장일때 필수 필드 다 있는지 확인
         if (status == DiaryStatus.NORMAL &&
                 (emotion == null || content == null || sleepStart == null || sleepEnd == null)) {
@@ -110,6 +121,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         diary.update(emotion, title, content, sleepStart, sleepEnd, status);
 
         handleWateringCan(diary, member);
+
         return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
     }
 
@@ -173,6 +185,9 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         for (Diary diary : diaries) {
             validateDiaryOwnership(diary, member);
             diary.updateStatus(DiaryStatus.TEMP);
+
+            // 임시 보관 일시 기록
+            diary.updateTempSavedAt(LocalDateTime.now());
         }
     }
 
@@ -300,7 +315,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         return null;
     }
 
-    // 당일 작성된 일기고, 해당 날짜에 물뿌리개를 지급한 적이 없다면 물뿌리개 생성
+    // 당일 작성된 NORMAL 상태의 일기고, 해당 날짜에 물뿌리개를 지급한 적이 없다면 물뿌리개 생성
     private void handleWateringCan(Diary diary, Member member) {
         if (diary.getStatus() == DiaryStatus.NORMAL
                 && diary.getDiaryDate().isEqual(LocalDate.now())
