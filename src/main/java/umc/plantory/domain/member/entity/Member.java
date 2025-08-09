@@ -121,4 +121,8 @@ public class Member extends BaseEntity {
     public void decreaseTotalRecordCnt() {
         this.totalRecordCnt -= 1;
     }
+
+    public void increaseContinuousRecordCnt() {
+        this.continuousRecordCnt = this.continuousRecordCnt + 1;
+    }
 }
