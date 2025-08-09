@@ -41,4 +41,6 @@ public class Chat {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private MessageType messageType;
+
+    private String test;
 }
