@@ -192,8 +192,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         for (Diary diary : diaries) {
             validateDiaryOwnership(diary, member);
 
-            // NORMAL → TEMP 상태일 경우 누적 감정 기록 횟수 감소
-            if (diary.getStatus() == DiaryStatus.NORMAL) {
+            // NORMAL / SCRAP → TEMP 상태일 경우 누적 감정 기록 횟수 감소
+            if (diary.getStatus() == DiaryStatus.NORMAL || diary.getStatus() == DiaryStatus.SCRAP) {
                 member.decreaseTotalRecordCnt();
             }
 
@@ -220,8 +220,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         for (Diary diary : diaries) {
             validateDiaryOwnership(diary, member);
 
-            // NORMAL → DELETE 상태일 경우 누적 감정 기록 횟수 감소
-            if (diary.getStatus() == DiaryStatus.NORMAL) {
+            // NORMAL / SCRAP → DELETE 상태일 경우 누적 감정 기록 횟수 감소
+            if (diary.getStatus() == DiaryStatus.NORMAL || diary.getStatus() == DiaryStatus.SCRAP) {
                 member.decreaseTotalRecordCnt();
             }
 
