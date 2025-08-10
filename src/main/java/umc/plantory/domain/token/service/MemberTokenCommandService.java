@@ -50,7 +50,7 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
             memberTokenRepository.save(findMemberToken);
         }
 
-        return KakaoConverter.toKkoOAuth2LoginResponse(accessToken, refreshToken, accessTokenExpireAt);
+        return KakaoConverter.toKkoOAuth2LoginResponse(member, accessToken, refreshToken, accessTokenExpireAt);
     }
 
     /**

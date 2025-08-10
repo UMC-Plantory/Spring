@@ -6,6 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChatQueryUseCase {
-    List<ChatResponseDTO.ChatResponse> findLatestChats(String authorization);
-    List<ChatResponseDTO.ChatResponse> findBeforeChats(String authorization, LocalDateTime before);
+    List<ChatResponseDTO> findLatestChats(String authorization);
+    List<ChatResponseDTO> findBeforeChats(String authorization, LocalDateTime before);
 }

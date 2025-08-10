@@ -57,10 +57,10 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         Member member = getLoginMember(authorization);
 
         // 일기 제목 생성
-        String generatedTitle = generateDiaryTitle(request.getContent());
+        String diaryTitle = generateDiaryTitle(request.getContent());
 
         // 일기 & 이미지 엔티티 생성 및 저장
-        Diary diary = DiaryConverter.toDiary(request,member, generatedTitle);
+        Diary diary = DiaryConverter.toDiary(request,member, diaryTitle);
         diaryRepository.save(diary);
         String imageUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), false);
 
