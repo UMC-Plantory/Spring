@@ -18,7 +18,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public long resetStreak(LocalDate yesterday) {
+    public long bulkUpdateContinuousRecordCnt(LocalDate yesterday) {
         QMember member = QMember.member;
         QWateringCan wateringCan = QWateringCan.wateringCan;
 
@@ -34,7 +34,7 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
 
         // 상태가 ACTIVE 이고, 연속 기록이 0보다 큰 멤버 중
         // 어제 물뿌리개가 존재하지 않으면 (어제 일기 작성 X) 연속 기록 0으로 초기화
-        long updated = queryFactory
+        return queryFactory
                 .update(member)
                 .set(member.continuousRecordCnt, 0)
                 .where(
@@ -43,7 +43,5 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                         noWateringYesterday
                 )
                 .execute();
-
-        return updated;
     }
 }

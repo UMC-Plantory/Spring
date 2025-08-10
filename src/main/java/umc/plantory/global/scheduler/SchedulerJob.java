@@ -39,20 +39,11 @@ public class SchedulerJob {
         log.info("[스케줄러] TEMP → DELETE 작업 시작");
 
         try {
-            // 30일전 임시 보관된 TEMP 상태의 일기 조회
             LocalDate threshold = LocalDate.now().minusDays(30);
-            List<Diary> tempDiaries = diaryRepository
-                    .findByStatusAndTempSavedAtBefore(DiaryStatus.TEMP, threshold.atStartOfDay());
-
-            // DELETE 상태로 바꾸고 deletedAt 기록
-            for (Diary diary : tempDiaries) {
-                diary.updateStatus(DiaryStatus.DELETE);
-                diary.updateDeletedAt(start);
-            }
+            long updatedCount = diaryRepository.bulkUpdateTempToDeleted(threshold, start);
 
             Duration duration = Duration.between(start, LocalDateTime.now());
-            log.info("[스케줄러] TEMP → DELETE 처리 완료 | 대상: {}건 | 소요 시간: {}ms",
-                    tempDiaries.size(), duration.toMillis());
+            log.info("[스케줄러] TEMP → DELETE 처리 완료 | 대상: {}건 | 소요 시간: {}ms", updatedCount, duration.toMillis());
         } catch (Exception e) {
             log.error("[스케줄러] TEMP → DELETE 처리 실패", e);
         }
@@ -92,8 +83,7 @@ public class SchedulerJob {
             diaryRepository.deleteAll(deletedDiaries);
 
             Duration duration = Duration.between(start, LocalDateTime.now());
-            log.info("[스케줄러] DELETE → 영구 삭제 처리 완료 | 대상: {}건 | 소요 시간: {}ms",
-                    deletedDiaries.size(), duration.toMillis());
+            log.info("[스케줄러] DELETE → 영구 삭제 처리 완료 | 대상: {}건 | 소요 시간: {}ms", deletedDiaries.size(), duration.toMillis());
         } catch (Exception e) {
             log.error("[스케줄러] DELETE → 영구 삭제 처리 실패", e);
         }
@@ -109,10 +99,10 @@ public class SchedulerJob {
 
         try {
             LocalDate yesterday = LocalDate.now().minusDays(1);
-            long updated = memberRepository.resetStreak(yesterday);
+            long updatedCount = memberRepository.bulkUpdateContinuousRecordCnt(yesterday);
 
             Duration duration = Duration.between(start, LocalDateTime.now());
-            log.info("[스케줄러] 연속 기록 초기화 완료 | 대상: {}건 | 소요 시간: {}ms", updated, duration.toMillis());
+            log.info("[스케줄러] 연속 기록 초기화 완료 | 대상: {}건 | 소요 시간: {}ms", updatedCount, duration.toMillis());
         } catch (Exception e) {
             log.error("[스케줄러] 연속 기록 초기화 실패", e);
         }

@@ -12,6 +12,7 @@ import umc.plantory.global.enums.DiaryStatus;
 import umc.plantory.global.enums.Emotion;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
@@ -144,5 +145,21 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 .from(diary)
                 .where(builder)
                 .fetchOne();
+    }
+
+    @Override
+    public long bulkUpdateTempToDeleted(LocalDate thresholdDate, LocalDateTime deletedAt) {
+        QDiary diary = QDiary.diary;
+
+        // tempSavedAt이 30일 이전인 TEMP 상태의 일기들을 DELETE 상태로 업데이트
+        return queryFactory
+                .update(diary)
+                .set(diary.status, DiaryStatus.DELETE)
+                .set(diary.deletedAt, deletedAt)
+                .where(
+                        diary.status.eq(DiaryStatus.TEMP),
+                        diary.tempSavedAt.before(thresholdDate.atStartOfDay())
+                )
+                .execute();
     }
 }
