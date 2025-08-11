@@ -21,7 +21,7 @@ import java.time.LocalDate;
 
 @Tag(name = "Diary", description = "일기 관련 API")
 @RestController
-@RequestMapping("/v1/plantory/diary")
+@RequestMapping("/v1/plantory/diaries")
 @RequiredArgsConstructor
 public class DiaryRestController {
 
@@ -76,7 +76,7 @@ public class DiaryRestController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4003", description = "일기 작성자와 일치하지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4004", description = "현재 상태에서 스크랩할 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
-    @PatchMapping("/{diaryId}/scrap/on")
+    @PatchMapping("/{diaryId}/scrap-status/on")
     public ResponseEntity<ApiResponse<Void>> scrapDiary(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "스크랩할 일기의 ID") @PathVariable Long diaryId
@@ -95,7 +95,7 @@ public class DiaryRestController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4003", description = "일기 작성자와 일치하지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4004", description = "SCRAP 상태가 아니라 취소할 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
-    @PatchMapping("/{diaryId}/scrap/off")
+    @PatchMapping("/{diaryId}/scrap-status/off")
     public ResponseEntity<ApiResponse<Void>> cancelScrapDiary(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "스크랩 취소할 일기의 ID") @PathVariable Long diaryId
@@ -113,7 +113,7 @@ public class DiaryRestController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4001", description = "일기를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4003", description = "일기 작성자와 일치하지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
-    @PatchMapping("/temp")
+    @PatchMapping("/temp-status")
     public ResponseEntity<ApiResponse<Void>> tempSaveDiaries(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Valid @RequestBody DiaryRequestDTO.DiaryIdsDTO requestDTO
@@ -131,7 +131,7 @@ public class DiaryRestController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4001", description = "일기를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4003", description = "일기 작성자와 일치하지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
-    @PatchMapping("/waste")
+    @PatchMapping("/waste-status")
     public ResponseEntity<ApiResponse<Void>> moveDiariesToTrash(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Valid @RequestBody DiaryRequestDTO.DiaryIdsDTO request
@@ -200,7 +200,7 @@ public class DiaryRestController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공")
     })
-    @GetMapping("/temp/check")
+    @GetMapping("/temp-status/exists")
     public ResponseEntity<ApiResponse<DiaryResponseDTO.TempDiaryExistsDTO>> checkTempDiaryExistence(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "조회할 날짜 (yyyy-MM-dd)") @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
@@ -241,7 +241,7 @@ public class DiaryRestController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공")
     })
-    @GetMapping("/scrap")
+    @GetMapping("/scrap-status")
     public ResponseEntity<ApiResponse<DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO>>> getScrappedDiaries(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestParam(value = "sort", defaultValue = "latest") String sort,
@@ -256,7 +256,7 @@ public class DiaryRestController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공")
     })
-    @GetMapping("/temp")
+    @GetMapping("/temp-status")
     public ResponseEntity<ApiResponse<DiaryResponseDTO.DiaryListDTO>> getTempDiaryList(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestParam(value = "sort", defaultValue = "latest") String sort
@@ -269,7 +269,7 @@ public class DiaryRestController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공")
     })
-    @GetMapping("/waste")
+    @GetMapping("/waste-status")
     public ResponseEntity<ApiResponse<DiaryResponseDTO.DiaryListDTO>> getDeletedDiaryList(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestParam(value = "sort", defaultValue = "latest") String sort

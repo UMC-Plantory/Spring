@@ -21,7 +21,7 @@ import java.time.LocalDate;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/v1/plantory/member")
+@RequestMapping("/v1/plantory/members")
 @RequiredArgsConstructor
 @Tag(name = "Member", description = "회원 관련 API")
 public class MemberRestController {
@@ -45,7 +45,7 @@ public class MemberRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.updateProfile(authorization, request)));
     }
 
-    @PostMapping("/term")
+    @PostMapping("/agreements")
     @Operation(summary = "약관 동의 API", description = "회원이 약관에 동의하는 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.TermAgreementResponse>> termAgreement(
             @RequestHeader(value = "Authorization", required = false) String authorization,
@@ -61,7 +61,7 @@ public class MemberRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.memberSignup(authorization, request)));
     }
 
-    @PostMapping("/kko/login")
+    @PostMapping("/auth/kko")
     @Operation(summary = "KAKAO OAuth2 로그인 API", description = "KAKAO OAuth2 로그인 API 입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.KkoOAuth2LoginResponse>> kkoOAuth2Login
             (@RequestBody MemberRequestDTO.KkoOAuth2LoginRequest request) {
@@ -75,7 +75,7 @@ public class MemberRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateToken(findOrCreateMember)));
     }
 
-    @DeleteMapping("/logout")
+    @DeleteMapping("/auth")
     @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다.")
     public ResponseEntity<ApiResponse<Void>> logout(
             @RequestHeader("Authorization") String authorization) {
@@ -83,7 +83,7 @@ public class MemberRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
 
-    @PatchMapping("/delete")
+    @PatchMapping
     @Operation(summary = "계정 탈퇴 API", description = "계정 탈퇴 API입니다.")
     public ResponseEntity<ApiResponse<Void>> deleteMember(
             @RequestHeader("Authorization") String authorization) {
