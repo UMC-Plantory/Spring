@@ -56,17 +56,11 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
             throw new TerrariumHandler(ErrorStatus.FLOWER_NOT_FOUND_IN_TERRARIUM);
         }
 
-        String flowerImgUrl = currentTerrarium.getFlower().getFlowerImgUrl();
-        if (flowerImgUrl == null) {
-            throw new TerrariumHandler(ErrorStatus.FLOWER_IMG_NOT_FOUND_IN_TERRARIUM);
-        }
-
         Integer wateringCanCnt = member.getWateringCanCnt();
         int wateringEventCnt = wateringEventRepository.countByTerrariumId(currentTerrarium.getId());
 
         return TerrariumConverter.toTerrariumResponse(
                 currentTerrarium.getId(),
-                flowerImgUrl,
                 wateringEventCnt,
                 wateringCanCnt
         );
@@ -99,7 +93,6 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
                         terrarium.getId(),
                         terrarium.getBloomAt(),
                         nickname,
-                        terrarium.getFlower().getFlowerImgUrl(),
                         terrarium.getFlower().getName()
                 ))
                 .collect(Collectors.toList());

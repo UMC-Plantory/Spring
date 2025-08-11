@@ -15,12 +15,10 @@ import java.util.Map;
 public class TerrariumConverter {
 
     public static TerrariumResponse toTerrariumResponse(Long terrariumId,
-                                                        String flowerImgUrl,
                                                         int terrariumWateringCount,
                                                         int memberWateringCount) {
         return TerrariumResponse.builder()
                 .terrariumId(terrariumId)
-                .flowerImgUrl(flowerImgUrl)
                 .memberWateringCount(memberWateringCount)
                 .terrariumWateringCount(terrariumWateringCount)
                 .build();
@@ -53,7 +51,6 @@ public class TerrariumConverter {
                 .memberWateringCountAfterEvent(memberWateringCountAfterEvent)
                 .emotionList(emotionList)
                 .flowerName(flower.getName())
-                .flowerImgUrl(flower.getFlowerImgUrl())
                 .flowerEmotion(flower.getEmotion())
                 .build();
     }
@@ -61,13 +58,11 @@ public class TerrariumConverter {
     public static TerrariumResponseDto.CompletedTerrariumResponse toCompletedTerrariumResponse(Long terrariumId,
                                                                                                LocalDateTime bloomAt,
                                                                                                String nickname,
-                                                                                               String flowerImgUrl,
                                                                                                String flowerName) {
         return TerrariumResponseDto.CompletedTerrariumResponse.builder()
                 .terrariumId(terrariumId)
                 .bloomAt(bloomAt)
                 .nickname(nickname)
-                .flowerImgUrl(flowerImgUrl)
                 .flowerName(flowerName)
                 .build();
     }
