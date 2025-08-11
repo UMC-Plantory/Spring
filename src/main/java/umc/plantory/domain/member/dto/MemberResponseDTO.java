@@ -19,6 +19,7 @@ public class MemberResponseDTO {
     public static class TermAgreementResponse {
         private Long memberId;
         private String message;
+        private MemberStatus status;
     }
 
     @Getter
@@ -30,6 +31,7 @@ public class MemberResponseDTO {
         private String nickname;
         private String userCustomId;
         private String profileImgUrl;
+        private MemberStatus status;
     }
 
     @Getter
