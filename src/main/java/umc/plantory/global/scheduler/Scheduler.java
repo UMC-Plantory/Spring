@@ -13,8 +13,8 @@ public class Scheduler {
     // 매일 자정에 실행
     @Scheduled(cron = "0 0 0 * * *")
     public void executeScheduledTasks() {
+        schedulerJob.resetContinuousRecordCnt();
         schedulerJob.updateTempToDeleted();
         schedulerJob.deleteDiariesPermanently();
-        schedulerJob.resetContinuousRecordCnt();
     }
 }

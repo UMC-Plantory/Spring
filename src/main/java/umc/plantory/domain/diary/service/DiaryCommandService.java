@@ -68,7 +68,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 당일 작성한 일기일 경우 연속 기록 & 물뿌리개 +1
         if (diary.getStatus() == DiaryStatus.NORMAL) {
             member.increaseTotalRecordCnt();
-            handleTodayNormalDiary(diary, member);
+            handleContinuousRecordCnt(diary, member);
+            handleWateringCan(diary, member);
 
         // TEMP 상태일 경우 tempSavedAt 기록
         } else if (diary.getStatus() == DiaryStatus.TEMP) {
@@ -126,7 +127,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 당일 작성한 일기일 경우 연속 기록 & 물뿌리개 +1
         } else if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {
             member.increaseTotalRecordCnt();
-            handleTodayNormalDiary(diary, member);
+            handleContinuousRecordCnt(diary, member);
+            handleWateringCan(diary, member);
         }
 
         return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
@@ -334,10 +336,25 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         return null;
     }
 
-    // 당일 작성한 NORMAL 상태의 일기 처리
-    private void handleTodayNormalDiary(Diary diary, Member member) {
+    // 연속 기록 처리
+    private void handleContinuousRecordCnt(Diary diary, Member member) {
+        // 당일 작성한 일기고, 오늘 연속 기록이 늘어난 적 없을 때
         if (diary.getDiaryDate().isEqual(LocalDate.now()) &&
-                !wateringCanRepository.existsByDiaryDateAndMember(LocalDate.now(), member)) {
+                (member.getLastDiaryDate() == null || !(member.getLastDiaryDate().isEqual(LocalDate.now())))) {
+
+            // 연속 기록 +1
+            member.increaseContinuousRecordCnt();
+
+            // 마지막으로 작성한 일기 날짜 업데이트
+            member.updateLastDiaryDate(diary.getDiaryDate());
+        }
+    }
+
+    // 물뿌리개 지급
+    private void handleWateringCan(Diary diary, Member member) {
+        // 당일 작성한 일기고, 오늘 물뿌리개를 지급 받은 적 없을 때
+        if (diary.getDiaryDate().isEqual(LocalDate.now()) &&
+                !wateringCanRepository.existsByDiaryDateAndMember(diary.getDiaryDate(), member)) {
 
             // 사용자가 가진 물뿌리개 개수 +1
             member.increaseWateringCan();
@@ -345,9 +362,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             // wateringCan 엔티티 생성 및 저장
             WateringCan wateringCan = WateringCanConverter.toWateringCan(diary, member);
             wateringCanRepository.save(wateringCan);
-
-            // 연속 기록 +1
-            member.increaseContinuousRecordCnt();
         }
     }
 
