@@ -1,7 +1,8 @@
 package umc.plantory.domain.chat.service;
 
 import umc.plantory.domain.chat.dto.ChatRequestDTO;
+import umc.plantory.domain.chat.dto.ChatResponseDTO;
 
 public interface ChatCommandUseCase {
-    String ask(String authorization, ChatRequestDTO.ChatMessageDTO request);
+    ChatResponseDTO ask(String authorization, ChatRequestDTO request);
 }

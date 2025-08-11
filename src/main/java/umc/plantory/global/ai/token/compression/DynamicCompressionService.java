@@ -31,11 +31,15 @@ public class DynamicCompressionService {
             return llmCompressor.compressToEssential(cleanedResponse);
         }
 
-        // 2. 대화 턴 수가 얼마 안 되고, 현재 인메모리에 저장된 대화의 토큰수도 작으면 → 단순 길이 제한만 수행, 압축 불필요
-        if (conversationLength <= CONVERSATION_THRESHOLD && totalTokensInMemory <= TOKEN_THRESHOLD) {
-            // 불필요한 비용과 작업을 줄이기 위해 단순히 120자까지만 제한
-            return limitLength(cleanedResponse, 120);
-        }
+        // TODO: 대화 턴 수 기반 압축 판단 로직
+        // 현재는 chatMemory가 최대 5턴만 저장하도록 되어 있어,
+        // 이 조건(conversationLength <= CONVERSATION_THRESHOLD && totalTokensInMemory <= TOKEN_THRESHOLD)이
+        // 실질적으로 발동될 가능성이 거의 없음.
+        // 추후 기능 확장 시(예: 대화 턴 수를 7~10턴 이상 저장, 대화 맥락 유지 강화, 비용 절감 최적화 등) 다시 활성화
+        // if (conversationLength <= CONVERSATION_THRESHOLD && totalTokensInMemory <= TOKEN_THRESHOLD) {
+        //    // 불필요한 비용과 작업을 줄이기 위해 단순히 120자까지만 제한
+        //      return limitLength(cleanedResponse, 120);
+        // }
 
         // 3. 응답이 짧으면 → 압축할 필요 없이 원본 그대로 반환
         if (cleanedResponse.length() <= LENGTH_THRESHOLD) {

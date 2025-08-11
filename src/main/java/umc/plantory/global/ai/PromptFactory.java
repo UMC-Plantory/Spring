@@ -24,11 +24,12 @@ public class PromptFactory {
             Analyze emotions and provide supportive responses.
             IMPORTANT: Always respond in Korean language only.
             Use warm, caring tone appropriate for Korean culture.
+            Maximum 500 characters including spaces. No line breaks.
         """;
 
     private static final String DIARY_TITLE_SYSTEM_PROMPT = """
         사용자의 일기 내용을 바탕으로 제목을 지어줘.
-        제목은 반드시 공백 포함 20 미만으로 생성해야 해.
+        제목은 반드시 공백 포함 20자 미만으로 생성해야 해.
         제목이라고 명시할 필요는 없어. 내용만을 지어줘.
         "꿈같은 하루", "혼자 걷는 밤거리" 같은 느낌의 짧고 자연스러운 문장을 사용해줘.
         제목:", "Title:" 같은 단어는 포함하지 말고, 내용만 반환해줘.
