@@ -24,14 +24,14 @@ public class StatisticResponseDTO {
         private LocalDate endDate;
         private DayOfWeek todayWeekday;
         private Integer averageSleepMinutes;
-        private List<DailySleepData> dailySleepRecords;
+        private List<DailySleepRecord> dailySleepRecords;
     }
 
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class DailySleepData {
+    public static class DailySleepRecord {
         private Integer day;
         private LocalDate date;
         private DayOfWeek weekday;
@@ -48,14 +48,14 @@ public class StatisticResponseDTO {
         private LocalDate endDate;
         private DayOfWeek todayWeekday;
         private Integer averageSleepMinutes;
-        private List<WeeklySleepData> weeklySleepRecords;
+        private List<WeeklySleepRecord> weeklySleepRecords;
     }
 
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class WeeklySleepData {
+    public static class WeeklySleepRecord {
         private Integer week;
         private LocalTime averageSleepStartTime;
         private LocalTime averageSleepEndTime;

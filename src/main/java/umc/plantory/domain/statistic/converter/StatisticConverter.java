@@ -16,7 +16,7 @@ public class StatisticConverter {
             LocalDate startDate,
             LocalDate endDate,
             Integer averageSleepMinutes,
-            List<StatisticResponseDTO.DailySleepData> dailySleepData) {
+            List<StatisticResponseDTO.DailySleepRecord> dailySleepData) {
 
         return StatisticResponseDTO.WeeklySleepStatisticDTO.builder()
                 .startDate(startDate)
@@ -28,9 +28,9 @@ public class StatisticConverter {
     }
 
     // 1일 수면 정보
-    public static StatisticResponseDTO.DailySleepData toDailySleepData(Integer indexDay, Diary diary) {
+    public static StatisticResponseDTO.DailySleepRecord toDailySleepData(Integer indexDay, Diary diary) {
 
-        return StatisticResponseDTO.DailySleepData.builder()
+        return StatisticResponseDTO.DailySleepRecord.builder()
                 .day(indexDay)
                 .date(diary.getDiaryDate())
                 .weekday(diary.getDiaryDate().getDayOfWeek())
@@ -40,9 +40,9 @@ public class StatisticConverter {
     }
 
     // 1일 수면 정보 (수면 정보 없음)
-    public static StatisticResponseDTO.DailySleepData toEmptyDailySleepData(Integer indexDay, LocalDate targetDate) {
+    public static StatisticResponseDTO.DailySleepRecord toEmptyDailySleepData(Integer indexDay, LocalDate targetDate) {
 
-        return StatisticResponseDTO.DailySleepData.builder()
+        return StatisticResponseDTO.DailySleepRecord.builder()
                 .day(indexDay)
                 .date(targetDate)
                 .weekday(targetDate.getDayOfWeek())
@@ -56,24 +56,24 @@ public class StatisticConverter {
             LocalDate startDate,
             LocalDate endDate,
             Integer averageSleepMinutes,
-            List<StatisticResponseDTO.WeeklySleepData> weeklySleepDataList) {
+            List<StatisticResponseDTO.WeeklySleepRecord> weeklySleepRecordList) {
 
         return StatisticResponseDTO.MonthlySleepStatisticDTO.builder()
                 .startDate(startDate)
                 .endDate(endDate)
                 .todayWeekday(endDate.getDayOfWeek())
                 .averageSleepMinutes(averageSleepMinutes)
-                .weeklySleepRecords(weeklySleepDataList)
+                .weeklySleepRecords(weeklySleepRecordList)
                 .build();
     }
 
     // 1주일 수면 정보
-    public static StatisticResponseDTO.WeeklySleepData toWeeklySleepData(
+    public static StatisticResponseDTO.WeeklySleepRecord toWeeklySleepData(
             Integer week,
             LocalTime startTime,
             LocalTime endTime) {
 
-        return  StatisticResponseDTO.WeeklySleepData.builder()
+        return  StatisticResponseDTO.WeeklySleepRecord.builder()
                 .week(week)
                 .averageSleepStartTime(startTime)
                 .averageSleepEndTime(endTime)

@@ -64,13 +64,13 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         }
 
         // 최근 7일을 순회하며 일일 수면 데이터 생성. 일기 없으면 빈 데이터 생성.
-        List<StatisticResponseDTO.DailySleepData> dailySleepDataList = new ArrayList<>();
+        List<StatisticResponseDTO.DailySleepRecord> dailySleepRecordList = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
             LocalDate targetDate = startDate.plusDays(i);
             int day = i + 1;
 
             Diary diary = diaryMap.get(targetDate);
-            dailySleepDataList.add(
+            dailySleepRecordList.add(
                     (diary != null)
                             ? StatisticConverter.toDailySleepData(day, diary)
                             : StatisticConverter.toEmptyDailySleepData(day, targetDate)
@@ -80,7 +80,7 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         // 7일 평균 수면 시간 계산 (단위: 분)
         Integer averageSleepMinutes = calculateAverageSleepMinutes(diaries);
 
-        return StatisticConverter.toWeeklyStatisticDTO(startDate, endDate, averageSleepMinutes, dailySleepDataList);
+        return StatisticConverter.toWeeklyStatisticDTO(startDate, endDate, averageSleepMinutes, dailySleepRecordList);
     }
 
     /**
@@ -114,7 +114,7 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         }
 
         // 각 주차별 수면 데이터 리스트
-        List<StatisticResponseDTO.WeeklySleepData> weeklySleepDataList = new ArrayList<>();
+        List<StatisticResponseDTO.WeeklySleepRecord> weeklySleepRecordList = new ArrayList<>();
 
         // 각 주차별 평균 수면 시각 및 기상 시각 구하기
         for (int i = 0; i < 5; i++) {
@@ -137,17 +137,17 @@ public class StatisticQueryService implements StatisticQueryUseCase {
             LocalTime averageSleepEndTime = calculateAverageTime(sleepEndTimes);
 
             // 주차별 수면 데이터 생성
-            StatisticResponseDTO.WeeklySleepData weeklySleepData = StatisticConverter.toWeeklySleepData(
+            StatisticResponseDTO.WeeklySleepRecord weeklySleepRecord = StatisticConverter.toWeeklySleepData(
                     i + 1,averageSleepStartTime, averageSleepEndTime);
 
             // 주차별 수면 데이터 리스트에 추가
-            weeklySleepDataList.add(weeklySleepData);
+            weeklySleepRecordList.add(weeklySleepRecord);
         }
 
         // 30일 평균 수면 시간 계산 (단위: 분)
         Integer averageSleepMinutes = calculateAverageSleepMinutes(diaries);
 
-        return StatisticConverter.toMonthlySleepStatisticDTO(startDate, endDate, averageSleepMinutes, weeklySleepDataList);
+        return StatisticConverter.toMonthlySleepStatisticDTO(startDate, endDate, averageSleepMinutes, weeklySleepRecordList);
     }
 
     /**
