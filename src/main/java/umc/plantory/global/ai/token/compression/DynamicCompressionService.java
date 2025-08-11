@@ -12,7 +12,7 @@ public class DynamicCompressionService {
     private final LLMCompressionService llmCompressor;
 
     // 대화 턴 수 임계값 (ex. 5턴 이상부터 압축 고려)
-    private static final int CONVERSATION_THRESHOLD = 5;
+//    private static final int CONVERSATION_THRESHOLD = 5;
 
     // 인메모리 내 전체 토큰 임계값 (ex. 1000 토큰 이상부터 LLM 압축)
     // 한국어로 약 400~500자
