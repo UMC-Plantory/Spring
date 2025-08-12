@@ -19,7 +19,7 @@ import java.util.List;
 @Tag(name = "Chat", description = "채팅 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/plantory/chat")
+@RequestMapping("/v1/plantory/chats")
 public class ChatRestController {
 
     private final ChatQueryUseCase chatQueryUseCase;

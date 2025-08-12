@@ -15,13 +15,13 @@ import java.time.LocalDate;
 
 @Tag(name = "Statistic", description = "통계 관련 API")
 @RestController
-@RequestMapping("/v1/plantory")
+@RequestMapping("/v1/plantory/statistics")
 @RequiredArgsConstructor
 public class StatisticRestController {
 
     private final StatisticQueryUseCase statisticQueryUseCase;
 
-    @GetMapping("/sleep-stat/week")
+    @GetMapping("/sleep/weekly")
     @Operation(
             summary = "최근 7일 수면 통계 조회",
             description = "입력한 날짜 기준으로 사용자의 최근 7일간 수면 통계 정보를 조회합니다."
@@ -33,7 +33,7 @@ public class StatisticRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getWeeklySleepStatistics(authorization, today)));
     }
 
-    @GetMapping("/sleep-stat/month")
+    @GetMapping("/sleep/monthly")
     @Operation(
             summary = "최근 30일 수면 통계 조회",
             description = "입력한 날짜 기준으로 사용자의 최근 30일간 수면 통계 정보를 조회합니다."
@@ -45,7 +45,7 @@ public class StatisticRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getMonthlySleepStatistics(authorization, today)));
     }
 
-    @GetMapping("/emotion-stat/week")
+    @GetMapping("/emotion/weekly")
     @Operation(
             summary = "최근 7일 감정 통계 조회",
             description = "입력한 날짜 기준으로 사용자의 최근 7일간 감정 통계 정보를 조회합니다."
@@ -57,7 +57,7 @@ public class StatisticRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getEmotionStatistics(authorization, today, 7)));
         }
 
-    @GetMapping("/emotion-stat/month")
+    @GetMapping("/emotion/monthly")
     @Operation(
             summary = "최근 30일 감정 통계 조회",
             description = "입력한 날짜 기준으로 사용자의 최근 30일간 감정 통계 정보를 조회합니다."
