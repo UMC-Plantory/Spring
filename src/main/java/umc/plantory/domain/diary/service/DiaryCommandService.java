@@ -59,21 +59,23 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 제목 생성
         String diaryTitle = generateDiaryTitle(request.getContent());
 
-        // diary 엔티티 생성 및 저장
+        // 일기 & 이미지 엔티티 생성 및 저장
         Diary diary = DiaryConverter.toDiary(request,member, diaryTitle);
+        diaryRepository.save(diary);
+        String imageUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), false);
+
+        // NORMAL 상태일 경우 누적 감정 기록 횟수 증가
+        // 당일 작성한 일기일 경우 연속 기록 & 물뿌리개 +1
+        if (diary.getStatus() == DiaryStatus.NORMAL) {
+            member.increaseTotalRecordCnt();
+            handleContinuousRecordCnt(diary, member);
+            handleWateringCan(diary, member);
 
         // TEMP 상태일 경우 tempSavedAt 기록
-        if (diary.getStatus() == DiaryStatus.TEMP) {
+        } else if (diary.getStatus() == DiaryStatus.TEMP) {
             diary.updateTempSavedAt(LocalDateTime.now());
         }
 
-        diaryRepository.save(diary);
-
-        // 이미지 등록 처리
-        String imageUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), false);
-
-        // 물뿌리개 처리
-        handleWateringCan(diary, member);
         return DiaryConverter.toDiaryInfoDTO(diary, imageUrl);
     }
 
@@ -94,8 +96,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 작성자 확인
         validateDiaryOwnership(diary, member);
 
-        // 이미지 업데이트 처리
-        String diaryImgUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), Boolean.TRUE.equals(request.getIsImgDeleted()));
+        // 변경 전 상태
+        DiaryStatus beforeStatus = diary.getStatus();
 
         // 일기 내용 업데이트
         Emotion emotion = request.getEmotion() != null ? Emotion.valueOf(request.getEmotion()) : diary.getEmotion();
@@ -104,12 +106,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         LocalDateTime sleepEnd = request.getSleepEndTime() != null ? request.getSleepEndTime() : diary.getSleepEndTime();
         DiaryStatus status = request.getStatus() != null ? DiaryStatus.valueOf(request.getStatus()) : diary.getStatus();
 
-        // TEMP 상태일 경우 tempSavedAt 기록
-        if (diary.getStatus() == DiaryStatus.TEMP) {
-            diary.updateTempSavedAt(LocalDateTime.now());
-        }
-
-        // 임시 저장 → 정식 저장일때 필수 필드 다 있는지 확인
+        // NORMAL 저장일때 필수 필드 다 있는지 확인
         if (status == DiaryStatus.NORMAL &&
                 (emotion == null || content == null || sleepStart == null || sleepEnd == null)) {
             throw new DiaryHandler(ErrorStatus.DIARY_MISSING_FIELDS);
@@ -118,9 +115,21 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 본문 변경 시, 제목 다시 생성
         String title = request.getContent() != null ? generateDiaryTitle(content) : diary.getTitle();
 
+        // 일기, 이미지 업데이트 처리
         diary.update(emotion, title, content, sleepStart, sleepEnd, status);
+        String diaryImgUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), Boolean.TRUE.equals(request.getIsImgDeleted()));
 
-        handleWateringCan(diary, member);
+        // TEMP 상태일 경우 tempSavedAt 기록
+        if (status == DiaryStatus.TEMP) {
+            diary.updateTempSavedAt(LocalDateTime.now());
+
+        // TEMP → NORMAL 상태일 경우 누적 감정 기록 횟수 증가
+        // 당일 작성한 일기일 경우 연속 기록 & 물뿌리개 +1
+        } else if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {
+            member.increaseTotalRecordCnt();
+            handleContinuousRecordCnt(diary, member);
+            handleWateringCan(diary, member);
+        }
 
         return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
     }
@@ -139,7 +148,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         validateDiaryOwnership(diary, member);
 
-        // Normal 상태인 일기만 스크랩 가능
+        // NORMAL 상태인 일기만 스크랩 가능
         if (diary.getStatus() != DiaryStatus.NORMAL) {
             throw new DiaryHandler(ErrorStatus.DIARY_INVALID_STATUS);
         }
@@ -161,7 +170,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         validateDiaryOwnership(diary, member);
 
-        // Scrap 상태였던 일기만 취소 가능
+        // SCRAP 상태였던 일기만 취소 가능
         if (diary.getStatus() != DiaryStatus.SCRAP) {
             throw new DiaryHandler(ErrorStatus.DIARY_INVALID_STATUS);
         }
@@ -184,9 +193,15 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 작성자 확인 및 상태 TEMP로 변경
         for (Diary diary : diaries) {
             validateDiaryOwnership(diary, member);
+
+            // NORMAL / SCRAP → TEMP 상태일 경우 누적 감정 기록 횟수 감소
+            if (diary.getStatus() == DiaryStatus.NORMAL || diary.getStatus() == DiaryStatus.SCRAP) {
+                member.decreaseTotalRecordCnt();
+            }
+
             diary.updateStatus(DiaryStatus.TEMP);
 
-            // 임시 보관 일시 기록
+            // tempSavedAt 기록
             diary.updateTempSavedAt(LocalDateTime.now());
         }
     }
@@ -206,9 +221,15 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 작성자 확인 및 상태 DELETE로 변경
         for (Diary diary : diaries) {
             validateDiaryOwnership(diary, member);
+
+            // NORMAL / SCRAP → DELETE 상태일 경우 누적 감정 기록 횟수 감소
+            if (diary.getStatus() == DiaryStatus.NORMAL || diary.getStatus() == DiaryStatus.SCRAP) {
+                member.decreaseTotalRecordCnt();
+            }
+
             diary.updateStatus(DiaryStatus.DELETE);
 
-            // 삭제 일시 기록
+            // deletedAt 기록
             diary.updateDeletedAt(LocalDateTime.now());
         }
     }
@@ -315,11 +336,25 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         return null;
     }
 
-    // 당일 작성된 NORMAL 상태의 일기고, 해당 날짜에 물뿌리개를 지급한 적이 없다면 물뿌리개 생성
+    // 연속 기록 처리
+    private void handleContinuousRecordCnt(Diary diary, Member member) {
+        // 당일 작성한 일기고, 오늘 연속 기록이 늘어난 적 없을 때
+        if (diary.getDiaryDate().isEqual(LocalDate.now()) &&
+                (member.getLastDiaryDate() == null || !(member.getLastDiaryDate().isEqual(LocalDate.now())))) {
+
+            // 연속 기록 +1
+            member.increaseContinuousRecordCnt();
+
+            // 마지막으로 작성한 일기 날짜 업데이트
+            member.updateLastDiaryDate(diary.getDiaryDate());
+        }
+    }
+
+    // 물뿌리개 지급
     private void handleWateringCan(Diary diary, Member member) {
-        if (diary.getStatus() == DiaryStatus.NORMAL
-                && diary.getDiaryDate().isEqual(LocalDate.now())
-                && !wateringCanRepository.existsByDiaryDateAndMember(LocalDate.now(), member)) {
+        // 당일 작성한 일기고, 오늘 물뿌리개를 지급 받은 적 없을 때
+        if (diary.getDiaryDate().isEqual(LocalDate.now()) &&
+                !wateringCanRepository.existsByDiaryDateAndMember(diary.getDiaryDate(), member)) {
 
             // 사용자가 가진 물뿌리개 개수 +1
             member.increaseWateringCan();
