@@ -37,21 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String uri = request.getRequestURI();
-
-        // 화이트리스트 경로면 필터 적용하지 않고 넘김
-        if (isWhiteListed(uri)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         try {
             Long memberId = jwtProvider.getMemberIdAndValidateToken(request.getHeader("Authorization"));
 
@@ -72,8 +57,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isWhiteListed(String uri) {
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         // 더 안정적인 AntPathMatcher.match() 로 수정
-        return WHITE_LIST.stream().anyMatch(white -> antPathMatcher.match(white, uri));
+        return WHITE_LIST.stream().anyMatch(white -> antPathMatcher.match(white, request.getRequestURI()));
     }
 }
