@@ -26,8 +26,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/auth/**",
-            "/v1/plantory/member/kko/login",
-            "/v1/plantory/token/refresh"
+            "/v1/plantory/members/auth/kko",
+            "/v1/plantory/members/auth/apple",
+            "/v1/plantory/auth/refresh"
     );
 
     private final JwtProvider jwtProvider;
@@ -40,6 +41,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 화이트리스트 경로면 필터 적용하지 않고 넘김
         if (isWhiteListed(uri)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
