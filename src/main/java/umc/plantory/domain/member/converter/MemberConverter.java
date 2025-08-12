@@ -29,7 +29,6 @@ public class MemberConverter {
 
     public static MemberResponseDTO.TermAgreementResponse toTermAgreementResponse(Member member) {
         return MemberResponseDTO.TermAgreementResponse.builder()
-                .memberId(member.getId())
                 .message("약관 동의가 완료되었습니다.")
                 .status(MemberStatus.AGREE)
                 .build();
@@ -58,7 +57,6 @@ public class MemberConverter {
 
     public static MemberResponseDTO.ProfileUpdateResponse toProfileUpdateResponse(Member member) {
         return MemberResponseDTO.ProfileUpdateResponse.builder()
-                .memberId(member.getId())
                 .nickname(member.getNickname())
                 .userCustomId(member.getUserCustomId())
                 .gender(member.getGender() != null ? member.getGender().name().toLowerCase() : null)
