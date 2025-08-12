@@ -12,6 +12,7 @@ import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
+import umc.plantory.global.apiPayload.exception.handler.PaginationHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +29,9 @@ public class ChatQueryService implements ChatQueryUseCase {
 
     @Override
     public ChatResponseDTO.ChatsResponse findChatList(String authorization, LocalDateTime cursor, int size) {
+        // 페이징 파라미터 유효성 검증
+        validatePaginationParameters(size);
+        
         // 인증 토큰을 통해 현재 로그인한 사용자 정보 조회
         Member loginedMember = getLoginedMember(authorization);
 
@@ -43,18 +47,26 @@ public class ChatQueryService implements ChatQueryUseCase {
         }
 
         // 다음 요청에 사용할 커서 값 설정 (다음 페이지가 있으면 마지막 채팅의 생성 시간)
-        LocalDateTime nextCurosr = hasNext ? chats.get(chats.size() - 1).getCreatedAt() : null;
+        LocalDateTime nextCursor = hasNext ? chats.get(chats.size() - 1).getCreatedAt() : null;
 
         // Chat 엔티티 리스트를 ChatsDetatil DTO 리스트로 변환
-        List<ChatResponseDTO.ChatsDetatil> chatsDetatilList = chats.stream()
-                .map(chat -> ChatConverter.toChatsDetail(chat))
+        List<ChatResponseDTO.ChatsDetail> chatsDetailList = chats.stream()
+                .map(ChatConverter::toChatsDetail)
                 .collect(Collectors.toList());
 
         // 채팅 목록, 다음 페이지 존재 여부, 다음 커서를 포함한 응답 DTO 생성 및 반환
-        return ChatConverter.toChatsResponse(chatsDetatilList, hasNext, nextCurosr);
+        return ChatConverter.toChatsResponse(chatsDetailList, hasNext, nextCursor);
     }
 
-
+    /**
+     * 페이징 파라미터 유효성 검증
+     */
+    private void validatePaginationParameters(int size) {
+        // 최소값 검증: 1 이상이어야 함
+        if (size <= 0) {
+            throw new PaginationHandler(ErrorStatus.INVALID_PAGINATION_SIZE);
+        }
+    }
 
     // 로그인한 사용자 정보 받아오기
     private Member getLoginedMember(String authorization) {

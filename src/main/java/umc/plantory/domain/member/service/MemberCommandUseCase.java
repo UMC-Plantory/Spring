@@ -1,6 +1,5 @@
 package umc.plantory.domain.member.service;
 
-import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.dto.MemberRequestDTO;

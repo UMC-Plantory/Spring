@@ -14,7 +14,6 @@ import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
-import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
@@ -43,15 +42,8 @@ public class MemberCommandService implements MemberCommandUseCase {
     @Override
     @Transactional
     public MemberResponseDTO.TermAgreementResponse termAgreement(String authorization, MemberRequestDTO.TermAgreementRequest request) {
-        // Authorization 헤더에서 토큰 추출
-        String token = jwtProvider.resolveToken(authorization);
-        if (token == null) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-
         // JWT 토큰 검증 및 멤버 ID 추출
-        jwtProvider.validateToken(token);
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
 
         // 회원 조회
         Member findMember = memberRepository.findById(memberId)
@@ -92,6 +84,10 @@ public class MemberCommandService implements MemberCommandUseCase {
                     );
         }
 
+        // 회원 상태 AGREE로 변경
+        findMember.updateStatus(MemberStatus.AGREE);
+        memberRepository.save(findMember);
+
         // 응답 반환
         return MemberConverter.toTermAgreementResponse(findMember);
     }
@@ -99,15 +95,8 @@ public class MemberCommandService implements MemberCommandUseCase {
     @Override
     @Transactional
     public MemberResponseDTO.MemberSignupResponse memberSignup(String authorization, MemberRequestDTO.MemberSignupRequest request) {
-        // Authorization 헤더에서 토큰 추출
-        String token = jwtProvider.resolveToken(authorization);
-        if (token == null) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-
         // JWT 토큰 검증 및 멤버 ID 추출
-        jwtProvider.validateToken(token);
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
 
         // 회원 조회
         Member findMember = memberRepository.findById(memberId)
@@ -133,6 +122,8 @@ public class MemberCommandService implements MemberCommandUseCase {
             findMember.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
         }
 
+        // 회원 상태 ACTIVE로 변경
+        findMember.updateStatus(MemberStatus.ACTIVE);
         memberRepository.save(findMember);
 
         // 초기 테라리움 생성
@@ -146,15 +137,8 @@ public class MemberCommandService implements MemberCommandUseCase {
     @Override
     @Transactional
     public MemberResponseDTO.ProfileUpdateResponse updateProfile(String authorization, MemberRequestDTO.ProfileUpdateRequest request) {
-        // Authorization 헤더에서 토큰 추출
-        String token = jwtProvider.resolveToken(authorization);
-        if (token == null) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-
         // JWT 토큰 검증 및 멤버 ID 추출
-        jwtProvider.validateToken(token);
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
 
         // 회원 조회
         Member findMember = memberRepository.findById(memberId)
@@ -192,15 +176,8 @@ public class MemberCommandService implements MemberCommandUseCase {
     @Override
     @Transactional
     public void logout(String authorization) {
-        // Authorization 헤더에서 토큰 추출
-        String token = jwtProvider.resolveToken(authorization);
-        if (token == null) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-
         // JWT 토큰 검증 및 멤버 ID 추출
-        jwtProvider.validateToken(token);
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
 
         // 회원 조회
         Member member = memberRepository.findById(memberId)
@@ -213,15 +190,8 @@ public class MemberCommandService implements MemberCommandUseCase {
     @Override
     @Transactional
     public void delete(String authorization) {
-        // Authorization 헤더에서 토큰 추출
-        String token = jwtProvider.resolveToken(authorization);
-        if (token == null) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-
         // JWT 토큰 검증 및 멤버 ID 추출
-        jwtProvider.validateToken(token);
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
 
         // 회원 조회
         Member member = memberRepository.findById(memberId)

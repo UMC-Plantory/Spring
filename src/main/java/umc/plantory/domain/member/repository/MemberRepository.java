@@ -7,7 +7,7 @@ import umc.plantory.domain.member.entity.Member;
 
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom{
     Optional<Member> findByProviderId(String sub);
     @Query("SELECT m.nickname FROM Member m WHERE m.id = :memberId")
     String findNicknameById(@Param("memberId") Long memberId);

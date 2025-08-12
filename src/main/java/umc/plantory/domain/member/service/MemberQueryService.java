@@ -33,20 +33,12 @@ public class MemberQueryService implements MemberQueryUseCase {
     private final DiaryRepository diaryRepository;
     private final TerrariumRepository terrariumRepository;
     private final WateringEventRepository wateringEventRepository;
-    private final DiaryQueryUseCase diaryQueryUseCase;
     private final JwtProvider jwtProvider;
 
     @Override
     public MemberResponseDTO.ProfileResponse getProfile(String authorization) {
-        // Authorization 헤더에서 토큰 추출
-        String token = jwtProvider.resolveToken(authorization);
-        if (token == null) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-
         // JWT 토큰 검증 및 멤버 ID 추출
-        jwtProvider.validateToken(token);
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
 
         // 회원 조회
         Member member = memberRepository.findById(memberId)
@@ -57,23 +49,14 @@ public class MemberQueryService implements MemberQueryUseCase {
 
     @Override
     public MemberResponseDTO.HomeResponse getHome(String authorization, YearMonth yearMonth) {
-        // Authorization 헤더에서 토큰 추출
-        String token = jwtProvider.resolveToken(authorization);
-        if (token == null) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-
         // JWT 토큰 검증 및 멤버 ID 추출
-        jwtProvider.validateToken(token);
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
 
         // 회원 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
         // 해당 월의 일기 데이터 조회 (diaryDate 기준)
-        // diaryDate는 LocalDate 타입이므로 8월 31일 자정까지의 일기도 8월 31일로 저장됨
-        // 따라서 LocalDate 범위로도 8월 31일의 모든 일기가 정확히 포함됨
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
         List<Diary> monthlyDiaries = diaryRepository.findByMemberAndStatusInAndDiaryDateBetween(

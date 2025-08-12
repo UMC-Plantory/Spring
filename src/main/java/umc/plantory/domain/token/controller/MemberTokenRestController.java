@@ -15,12 +15,12 @@ import umc.plantory.global.apiPayload.ApiResponse;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/plantory/token")
+@RequestMapping("/v1/plantory")
 @Tag(name = "Token", description = "토큰 관련 API")
 public class MemberTokenRestController {
     private final MemberTokenCommandUseCase memberTokenCommandUseCase;
 
-    @PostMapping("/refresh")
+    @PostMapping("/auth/refresh")
     @Operation(summary = "토큰 재발급 API", description = "액세스 토큰 재발급 API 입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.RefreshAccessTokenResponse>> refreshAccessToken(@RequestBody MemberRequestDTO.RefreshAccessTokenRequest request) {
 

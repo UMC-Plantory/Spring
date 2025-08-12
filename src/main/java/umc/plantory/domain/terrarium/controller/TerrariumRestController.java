@@ -21,7 +21,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/plantory/terrarium")
+@RequestMapping("/v1/plantory/terrariums")
 @Slf4j
 @Tag(name = "Terrarium", description = "테라리움 관련 API")
 public class TerrariumRestController {
@@ -33,12 +33,12 @@ public class TerrariumRestController {
     @Operation(summary = "테라리움 물주기", description = "회원이 특정 테라리움에 물을 주는 요청 처리")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "물주기 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 - 예: 아직 개화하지 않은 테라리움, 이미 진행 중인 테라리움 존재", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "멤버, 테라리움, 꽃 정보 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 에러 (WATERING_PROCESS_FAILED 등)", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MEMBER4001", description = "존재하지 않는 회원입니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "TERRARIUM404", description = "존재하지 않는 테라리움입니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "TERRARIUM4004", description = "이미 개화한 테라리움입니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "W4002", description = "사용 가능한 물뿌리개가 없습니다."),
     })
-    @PostMapping("/{terrarium-id}/water")
+    @PostMapping("/{terrarium-id}/waterings")
     public ResponseEntity<ApiResponse<TerrariumResponseDto.WateringTerrariumResponse>> waterTerrarium(
             @Parameter(description = "테라리움 ID", example = "1") @PathVariable("terrarium-id") Long terrariumId,
             @Parameter(description = "JWT 토큰") @RequestHeader(value = "Authorization", required = false) String authorization) {
@@ -73,7 +73,7 @@ public class TerrariumRestController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "정상 조회"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "JWT 인증 실패", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
-    @GetMapping("/month")
+    @GetMapping("/monthly")
     public ResponseEntity<ApiResponse<List<TerrariumResponseDto.CompletedTerrariumResponse>>> getCompletedTerrariumsByMonth(
             @Parameter(description = "JWT 토큰")
             @RequestHeader(value = "Authorization", required = false) String authorization,

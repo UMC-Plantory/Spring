@@ -15,6 +15,9 @@ public enum ErrorStatus implements BaseErrorCode {
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED,"COMMON401","인증이 필요합니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
+    // 페이징 관련
+    INVALID_PAGINATION_SIZE(HttpStatus.BAD_REQUEST, "PAGINATION4001", "페이지 크기는 1 이상이어야 합니다."),
+
     // 멤버 관련
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "존재하지 않는 회원입니다."),
     INVALID_MEMBER_INFO(HttpStatus.BAD_REQUEST, "MEMBER4002", "회원 필수 정보가 누락되었습니다."),
@@ -67,6 +70,8 @@ public enum ErrorStatus implements BaseErrorCode {
     OPEN_AI_SERVER_ERROR(HttpStatus.TOO_MANY_REQUESTS, "CHAT4003", "OPENAI 서버 오류."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CHAT4004", "서버 오류"),
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "CHAT4005", "서버 과부하"),
+    CHAT_RESPONSE_NONE(HttpStatus.BAD_REQUEST, "CHAT4006", "챗봇 응답이 없습니다."),
+    CHAT_RESPONSE_TOO_LONG(HttpStatus.BAD_REQUEST, "CHAT4007", "챗봇 응답이 허용 길이(500자)를 초과했습니다."),
       
     // 테라리움 관련
     TERRARIUM_NOT_FOUND(HttpStatus.NOT_FOUND, "TERRARIUM404", "존재하지 않는 테라리움입니다."),
@@ -77,6 +82,8 @@ public enum ErrorStatus implements BaseErrorCode {
     TERRARIUM_NOT_BLOOMED(HttpStatus.BAD_REQUEST, "TERRARIUM4002", "아직 개화하지 않은 테라리움입니다."),
     NO_COMPLETED_TERRARIUM_IN_MONTH(HttpStatus.NOT_FOUND, "TERRARIUM4044", "해당 월에 개화 완료된 테라리움이 없습니다."),
     TERRARIUM_ALREADY_IN_PROGRESS(HttpStatus.BAD_REQUEST, "TERRARIUM4003", "이미 진행 중인 테라리움이 존재합니다."),
+    ALREADY_BLOOMED_TERRARIUM(HttpStatus.BAD_REQUEST, "TERRARIUM4004", "이미 개화한 테라리움입니다."),
+    WATERING_CNT_INCORRECT(HttpStatus.INTERNAL_SERVER_ERROR, "TERRARIUM4005", "물 준 횟수가 불일치 합니다. (데이터 문제 발생. 문의 필요)"),
 
     // 물주기 관련
     WATERING_PROCESS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "W4001", "물 주기에 실패했습니다."),

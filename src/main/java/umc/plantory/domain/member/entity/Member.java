@@ -81,6 +81,8 @@ public class Member extends BaseEntity {
     @ColumnDefault("0")
     private Integer totalBloomCnt;
 
+    private LocalDate lastDiaryDate;
+
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
@@ -100,7 +102,9 @@ public class Member extends BaseEntity {
     public void increaseWateringCan() {
         this.wateringCanCnt = this.wateringCanCnt + 1;
     }
+
     public void decreaseWateringCan() {this.wateringCanCnt -= 1;}
+
     public void increaseTotalBloomCnt() {this.totalBloomCnt += 1;}
 
     public void updateProfileImgUrl(String profileImgUrl) {
@@ -112,5 +116,21 @@ public class Member extends BaseEntity {
         if (status == MemberStatus.INACTIVE) {
             this.inactiveAt = LocalDateTime.now(); // 시간 업데이트
         }
+    }
+
+    public void increaseTotalRecordCnt() {
+        this.totalRecordCnt += 1;
+    }
+
+    public void decreaseTotalRecordCnt() {
+        this.totalRecordCnt -= 1;
+    }
+
+    public void increaseContinuousRecordCnt() {
+        this.continuousRecordCnt = this.continuousRecordCnt + 1;
+    }
+
+    public void updateLastDiaryDate(LocalDate lastDiaryDate) {
+        this.lastDiaryDate = lastDiaryDate;
     }
 }

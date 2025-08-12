@@ -10,24 +10,27 @@ import java.util.List;
 
 public class ChatConverter {
 
-    public static Chat toChat(String message, Member member, Boolean isMember, MessageType type) {
+    public static Chat toChat(String message, Member member, Boolean isMember, LocalDateTime now, MessageType type) {
         return Chat.builder()
                 .member(member)
                 .content(message)
                 .isMember(isMember)
+                .createdAt(now)
                 .messageType(type)
                 .build();
     }
 
-    public static ChatResponseDTO.ChatsDetatil toChatsDetail(Chat chat) {
-        return ChatResponseDTO.ChatsDetatil.builder()
+    // 챗봇 대화 시
+    public static ChatResponseDTO.ChatsDetail toChatsDetail(Chat chat) {
+        return ChatResponseDTO.ChatsDetail.builder()
                 .content(chat.getContent())
                 .createAt(chat.getCreatedAt())
                 .isMember(chat.getIsMember())
                 .build();
     }
 
-    public static ChatResponseDTO.ChatsResponse toChatsResponse(List<ChatResponseDTO.ChatsDetatil> chatsDetatilList, boolean hasNext, LocalDateTime nextCursor){
+    // 챗봇 대화 이력 조회 시 반환 DTO
+    public static ChatResponseDTO.ChatsResponse toChatsResponse(List<ChatResponseDTO.ChatsDetail> chatsDetatilList, boolean hasNext, LocalDateTime nextCursor){
         return ChatResponseDTO.ChatsResponse.builder()
                 .chatsDetatilList(chatsDetatilList)
                 .hasNext(hasNext)
@@ -35,4 +38,11 @@ public class ChatConverter {
                 .build();
     }
 
+    public static ChatResponseDTO.ChatResponse toChatResponseDTO(String response, LocalDateTime time, Boolean isMember) {
+        return ChatResponseDTO.ChatResponse.builder()
+                .content(response)
+                .createdAt(time)
+                .isMember(isMember)
+                .build();
+    }
 }

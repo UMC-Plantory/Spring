@@ -31,6 +31,7 @@ public class MemberConverter {
         return MemberResponseDTO.TermAgreementResponse.builder()
                 .memberId(member.getId())
                 .message("약관 동의가 완료되었습니다.")
+                .status(MemberStatus.AGREE)
                 .build();
     }
 
@@ -40,6 +41,7 @@ public class MemberConverter {
                 .nickname(member.getNickname())
                 .userCustomId(member.getUserCustomId())
                 .profileImgUrl(member.getProfileImgUrl() != null ? member.getProfileImgUrl() : DEFAULT_PROFILE_IMG_URL)
+                .status(MemberStatus.ACTIVE)
                 .build();
     }
 

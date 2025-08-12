@@ -25,7 +25,4 @@ public class Flower {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private Emotion emotion;
-
-    @Column(length = 255, nullable = false)
-    private String flowerImgUrl;
 }
