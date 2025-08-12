@@ -49,40 +49,8 @@ public class MemberCommandService implements MemberCommandUseCase {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        // 약관 동의 정보 저장
-        List<Long> agreeTermIdList = request.getAgreeTermIdList();
-        List<Long> disagreeTermIdList = request.getDisagreeTermIdList();
-
-        if (!validateRequiredTerms(agreeTermIdList)) {
-            throw new TermHandler(ErrorStatus.REQUIRED_TERM_NOT_AGREED);
-        }
-        // 동의한 약관
-        for (Long termId : agreeTermIdList) {
-            Term term = termRepository.findById(termId)
-                    .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
-            memberTermRepository.findByMemberAndTerm(findMember, term)
-                    .ifPresentOrElse(
-                            mt -> mt.updateIsAgree(true),
-                            () -> {
-                                MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, true);
-                                memberTermRepository.save(newMemberTerm);
-                            }
-                    );
-        }
-
-        // 미동의한 약관
-        for (Long termId : disagreeTermIdList) {
-            Term term = termRepository.findById(termId)
-                    .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
-            memberTermRepository.findByMemberAndTerm(findMember, term)
-                    .ifPresentOrElse(
-                            mt -> mt.updateIsAgree(false),
-                            () -> {
-                                MemberTerm newMemberTerm = MemberConverter.toMemberTerm(findMember, term, false);
-                                memberTermRepository.save(newMemberTerm);
-                            }
-                    );
-        }
+        // 약관 동의 처리
+        processTermAgreement(findMember, request);
 
         // 회원 상태 AGREE로 변경
         findMember.updateStatus(MemberStatus.AGREE);
@@ -90,6 +58,65 @@ public class MemberCommandService implements MemberCommandUseCase {
 
         // 응답 반환
         return MemberConverter.toTermAgreementResponse(findMember);
+    }
+
+    /**
+     * 약관 동의 처리를 담당하는 메서드
+     */
+    private void processTermAgreement(Member member, MemberRequestDTO.TermAgreementRequest request) {
+        List<Long> agreeTermIdList = request.getAgreeTermIdList();
+        List<Long> disagreeTermIdList = request.getDisagreeTermIdList();
+
+        // 필수 약관 동의 검증
+        validateRequiredTerms(agreeTermIdList);
+
+        // 동의한 약관 처리
+        processAgreedTerms(member, agreeTermIdList);
+
+        // 미동의한 약관 처리
+        processDisagreedTerms(member, disagreeTermIdList);
+    }
+
+    /**
+     * 동의한 약관들을 처리하는 메서드
+     */
+    private void processAgreedTerms(Member member, List<Long> agreeTermIdList) {
+        for (Long termId : agreeTermIdList) {
+            Term term = getTermOrThrow(termId);
+            updateMemberTermAgreement(member, term, true);
+        }
+    }
+
+    /**
+     * 미동의한 약관들을 처리하는 메서드
+     */
+    private void processDisagreedTerms(Member member, List<Long> disagreeTermIdList) {
+        for (Long termId : disagreeTermIdList) {
+            Term term = getTermOrThrow(termId);
+            updateMemberTermAgreement(member, term, false);
+        }
+    }
+
+    /**
+     * 멤버-약관 동의 상태를 업데이트하는 메서드
+     */
+    private void updateMemberTermAgreement(Member member, Term term, boolean isAgree) {
+        memberTermRepository.findByMemberAndTerm(member, term)
+                .ifPresentOrElse(
+                        mt -> mt.updateIsAgree(isAgree),
+                        () -> {
+                            MemberTerm newMemberTerm = MemberConverter.toMemberTerm(member, term, isAgree);
+                            memberTermRepository.save(newMemberTerm);
+                        }
+                );
+    }
+
+    /**
+     * 약관을 조회하거나 예외를 발생시키는 메서드
+     */
+    private Term getTermOrThrow(Long termId) {
+        return termRepository.findById(termId)
+                .orElseThrow(() -> new TermHandler(ErrorStatus.TERM_NOT_FOUND));
     }
 
     @Override
@@ -102,36 +129,57 @@ public class MemberCommandService implements MemberCommandUseCase {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
+        // 회원가입 처리
+        processMemberSignup(findMember, request);
+
+        // 초기 테라리움 생성
+        createInitialTerrarium(findMember);
+
+        // 응답 반환
+        return MemberConverter.toMemberSignupResponse(findMember);
+    }
+
+    /**
+     * 회원가입 처리를 담당하는 메서드
+     * 단일책임원칙에 따라 회원가입 로직을 분리
+     */
+    private void processMemberSignup(Member member, MemberRequestDTO.MemberSignupRequest request) {
         // 필수 추가 정보 검증
-        if (!validateAdditionalInfo(request)) {
-            throw new MemberHandler(ErrorStatus.INVALID_MEMBER_INFO);
-        }
+        validateAdditionalInfo(request);
 
         // 추가 정보 저장
-        findMember.updateNickname(request.getNickname());
-        findMember.updateUserCustomId(request.getUserCustomId());
-        findMember.updateBirth(request.getBirth());
-        findMember.updateGender(request.getGender());
+        updateMemberInfo(member, request);
+
+        // 회원 상태 ACTIVE로 변경
+        member.updateStatus(MemberStatus.ACTIVE);
+        memberRepository.save(member);
+    }
+
+    /**
+     * 회원 정보를 업데이트하는 메서드
+     */
+    private void updateMemberInfo(Member member, MemberRequestDTO.MemberSignupRequest request) {
+        member.updateNickname(request.getNickname());
+        member.updateUserCustomId(request.getUserCustomId());
+        member.updateBirth(request.getBirth());
+        member.updateGender(request.getGender());
 
         // 프로필 이미지 설정
         String profileImgUrl = request.getProfileImgUrl();
         if (profileImgUrl != null && !profileImgUrl.trim().isEmpty()) {
-            findMember.updateProfileImgUrl(profileImgUrl);
+            member.updateProfileImgUrl(profileImgUrl);
         } else {
             // 기본 프로필 이미지 설정
-            findMember.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
+            member.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
         }
+    }
 
-        // 회원 상태 ACTIVE로 변경
-        findMember.updateStatus(MemberStatus.ACTIVE);
-        memberRepository.save(findMember);
-
-        // 초기 테라리움 생성
-        terrariumRepository.save(TerrariumConverter.toTerrarium(findMember,
+    /**
+     * 초기 테라리움을 생성하는 메서드
+     */
+    private void createInitialTerrarium(Member member) {
+        terrariumRepository.save(TerrariumConverter.toTerrarium(member,
                 flowerRepository.findByEmotion(Emotion.DEFAULT)));
-
-        // 응답 반환
-        return MemberConverter.toMemberSignupResponse(findMember);
     }
 
     @Override

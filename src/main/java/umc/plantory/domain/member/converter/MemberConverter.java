@@ -37,7 +37,6 @@ public class MemberConverter {
 
     public static MemberResponseDTO.MemberSignupResponse toMemberSignupResponse(Member member) {
         return MemberResponseDTO.MemberSignupResponse.builder()
-                .memberId(member.getId())
                 .nickname(member.getNickname())
                 .userCustomId(member.getUserCustomId())
                 .profileImgUrl(member.getProfileImgUrl() != null ? member.getProfileImgUrl() : DEFAULT_PROFILE_IMG_URL)
