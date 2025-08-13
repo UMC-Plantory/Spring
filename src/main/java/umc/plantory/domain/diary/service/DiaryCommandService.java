@@ -26,9 +26,12 @@ import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.enums.DiaryStatus;
 import umc.plantory.global.enums.Emotion;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static umc.plantory.global.enums.DiaryStatus.VALID_STATUSES;
 
 /**
  * 일기 작성 관련 커맨드(등록/수정 등) 비즈니스 로직을 처리하는 서비스
@@ -64,11 +67,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         diaryRepository.save(diary);
         String imageUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), false);
 
-        // NORMAL 상태일 경우 누적 감정 기록 횟수 증가
-        // 당일 작성한 일기일 경우 연속 기록 & 물뿌리개 +1
+        // NORMAL 상태일 경우 누적 감정 기록 횟수, 연속 기록, 평균 수면 시간, 물뿌리개 처리
         if (diary.getStatus() == DiaryStatus.NORMAL) {
             member.increaseTotalRecordCnt();
             handleContinuousRecordCnt(diary, member);
+            handleAvgSleepTime(member, diary.getDiaryDate());
             handleWateringCan(diary, member);
 
         // TEMP 상태일 경우 tempSavedAt 기록
@@ -123,11 +126,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         if (status == DiaryStatus.TEMP) {
             diary.updateTempSavedAt(LocalDateTime.now());
 
-        // TEMP → NORMAL 상태일 경우 누적 감정 기록 횟수 증가
-        // 당일 작성한 일기일 경우 연속 기록 & 물뿌리개 +1
+        // TEMP → NORMAL 상태일 경우 누적 감정 기록 횟수, 연속 기록, 평균 수면 시간, 물뿌리개 처리
         } else if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {
             member.increaseTotalRecordCnt();
             handleContinuousRecordCnt(diary, member);
+            handleAvgSleepTime(member, diary.getDiaryDate());
             handleWateringCan(diary, member);
         }
 
@@ -201,6 +204,9 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
             diary.updateStatus(DiaryStatus.TEMP);
 
+            // 평균 수면 시간 업데이트
+            handleAvgSleepTime(member, diary.getDiaryDate());
+
             // tempSavedAt 기록
             diary.updateTempSavedAt(LocalDateTime.now());
         }
@@ -228,6 +234,9 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             }
 
             diary.updateStatus(DiaryStatus.DELETE);
+
+            // 평균 수면 시간 업데이트
+            handleAvgSleepTime(member, diary.getDiaryDate());
 
             // deletedAt 기록
             diary.updateDeletedAt(LocalDateTime.now());
@@ -348,6 +357,29 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             // 마지막으로 작성한 일기 날짜 업데이트
             member.updateLastDiaryDate(diary.getDiaryDate());
         }
+    }
+
+    // 최근 7일 수면 시간 처리
+    private void handleAvgSleepTime(Member member, LocalDate diaryDate) {
+        LocalDate today = LocalDate.now();
+        LocalDate start = today.minusDays(6);
+
+        // 작성한 일기가 최근 7일 범위에 들어오는지 확인
+        if (diaryDate.isBefore(start) || diaryDate.isAfter(today)) {
+            return;
+        }
+
+        // 최근 7일 일기 조회
+        List<Diary> diaries = diaryRepository.findByMemberAndStatusInAndDiaryDateBetween(
+                member, VALID_STATUSES, start, today
+        );
+
+        // 평균 수면 시간 계산 및 업데이트
+        int totalMinutes = 0;
+        for (Diary d : diaries) {
+            totalMinutes += (int) Duration.between(d.getSleepStartTime(), d.getSleepEndTime()).toMinutes();
+        }
+        member.updateAvgSleepTime(totalMinutes / diaries.size());
     }
 
     // 물뿌리개 지급
