@@ -29,6 +29,7 @@ public class TerrariumResponseDto {
     @NoArgsConstructor
     @JsonInclude(JsonInclude.Include.NON_EMPTY) // 동적 응답을 위해 추가
     public static class WateringTerrariumResponse{
+        private String nickname;
         private Integer terrariumWateringCountAfterEvent;
         private Integer memberWateringCountAfterEvent;
         private Map<Emotion, Integer> emotionList;
