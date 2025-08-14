@@ -112,6 +112,9 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
             // 해당 감정에 맞는 Flower 선택
             Flower flower = flowerRepository.findByEmotion(randomEmotion);
 
+            // flower 업데이트
+            terrarium.updateFlower(flower);
+
             // 새 테라리움 생성
             Flower defaultFlower = flowerRepository.findByEmotion(Emotion.DEFAULT);
             terrariumRepository.save(TerrariumConverter.toTerrarium(member, defaultFlower));
