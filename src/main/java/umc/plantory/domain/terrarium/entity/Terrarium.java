@@ -57,4 +57,8 @@ public class Terrarium {
         this.bloomAt = bloomAt;
         this.isBloom = true;
     }
+
+    public void updateFlower (Flower flower) {
+        this.flower = flower;
+    }
 }
