@@ -1,12 +1,9 @@
 package umc.plantory.domain.member.converter;
 
-import umc.plantory.domain.diary.dto.DiaryResponseDTO;
 import umc.plantory.domain.diary.entity.Diary;
-import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
 import umc.plantory.domain.member.entity.Member;
-import umc.plantory.global.enums.Emotion;
 import umc.plantory.global.enums.Gender;
 import umc.plantory.global.enums.MemberRole;
 import umc.plantory.global.enums.MemberStatus;
@@ -14,7 +11,6 @@ import umc.plantory.global.enums.Provider;
 import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.term.entity.Term;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;

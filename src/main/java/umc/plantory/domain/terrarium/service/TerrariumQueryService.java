@@ -105,7 +105,7 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
      * @return 해당 테라리움 상세 DTO (감정 집계 정보는 포함하지 않음)
      */
     @Override
-    public TerrariumResponseDto.CompletedTerrariumDetatilResponse findCompletedTerrariumDetail(Long terrariumId) {
+    public TerrariumResponseDto.CompletedTerrariumDetailResponse findCompletedTerrariumDetail(Long terrariumId) {
 
         Terrarium terrarium = terrariumRepository.findByIdAndIsBloomTrue(terrariumId)
                 .orElseThrow(() -> new TerrariumHandler(ErrorStatus.TERRARIUM_NOT_FOUND));

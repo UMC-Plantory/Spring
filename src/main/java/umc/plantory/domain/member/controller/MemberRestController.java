@@ -14,11 +14,6 @@ import umc.plantory.domain.member.service.MemberCommandUseCase;
 import umc.plantory.domain.member.service.MemberQueryUseCase;
 import umc.plantory.domain.token.service.MemberTokenCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
-import umc.plantory.global.apiPayload.code.status.ErrorStatus;
-import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
-
-import java.time.LocalDate;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/plantory/members")
