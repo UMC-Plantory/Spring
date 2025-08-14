@@ -103,6 +103,8 @@ public class Member extends BaseEntity {
         this.wateringCanCnt = this.wateringCanCnt + 1;
     }
 
+    public void updateEmail(String email) { this.email = email; }
+
     public void decreaseWateringCan() {this.wateringCanCnt -= 1;}
 
     public void increaseTotalBloomCnt() {this.totalBloomCnt += 1;}

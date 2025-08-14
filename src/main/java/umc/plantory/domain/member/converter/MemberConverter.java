@@ -66,6 +66,19 @@ public class MemberConverter {
                 .build();
     }
 
+    public static MemberResponseDTO.MyProfileResponse toMyProfileResponse(Member member) {
+        return MemberResponseDTO.MyProfileResponse.builder()
+                .memberId(member.getId())
+                .nickname(member.getNickname())
+                .userCustomId(member.getUserCustomId())
+                .gender(member.getGender() != null ? member.getGender().name().toLowerCase() : null)
+                .birth(member.getBirth() != null ? member.getBirth().toString() : null)
+                .profileImgUrl(member.getProfileImgUrl() != null ? member.getProfileImgUrl() : DEFAULT_PROFILE_IMG_URL)
+                .message("마이프로필 조회가 완료되었습니다.")
+                .email(member.getEmail())
+                .build();
+    }
+
     public static MemberTerm toMemberTerm(Member member, Term term, Boolean isAgree) {
         return MemberTerm.builder()
                 .member(member)

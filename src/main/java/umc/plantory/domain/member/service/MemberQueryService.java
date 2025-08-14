@@ -50,6 +50,18 @@ public class MemberQueryService implements MemberQueryUseCase {
     }
 
     @Override
+    public MemberResponseDTO.MyProfileResponse getMyProfile(String authorization) {
+        // JWT 토큰 검증 및 멤버 ID 추출
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
+
+        // 회원 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+        
+        return MemberConverter.toMyProfileResponse(member);
+    }
+
+    @Override
     public MemberResponseDTO.HomeResponse getHome(String authorization, YearMonth yearMonth) {
         // JWT 토큰 검증 및 멤버 ID 추출
         Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
