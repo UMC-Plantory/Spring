@@ -2,7 +2,6 @@ package umc.plantory.domain.diary.repository;
 
 import umc.plantory.domain.diary.dto.DiaryRequestDTO;
 import umc.plantory.domain.diary.entity.Diary;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

@@ -16,5 +16,6 @@ public class Scheduler {
         schedulerJob.resetContinuousRecordCnt();
         schedulerJob.updateTempToDeleted();
         schedulerJob.deleteDiariesPermanently();
+        schedulerJob.updateAvgSleepTime();
     }
 }

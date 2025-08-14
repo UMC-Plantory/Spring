@@ -133,4 +133,8 @@ public class Member extends BaseEntity {
     public void updateLastDiaryDate(LocalDate lastDiaryDate) {
         this.lastDiaryDate = lastDiaryDate;
     }
+
+    public void updateAvgSleepTime(int minutes) {
+        this.avgSleepTime = minutes;
+    }
 }
