@@ -45,8 +45,9 @@ public class TerrariumConverter {
     public static TerrariumResponseDto.WateringTerrariumResponse toBloomWateringTerrariumResponse(Integer terrariumWateringCountAfterEvent,
                                                                                                   Integer memberWateringCountAfterEvent,
                                                                                                   Map<Emotion, Integer> emotionList,
-                                                                                                  Flower flower) {
+                                                                                                  Flower flower, Member member) {
         return TerrariumResponseDto.WateringTerrariumResponse.builder()
+                .nickname(member.getNickname())
                 .terrariumWateringCountAfterEvent(terrariumWateringCountAfterEvent)
                 .memberWateringCountAfterEvent(memberWateringCountAfterEvent)
                 .emotionList(emotionList)
