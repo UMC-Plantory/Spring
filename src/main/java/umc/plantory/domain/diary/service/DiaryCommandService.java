@@ -364,7 +364,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         LocalDate today = LocalDate.now();
         LocalDate start = today.minusDays(6);
 
-        // 작성한 일기가 최근 7일 범위에 들어오는지 확인
+        // 일기가 최근 7일 범위에 들어오는지 확인
         if (diaryDate.isBefore(start) || diaryDate.isAfter(today)) {
             return;
         }
@@ -373,6 +373,12 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         List<Diary> diaries = diaryRepository.findByMemberAndStatusInAndDiaryDateBetween(
                 member, VALID_STATUSES, start, today
         );
+
+        // 조회된 일기가 없으면 수면 시간 0으로 업데이트
+        if (diaries.isEmpty()) {
+            member.updateAvgSleepTime(0);
+            return;
+        }
 
         // 평균 수면 시간 계산 및 업데이트
         int totalMinutes = 0;

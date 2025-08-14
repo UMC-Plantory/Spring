@@ -130,14 +130,14 @@ public class SchedulerJob {
                     diaryRepository.findByMemberInAndStatusInAndDiaryDateBetween(members, VALID_STATUSES, start, today);
 
             // 유저별로 수면 데이터 그룹핑
-            Map<Long, List<DiaryProjectionDTO.SleepIntervalDTO>> SleepIntervalByMemberId = intervals.stream()
+            Map<Long, List<DiaryProjectionDTO.SleepIntervalDTO>> sleepIntervalByMemberId = intervals.stream()
                     .collect(Collectors.groupingBy(DiaryProjectionDTO.SleepIntervalDTO::getMemberId));
 
             int updatedCount = 0;
 
             // 각 유저에 대해 평균 수면 시간을 계산하고 필요 시 업데이트
             for (Member member : members) {
-                List<DiaryProjectionDTO.SleepIntervalDTO> rows = SleepIntervalByMemberId.getOrDefault(member.getId(), Collections.emptyList());
+                List<DiaryProjectionDTO.SleepIntervalDTO> rows = sleepIntervalByMemberId.getOrDefault(member.getId(), Collections.emptyList());
 
                 // 평균 수면 시간 계산
                 int newAvg = 0;
