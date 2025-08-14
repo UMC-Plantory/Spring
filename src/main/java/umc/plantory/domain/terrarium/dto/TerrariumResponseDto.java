@@ -43,7 +43,7 @@ public class TerrariumResponseDto {
     public static class CompletedTerrariumResponse{
         private Long terrariumId;
         private String nickname;
-        private LocalDateTime bloomAt;
+        private LocalDate bloomAt;
         private String flowerName;
     }
 
@@ -51,6 +51,7 @@ public class TerrariumResponseDto {
     @Getter
     @AllArgsConstructor
     public static class CompletedTerrariumDetailResponse {
+        private String flowerName;
         private LocalDate startAt;
         private LocalDate bloomAt;
         private Emotion mostEmotion;
