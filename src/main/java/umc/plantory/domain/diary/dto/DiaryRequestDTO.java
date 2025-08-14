@@ -28,6 +28,7 @@ public class DiaryRequestDTO {
         private String emotion;
 
         @Schema(description = "일기 본문 내용", example = "오늘 하루는 ...")
+        @NotNull(message = "content 항목은 필수입니다.")
         private String content;
 
         @Schema(description = "이미지 URL", example = "https://...example.jpg")

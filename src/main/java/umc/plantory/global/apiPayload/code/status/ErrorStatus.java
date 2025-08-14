@@ -58,6 +58,8 @@ public enum ErrorStatus implements BaseErrorCode {
     DIARY_MISSING_FIELDS(HttpStatus.BAD_REQUEST, "DIARY4002", "일기의 필수 항목이 누락되었습니다."),
     DIARY_UNAUTHORIZED(HttpStatus.FORBIDDEN, "DIARY4003", "해당 일기에 대한 권한이 없습니다."),
     DIARY_INVALID_STATUS(HttpStatus.BAD_REQUEST, "DIARY4004", "현재 일기의 상태에서는 해당 작업을 수행할 수 없습니다."),
+    DIARY_FUTURE_DATE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "DIARY4005", "미래 날짜의 일기는 저장할 수 없습니다."),
+    DIARY_ALREADY_EXISTS_FOR_DATE(HttpStatus.BAD_REQUEST, "DIARY4006", "해당 날짜에 이미 작성된 일기가 있습니다."),
 
     // 채팅 관련
     INVALID_API_KEY(HttpStatus.UNAUTHORIZED, "CHAT4001", "API 키가 잘못됐습니다."),

@@ -14,11 +14,12 @@ import java.util.Optional;
 
 public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryRepositoryCustom {
     Optional<Diary> findByMemberIdAndDiaryDateAndStatusIn(Long memberId, LocalDate date, List<DiaryStatus> statusList);
+    boolean existsByMemberIdAndDiaryDateAndStatusIn(Long memberId, LocalDate diaryDate, List<DiaryStatus> statusList);
     boolean existsByMemberIdAndDiaryDateAndStatus(Long memberId, LocalDate diaryDate, DiaryStatus status);
     List<Diary> findByMemberAndStatusInAndDiaryDateBetween(Member member, List<DiaryStatus> diaryStatuses, LocalDate start, LocalDate end);
     List<Diary> findAllByMemberIdAndStatus(Long memberId, DiaryStatus status, Sort sort);
     List<Diary> findByStatusAndDeletedAtBefore(DiaryStatus status, LocalDateTime threshold);
     List<DiaryProjectionDTO.SleepIntervalDTO> findByMemberInAndStatusInAndDiaryDateBetween(
-            List<Member> members, List<DiaryStatus> statuses, LocalDate start, LocalDate end
+            List<Member> members, List<DiaryStatus> statusList, LocalDate start, LocalDate end
     );
 }

@@ -59,11 +59,15 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public DiaryResponseDTO.DiaryInfoDTO saveDiary(String authorization, DiaryRequestDTO.DiaryUploadDTO request) {
         Member member = getLoginMember(authorization);
 
+        // 일기 날짜 & 중복 검사
+        validateDiaryDate(request.getDiaryDate());
+        validateDiaryDuplicate(member.getId(), request.getDiaryDate());
+
         // 일기 제목 생성
         String diaryTitle = generateDiaryTitle(request.getContent());
 
         // 일기 & 이미지 엔티티 생성 및 저장
-        Diary diary = DiaryConverter.toDiary(request,member, diaryTitle);
+        Diary diary = DiaryConverter.toDiary(request, member, diaryTitle);
         diaryRepository.save(diary);
         String imageUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), false);
 
@@ -99,15 +103,18 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 작성자 확인
         validateDiaryOwnership(diary, member);
 
-        // 변경 전 상태
+        // TEMP → NORMAL일때 일기 중복 검사
         DiaryStatus beforeStatus = diary.getStatus();
+        DiaryStatus status = request.getStatus() != null ? DiaryStatus.valueOf(request.getStatus()) : diary.getStatus();
+        if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {
+            validateDiaryDuplicate(member.getId(), diary.getDiaryDate());
+        }
 
-        // 일기 내용 업데이트
+        // 일기 내용
         Emotion emotion = request.getEmotion() != null ? Emotion.valueOf(request.getEmotion()) : diary.getEmotion();
         String content = request.getContent() != null ? request.getContent() : diary.getContent();
         LocalDateTime sleepStart = request.getSleepStartTime() != null ? request.getSleepStartTime() : diary.getSleepStartTime();
         LocalDateTime sleepEnd = request.getSleepEndTime() != null ? request.getSleepEndTime() : diary.getSleepEndTime();
-        DiaryStatus status = request.getStatus() != null ? DiaryStatus.valueOf(request.getStatus()) : diary.getStatus();
 
         // NORMAL 저장일때 필수 필드 다 있는지 확인
         if (status == DiaryStatus.NORMAL &&
@@ -275,13 +282,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
     // 로그인한 사용자 반환
     private Member getLoginMember(String authorization) {
-        String token = jwtProvider.resolveToken(authorization);
-        if (token == null) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-
-        jwtProvider.validateToken(token);
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
 
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
@@ -306,6 +307,20 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     private void validateDiaryOwnership(Diary diary, Member member) {
         if (!diary.getMember().getId().equals(member.getId())) {
             throw new DiaryHandler(ErrorStatus.DIARY_UNAUTHORIZED);
+        }
+    }
+
+    // 일기 날짜가 현재 날짜보다 이전인지 확인
+    private void validateDiaryDate(LocalDate diaryDate) {
+        if (diaryDate.isAfter(LocalDate.now())) {
+            throw new DiaryHandler(ErrorStatus.DIARY_FUTURE_DATE_NOT_ALLOWED);
+        }
+    }
+
+    // 해당 날짜에 이미 일기가 존재하는지 확인
+    private void validateDiaryDuplicate(Long memberId, LocalDate diaryDate) {
+        if (diaryRepository.existsByMemberIdAndDiaryDateAndStatusIn(memberId, diaryDate, VALID_STATUSES)) {
+            throw new DiaryHandler(ErrorStatus.DIARY_ALREADY_EXISTS_FOR_DATE);
         }
     }
 

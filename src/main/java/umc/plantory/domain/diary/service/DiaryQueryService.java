@@ -22,6 +22,8 @@ import umc.plantory.global.enums.DiaryStatus;
 import java.time.LocalDate;
 import java.util.List;
 
+import static umc.plantory.global.enums.DiaryStatus.VALID_STATUSES;
+
 /**
  * 일기 조회 비즈니스 로직을 처리하는 서비스
  */
@@ -69,7 +71,7 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         Member member = getLoginMember(authorization);
 
         // 해당 날짜의 NORMAL, SCRAP 상태인 일기 조회
-        Diary diary = diaryRepository.findByMemberIdAndDiaryDateAndStatusIn(member.getId(), date, List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP))
+        Diary diary = diaryRepository.findByMemberIdAndDiaryDateAndStatusIn(member.getId(), date, VALID_STATUSES)
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
 
         return DiaryConverter.toDiarySimpleInfoDTO(diary);
@@ -180,13 +182,7 @@ public class DiaryQueryService implements DiaryQueryUseCase {
 
     // 로그인한 사용자 반환
     private Member getLoginMember(String authorization) {
-        String token = jwtProvider.resolveToken(authorization);
-        if (token == null) {
-            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
-        }
-
-        jwtProvider.validateToken(token);
-        Long memberId = jwtProvider.getMemberId(token);
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
 
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
