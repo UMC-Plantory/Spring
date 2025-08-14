@@ -27,7 +27,6 @@ public class StatisticRestController {
 
     private final StatisticQueryUseCase statisticQueryUseCase;
 
-    @GetMapping("/sleep/weekly")
     @Operation(
             summary = "최근 7일 수면 통계 조회",
             description = "입력한 날짜 기준으로 사용자의 최근 7일간 수면 통계 정보를 조회합니다."
@@ -36,7 +35,7 @@ public class StatisticRestController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4001", description = "수면 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
-
+    @GetMapping("/sleep/weekly")
     public ResponseEntity<ApiResponse<StatisticResponseDTO.WeeklySleepStatisticDTO>> getWeeklySleepStatistic(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
@@ -44,11 +43,15 @@ public class StatisticRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getWeeklySleepStatistics(authorization, today)));
     }
 
-    @GetMapping("/sleep/monthly")
     @Operation(
             summary = "최근 30일 수면 통계 조회",
             description = "입력한 날짜 기준으로 사용자의 최근 30일간 수면 통계 정보를 조회합니다."
     )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4001", description = "수면 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @GetMapping("/sleep/monthly")
     public ResponseEntity<ApiResponse<StatisticResponseDTO.MonthlySleepStatisticDTO>> getMonthlySleepStatistic(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
@@ -56,31 +59,31 @@ public class StatisticRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getMonthlySleepStatistics(authorization, today)));
     }
 
-    @GetMapping("/emotion/weekly")
     @Operation(
             summary = "최근 7일 감정 통계 조회",
             description = "입력한 날짜 기준으로 사용자의 최근 7일간 감정 통계 정보를 조회합니다."
-    )    @ApiResponses({
+    )
+    @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4001", description = "수면 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4002", description = "감정 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
-
+    @GetMapping("/emotion/weekly")
     public ResponseEntity<ApiResponse<StatisticResponseDTO.EmotionStatisticDTO>> getWeeklyEmotionStatistic(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getEmotionStatistics(authorization, today, 7)));
-        }
+    }
 
-    @GetMapping("/emotion/monthly")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4002", description = "감정 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
-    })
     @Operation(
             summary = "최근 30일 감정 통계 조회",
             description = "입력한 날짜 기준으로 사용자의 최근 30일간 감정 통계 정보를 조회합니다."
     )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4002", description = "감정 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    })
+    @GetMapping("/emotion/monthly")
     public ResponseEntity<ApiResponse<StatisticResponseDTO.EmotionStatisticDTO>> getMonthlyEmotionStatistic(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
