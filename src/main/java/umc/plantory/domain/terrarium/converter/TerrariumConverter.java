@@ -62,7 +62,7 @@ public class TerrariumConverter {
                                                                                                String flowerName) {
         return TerrariumResponseDto.CompletedTerrariumResponse.builder()
                 .terrariumId(terrariumId)
-                .bloomAt(bloomAt)
+                .bloomAt(bloomAt.toLocalDate())
                 .nickname(nickname)
                 .flowerName(flowerName)
                 .build();
@@ -70,6 +70,7 @@ public class TerrariumConverter {
 
     public static TerrariumResponseDto.CompletedTerrariumDetailResponse toCompletedTerrariumDetatilResponse(Terrarium terrarium, List<LocalDate> usedDiaries) {
         return TerrariumResponseDto.CompletedTerrariumDetailResponse.builder()
+                .flowerName(terrarium.getFlower().getName())
                 .startAt(terrarium.getStartAt().toLocalDate())
                 .bloomAt(terrarium.getBloomAt().toLocalDate())
                 .mostEmotion(terrarium.getFlower().getEmotion())
