@@ -68,7 +68,9 @@ public class MemberCommandService implements MemberCommandUseCase {
         List<Long> disagreeTermIdList = request.getDisagreeTermIdList();
 
         // 필수 약관 동의 검증
-        validateRequiredTerms(agreeTermIdList);
+        if (!validateRequiredTerms(agreeTermIdList)) {
+            throw new TermHandler(ErrorStatus.REQUIRED_TERM_NOT_AGREED);
+        }
 
         // 동의한 약관 처리
         processAgreedTerms(member, agreeTermIdList);
@@ -145,7 +147,9 @@ public class MemberCommandService implements MemberCommandUseCase {
      */
     private void processMemberSignup(Member member, MemberRequestDTO.MemberSignupRequest request) {
         // 필수 추가 정보 검증
-        validateAdditionalInfo(request);
+        if (!validateAdditionalInfo(request)) {
+            throw new MemberHandler(ErrorStatus.INVALID_MEMBER_INFO);
+        }
 
         // 추가 정보 저장
         updateMemberInfo(member, request);
