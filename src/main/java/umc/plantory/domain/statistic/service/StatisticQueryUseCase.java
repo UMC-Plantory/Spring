@@ -1,6 +1,6 @@
 package umc.plantory.domain.statistic.service;
 
-import umc.plantory.domain.statistic.dto.response.StatisticResponseDTO;
+import umc.plantory.domain.statistic.dto.StatisticResponseDTO;
 
 import java.time.LocalDate;
 

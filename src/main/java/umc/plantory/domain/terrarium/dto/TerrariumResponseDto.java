@@ -50,9 +50,9 @@ public class TerrariumResponseDto {
     @Builder
     @Getter
     @AllArgsConstructor
-    public static class CompletedTerrariumDetatilResponse{
-        private LocalDateTime startAt;
-        private LocalDateTime bloomAt;
+    public static class CompletedTerrariumDetailResponse {
+        private LocalDate startAt;
+        private LocalDate bloomAt;
         private Emotion mostEmotion;
         private List<LocalDate> usedDiaries;
         private LocalDate firstStepDate;

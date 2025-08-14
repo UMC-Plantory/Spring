@@ -11,13 +11,24 @@ import umc.plantory.global.apiPayload.code.ErrorReasonDTO;
 public enum ErrorStatus implements BaseErrorCode {
     // 가장 일반적인 응답
     _INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "서버 에러, 관리자에게 문의 바랍니다."),
-    _BAD_REQUEST(HttpStatus.BAD_REQUEST,"COMMON400","잘못된 요청입니다."),
-    _UNAUTHORIZED(HttpStatus.UNAUTHORIZED,"COMMON401","인증이 필요합니다."),
+    _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),
+    _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401", "인증이 필요합니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
     // 멤버 관련
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "존재하지 않는 회원입니다."),
     INVALID_MEMBER_INFO(HttpStatus.BAD_REQUEST, "MEMBER4002", "회원 필수 정보가 누락되었습니다."),
+    MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER4003", "이미 존재하는 회원입니다."),
+    INVALID_USER_CUSTOM_ID_FORMAT(HttpStatus.BAD_REQUEST, "MEMBER4005", "사용자 커스텀 ID 형식이 올바르지 않습니다."),
+    DUPLICATE_USER_CUSTOM_ID(HttpStatus.CONFLICT, "MEMBER4006", "이미 사용 중인 사용자 커스텀 ID입니다."),
+    INVALID_BIRTH_DATE(HttpStatus.BAD_REQUEST, "MEMBER4007", "생년월일이 올바르지 않습니다."),
+    INVALID_GENDER_VALUE(HttpStatus.BAD_REQUEST, "MEMBER4008", "성별 값이 올바르지 않습니다."),
+    INVALID_PROFILE_IMAGE_URL(HttpStatus.BAD_REQUEST, "MEMBER4009", "프로필 이미지 URL이 올바르지 않습니다."),
+    MEMBER_NOT_SIGNED_UP(HttpStatus.BAD_REQUEST, "MEMBER4010", "회원가입이 완료되지 않은 회원입니다."),
+    MEMBER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "MEMBER4011", "이미 탈퇴한 회원입니다."),
+    MEMBER_ALREADY_AGREED_TERMS(HttpStatus.CONFLICT, "MEMBER4012", "이미 동의한 약관입니다."),
+    INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "MEMBER4013", "날짜 형식이 올바르지 않습니다."),
+    INVALID_DATE(HttpStatus.BAD_REQUEST, "MEMBER4014", "미래 날짜는 조회할 수 없습니다."),
 
     // 약관 관련
     TERM_NOT_FOUND(HttpStatus.NOT_FOUND, "TERM4001", "존재하지 않는 약관입니다."),
@@ -37,39 +48,26 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_EXTENSION(HttpStatus.BAD_REQUEST, "S34001", "허용되지 않은 파일 확장자입니다."),
     INVALID_FILENAME(HttpStatus.BAD_REQUEST, "S34002", "파일 이름이 유효하지 않습니다."),
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "S34003", "해당 이미지가 S3에 존재하지 않습니다."),
-  
+
     // 통계 관련
-    SLEEP_STATISTIC_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATISTIC4001", "수면 통계가 존재하지 않습니다."),
-    EMOTION_STATISTIC_NOT_FOUND(HttpStatus.BAD_REQUEST, "STATISTIC4002", "감정 통계가 존재하지 않습니다."),
+    SLEEP_STATISTIC_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTIC4001", "수면 통계가 존재하지 않습니다."),
+    EMOTION_STATISTIC_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTIC4002", "감정 통계가 존재하지 않습니다."),
 
     // 일기 관련
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY4001", "존재하지 않는 일기입니다."),
     DIARY_MISSING_FIELDS(HttpStatus.BAD_REQUEST, "DIARY4002", "일기의 필수 항목이 누락되었습니다."),
-    DIARY_UNAUTHORIZED(HttpStatus.FORBIDDEN,"DIARY4003","해당 일기에 대한 권한이 없습니다."),
+    DIARY_UNAUTHORIZED(HttpStatus.FORBIDDEN, "DIARY4003", "해당 일기에 대한 권한이 없습니다."),
     DIARY_INVALID_STATUS(HttpStatus.BAD_REQUEST, "DIARY4004", "현재 일기의 상태에서는 해당 작업을 수행할 수 없습니다."),
-
-    // 멤버 관련 추가 에러
-    MEMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER4003", "이미 존재하는 회원입니다."),
-    INVALID_USER_CUSTOM_ID_FORMAT(HttpStatus.BAD_REQUEST, "MEMBER4005", "사용자 커스텀 ID 형식이 올바르지 않습니다."),
-    DUPLICATE_USER_CUSTOM_ID(HttpStatus.CONFLICT, "MEMBER4006", "이미 사용 중인 사용자 커스텀 ID입니다."),
-    INVALID_BIRTH_DATE(HttpStatus.BAD_REQUEST, "MEMBER4007", "생년월일이 올바르지 않습니다."),
-    INVALID_GENDER_VALUE(HttpStatus.BAD_REQUEST, "MEMBER4008", "성별 값이 올바르지 않습니다."),
-    INVALID_PROFILE_IMAGE_URL(HttpStatus.BAD_REQUEST, "MEMBER4009", "프로필 이미지 URL이 올바르지 않습니다."),
-    MEMBER_NOT_SIGNED_UP(HttpStatus.BAD_REQUEST, "MEMBER4010", "회원가입이 완료되지 않은 회원입니다."),
-    MEMBER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "MEMBER4011", "이미 탈퇴한 회원입니다."),
-    MEMBER_ALREADY_AGREED_TERMS(HttpStatus.CONFLICT, "MEMBER4012", "이미 동의한 약관입니다."),
-    INVALID_DATE_FORMAT(HttpStatus.BAD_REQUEST, "MEMBER4013", "날짜 형식이 올바르지 않습니다."),
-    INVALID_DATE(HttpStatus.BAD_REQUEST, "MEMBER4014", "미래 날짜는 조회할 수 없습니다."),
 
     // 채팅 관련
     INVALID_API_KEY(HttpStatus.UNAUTHORIZED, "CHAT4001", "API 키가 잘못됐습니다."),
     QUOTA_EXCEEDED(HttpStatus.FORBIDDEN, "CHAT4002", "API 쿼터가 모두 소진되었습니다."),
-    OPEN_AI_SERVER_ERROR(HttpStatus.TOO_MANY_REQUESTS, "CHAT4003", "OPENAI 서버 오류."),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CHAT4004", "서버 오류"),
+    OPEN_AI_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "CHAT4003", "OPENAI 서버 오류."),
+    INTERNAL_CHAT_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CHAT4004", "서버 오류"),
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "CHAT4005", "서버 과부하"),
     CHAT_RESPONSE_NONE(HttpStatus.BAD_REQUEST, "CHAT4006", "챗봇 응답이 없습니다."),
     CHAT_RESPONSE_TOO_LONG(HttpStatus.BAD_REQUEST, "CHAT4007", "챗봇 응답이 허용 길이(500자)를 초과했습니다."),
-      
+
     // 테라리움 관련
     TERRARIUM_NOT_FOUND(HttpStatus.NOT_FOUND, "TERRARIUM404", "존재하지 않는 테라리움입니다."),
     INVALID_MEMBER_ID(HttpStatus.BAD_REQUEST, "TERRARIUM4001", "유효하지 않은 회원 ID입니다."),
@@ -78,8 +76,8 @@ public enum ErrorStatus implements BaseErrorCode {
     FLOWER_IMG_NOT_FOUND_IN_TERRARIUM(HttpStatus.NOT_FOUND, "TERRARIUM4043", "테라리움에 꽃 이미지 정보가 존재하지 않습니다."),
     TERRARIUM_NOT_BLOOMED(HttpStatus.BAD_REQUEST, "TERRARIUM4002", "아직 개화하지 않은 테라리움입니다."),
     NO_COMPLETED_TERRARIUM_IN_MONTH(HttpStatus.NOT_FOUND, "TERRARIUM4044", "해당 월에 개화 완료된 테라리움이 없습니다."),
-    TERRARIUM_ALREADY_IN_PROGRESS(HttpStatus.BAD_REQUEST, "TERRARIUM4003", "이미 진행 중인 테라리움이 존재합니다."),
-    ALREADY_BLOOMED_TERRARIUM(HttpStatus.BAD_REQUEST, "TERRARIUM4004", "이미 개화한 테라리움입니다."),
+    TERRARIUM_ALREADY_IN_PROGRESS(HttpStatus.CONFLICT, "TERRARIUM4003", "이미 진행 중인 테라리움이 존재합니다."),
+    ALREADY_BLOOMED_TERRARIUM(HttpStatus.CONFLICT, "TERRARIUM4004", "이미 개화한 테라리움입니다."),
     WATERING_CNT_INCORRECT(HttpStatus.INTERNAL_SERVER_ERROR, "TERRARIUM4005", "물 준 횟수가 불일치 합니다. (데이터 문제 발생. 문의 필요)"),
 
     // 물주기 관련
@@ -89,6 +87,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 꽃 관련
     FLOWER_NOT_FOUND(HttpStatus.NOT_FOUND, "FLOWER404", "존재하지 않는 꽃입니다."),
+
 
     ;
     private final HttpStatus httpStatus;
