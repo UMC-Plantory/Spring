@@ -23,7 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/plantory/terrariums")
 @Slf4j
-@Tag(name = "테라리움 API", description = "테라리움 관련 API")
+@Tag(name = "Terrarium", description = "테라리움 관련 API")
 public class TerrariumRestController {
     private final TerrariumCommandUseCase terrariumCommandUseCase;
     private final TerrariumQueryUseCase terrariumQueryUseCase;

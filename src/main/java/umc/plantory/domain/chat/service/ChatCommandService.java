@@ -55,7 +55,7 @@ public class ChatCommandService implements ChatCommandUseCase {
     private static final int MAX_RESPONSE_CHARS = 500; // 응답 최대 글자 수
 
     @Override
-    public ChatResponseDTO ask(String authorization, ChatRequestDTO request) {
+    public ChatResponseDTO.ChatResponse ask(String authorization, ChatRequestDTO request) {
         Member member = getLoginedMember(authorization);
 
         // 사용자가 메시지 시간 기록
