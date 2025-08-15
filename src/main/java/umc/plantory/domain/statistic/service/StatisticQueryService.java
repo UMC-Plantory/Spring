@@ -77,10 +77,7 @@ public class StatisticQueryService implements StatisticQueryUseCase {
             );
         }
 
-        // 7일 평균 수면 시간 계산 (단위: 분)
-        Integer averageSleepMinutes = calculateAverageSleepMinutes(diaries);
-
-        return StatisticConverter.toWeeklyStatisticDTO(startDate, endDate, averageSleepMinutes, dailySleepRecordList);
+        return StatisticConverter.toWeeklyStatisticDTO(startDate, endDate, member.getAvgSleepTime(), dailySleepRecordList);
     }
 
     /**
