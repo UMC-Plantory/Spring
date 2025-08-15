@@ -35,7 +35,7 @@ public class MemberRestController {
     @PatchMapping("/profile")
     @Operation(summary = "프로필 수정 API", description = "회원의 프로필 정보(닉네임, 사용자 커스텀 ID, 성별, 생년월일, 프로필 이미지, 이메일)를 수정하는 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.ProfileUpdateResponse>> updateProfile(
-            @RequestHeader("Authorization") String authorization,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestBody MemberRequestDTO.ProfileUpdateRequest request) {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberCommandUseCase.updateProfile(authorization, request)));
     }
@@ -73,7 +73,7 @@ public class MemberRestController {
     @DeleteMapping("/auth")
     @Operation(summary = "로그아웃 API", description = "로그아웃 API입니다.")
     public ResponseEntity<ApiResponse<Void>> logout(
-            @RequestHeader("Authorization") String authorization) {
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
         memberCommandUseCase.logout(authorization);
         return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
@@ -81,7 +81,7 @@ public class MemberRestController {
     @PatchMapping
     @Operation(summary = "계정 탈퇴 API", description = "계정 탈퇴 API입니다.")
     public ResponseEntity<ApiResponse<Void>> deleteMember(
-            @RequestHeader("Authorization") String authorization) {
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
         memberCommandUseCase.delete(authorization);
         return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
