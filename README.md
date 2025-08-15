@@ -1,8 +1,9 @@
-# 🚀 프로젝트 이름
+# 🚀 플랜토리 (Plantory)
 
-![배너 이미지 또는 로고](링크)
+<img width="512" height="512" alt="Property 1=Logo" src="https://github.com/user-attachments/assets/a2eb5ccf-7476-47cb-a224-fb174d2f2f10" />
 
-> 간단한 한 줄 소개 – 프로젝트의 핵심 가치 또는 기능
+
+> 기억으로 꽃 피우는 나만의 정원 일기
 
 
 ---
@@ -10,24 +11,26 @@
 <br>
 
 ## 👥 멤버
-| 노먼/박승태 | 팀원 2 | 팀원 3 | 팀원 4 | 팀원 5 |
+| 노먼/박승태 | 유즈/박유정 | 지니/박형진 | 메이/손가영 | 하루/심현민 |
 |:------:|:------:|:------:|:------:|:------:|
-| 사진1 | 사진2 | 사진3 | 사진4 | 사진5 |
+| <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/671e9737-20ab-45d5-b755-f5e9c84ed31f" /> | <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/c1241267-2aba-4e66-beaf-f1919841f765" /> | <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/7b8e410c-6ff6-4969-90c2-7c45906b2cbe" /> | <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/c6bf4d3e-46b6-4111-80e6-fbea97a3510e" /> | <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/03c4ae65-6f3d-44f0-aab7-7dad662c13af" /> |
 | PL | BE | BE | BE | BE |
-| [GitHub](https://github.com/iseevict) | [GitHub](깃허브 링크) | [GitHub](깃허브 링크) | [GitHub](깃허브 링크) | [GitHub](깃허브 링크) |
+| [GitHub](https://github.com/iseevict) | [GitHub](https://github.com/yujeong430) | [GitHub](https://github.com/gud0217) | [GitHub](https://github.com/gayo73) | [GitHub](https://github.com/simhyunmin) |
 
 <br>
 
 
 ## 📱 소개
 
-> 프로젝트의 주요 목적과 사용자가 얻게 될 경험을 설명해주세요.
+> '플랜토리'는 성장형 일기 작성 어플리케이션으로 사용자의 작성 동기를 부여하고 스스로 성찰할 수 있는 서비스 입니다.
+>
+> 지속성과 동기부여 제공, 감정표현의 개방, 기록의 가치 제공 등을 통해 사용자의 성장을 도와드릴게요.
 
 <br>
 
 ## 📆 프로젝트 기간
-- 전체 기간: `2025.06.30 - YYYY.MM.DD`
-- 개발 기간: `2025.06.30 - YYYY.MM.DD`
+- 전체 기간: `2025.06.30 - ing`
+- 개발 기간: `2025.06.30 - ing`
 
 <br>
 
@@ -43,6 +46,12 @@ For building and running the application you need:
 * BackEnd : IntelliJ
 * 버전 및 이슈 관리 : Github, Github Issues
 * 협업 툴 : Discord, Notion
+
+<br>
+
+## 아키텍처 다이어그램
+<img width="2277" height="531" alt="image" src="https://github.com/user-attachments/assets/820d7248-3166-4c3e-bf54-05dc5840f7ff" />
+
 
 <br>
 
