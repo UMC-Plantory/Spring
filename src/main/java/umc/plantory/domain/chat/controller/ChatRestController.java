@@ -16,6 +16,7 @@ import umc.plantory.domain.chat.service.ChatCommandUseCase;
 import umc.plantory.domain.chat.service.ChatQueryUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
+import javax.validation.constraints.Min;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,7 +53,7 @@ public class ChatRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
-    @GetMapping("/list")
+    @GetMapping
     @Operation(
             summary = "최초 진입 이후, 챗봇 채팅창 이전 채팅 스크롤 조회",
             description = "스크롤 시, 기준 시각(cursor) 이전의 채팅을 추가로 조회 "
@@ -65,7 +66,7 @@ public class ChatRestController {
     public ResponseEntity<ApiResponse<ChatResponseDTO.ChatsResponse>> getChats(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestParam(value = "cursor", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime cursor,
-            @RequestParam(value = "size", defaultValue = "6") int size
+            @RequestParam(value = "size", defaultValue = "6") @Min(value = 1, message = "size는 1 이상이어야 합니다.") int size
     ) {
         ChatResponseDTO.ChatsResponse chatList = chatQueryUseCase.findChatList(authorization, cursor, size);
         return ResponseEntity.ok(ApiResponse.onSuccess(chatList));

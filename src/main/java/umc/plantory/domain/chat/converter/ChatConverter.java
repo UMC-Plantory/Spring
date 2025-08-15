@@ -24,7 +24,7 @@ public class ChatConverter {
     public static ChatResponseDTO.ChatsDetail toChatsDetail(Chat chat) {
         return ChatResponseDTO.ChatsDetail.builder()
                 .content(chat.getContent())
-                .createAt(chat.getCreatedAt())
+                .createdAt(chat.getCreatedAt())
                 .isMember(chat.getIsMember())
                 .build();
     }
