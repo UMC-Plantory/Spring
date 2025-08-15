@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import umc.plantory.global.validation.annotation.ValidDiaryFields;
 
 import java.time.LocalDate;
@@ -85,11 +87,12 @@ public class DiaryRequestDTO {
     }
 
     @Getter
-    @AllArgsConstructor
+    @Setter
+    @NoArgsConstructor
     public static class DiaryFilterDTO {
 
         @Schema(description = "정렬 기준 (latest: 최신순, oldest: 오래된순)", example = "latest")
-        private String sort;
+        private String sort = "latest";
 
         @Schema(description = "조회 시작 달 (YYYY-MM)", example = "2025-07")
         private String from;
