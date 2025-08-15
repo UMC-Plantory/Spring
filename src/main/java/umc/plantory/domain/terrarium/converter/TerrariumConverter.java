@@ -68,7 +68,7 @@ public class TerrariumConverter {
                 .build();
     }
 
-    public static TerrariumResponseDto.CompletedTerrariumDetailResponse toCompletedTerrariumDetatilResponse(Terrarium terrarium, List<LocalDate> usedDiaries) {
+    public static TerrariumResponseDto.CompletedTerrariumDetailResponse toCompletedTerrariumDetatilResponse(Terrarium terrarium, List<TerrariumResponseDto.DiaryDataForTerrariumDetailResponse> usedDiaries) {
         return TerrariumResponseDto.CompletedTerrariumDetailResponse.builder()
                 .flowerName(terrarium.getFlower().getName())
                 .startAt(terrarium.getStartAt().toLocalDate())

@@ -115,9 +115,14 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
             throw new TerrariumHandler(ErrorStatus.WATERING_CAN_NOT_FOUND);
         }
 
-        List<LocalDate> usedDiaries = usedWateringCan
+        List<TerrariumResponseDto.DiaryDataForTerrariumDetailResponse> usedDiaries = usedWateringCan
                 .stream()
-                .map(wateringCan -> wateringCan.getDiaryDate())
+                .map(wateringCan -> {
+                    return TerrariumResponseDto.DiaryDataForTerrariumDetailResponse.builder()
+                            .diaryDate(wateringCan.getDiaryDate())
+                            .diaryId(wateringCan.getDiary().getId())
+                            .build();
+                })
                 .collect(Collectors.toList());
 
 
