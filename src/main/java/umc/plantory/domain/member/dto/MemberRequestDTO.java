@@ -24,7 +24,6 @@ public class MemberRequestDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class MemberSignupRequest {
-        private Long memberId;
         private String nickname;
         private String userCustomId;
         private Gender gender;

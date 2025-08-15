@@ -17,7 +17,6 @@ public class MemberResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class TermAgreementResponse {
-        private Long memberId;
         private String message;
         private MemberStatus status;
     }
@@ -27,7 +26,6 @@ public class MemberResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class MemberSignupResponse {
-        private Long memberId;
         private String nickname;
         private String userCustomId;
         private String profileImgUrl;
@@ -41,7 +39,6 @@ public class MemberResponseDTO {
     public static class ProfileResponse {
         private String userCustomId;
         private String nickname;
-
         private String profileImgUrl;
         private Integer continuousRecordCnt;
         private Integer totalRecordCnt;
@@ -55,7 +52,6 @@ public class MemberResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ProfileUpdateResponse {
-        private Long memberId;
         private String nickname;
         private String userCustomId;
         private String gender;
