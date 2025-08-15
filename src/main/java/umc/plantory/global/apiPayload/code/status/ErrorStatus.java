@@ -52,6 +52,7 @@ public enum ErrorStatus implements BaseErrorCode {
     // 통계 관련
     SLEEP_STATISTIC_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTIC4001", "수면 통계가 존재하지 않습니다."),
     EMOTION_STATISTIC_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTIC4002", "감정 통계가 존재하지 않습니다."),
+    FUTURE_DATE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "STATISTIC4003", "현재를 포함한 이전의 날짜를 입력해주세요"),
 
     // 일기 관련
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "DIARY4001", "존재하지 않는 일기입니다."),

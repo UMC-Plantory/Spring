@@ -9,9 +9,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import umc.plantory.domain.statistic.dto.StatisticResponseDTO;
 import umc.plantory.domain.statistic.service.StatisticQueryUseCase;
@@ -23,6 +25,7 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/v1/plantory/statistics")
 @RequiredArgsConstructor
+@Validated
 public class StatisticRestController {
 
     private final StatisticQueryUseCase statisticQueryUseCase;
@@ -38,7 +41,9 @@ public class StatisticRestController {
     @GetMapping("/sleep/weekly")
     public ResponseEntity<ApiResponse<StatisticResponseDTO.WeeklySleepStatisticDTO>> getWeeklySleepStatistic(
             @RequestHeader(value = "Authorization", required = false) String authorization,
-            @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
+            @Parameter(description = "기준 날짜", example = "2025-07-22")
+            @PastOrPresent(message = "FUTURE_DATE_NOT_ALLOWED")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getWeeklySleepStatistics(authorization, today)));
     }
@@ -54,7 +59,9 @@ public class StatisticRestController {
     @GetMapping("/sleep/monthly")
     public ResponseEntity<ApiResponse<StatisticResponseDTO.MonthlySleepStatisticDTO>> getMonthlySleepStatistic(
             @RequestHeader(value = "Authorization", required = false) String authorization,
-            @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
+            @Parameter(description = "기준 날짜", example = "2025-07-22")
+            @PastOrPresent(message = "FUTURE_DATE_NOT_ALLOWED")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getMonthlySleepStatistics(authorization, today)));
     }
@@ -70,7 +77,9 @@ public class StatisticRestController {
     @GetMapping("/emotion/weekly")
     public ResponseEntity<ApiResponse<StatisticResponseDTO.EmotionStatisticDTO>> getWeeklyEmotionStatistic(
             @RequestHeader(value = "Authorization", required = false) String authorization,
-            @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
+            @Parameter(description = "기준 날짜", example = "2025-07-22")
+            @PastOrPresent(message = "FUTURE_DATE_NOT_ALLOWED")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getEmotionStatistics(authorization, today, 7)));
     }
@@ -86,7 +95,9 @@ public class StatisticRestController {
     @GetMapping("/emotion/monthly")
     public ResponseEntity<ApiResponse<StatisticResponseDTO.EmotionStatisticDTO>> getMonthlyEmotionStatistic(
             @RequestHeader(value = "Authorization", required = false) String authorization,
-            @Parameter(description = "기준 날짜", example = "2025-07-22") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
+            @Parameter(description = "기준 날짜", example = "2025-07-22")
+            @PastOrPresent(message = "FUTURE_DATE_NOT_ALLOWED")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate today) {
 
         return ResponseEntity.ok(ApiResponse.onSuccess(statisticQueryUseCase.getEmotionStatistics(authorization, today, 30)));
     }
