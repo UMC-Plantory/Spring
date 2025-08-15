@@ -1,6 +1,7 @@
 package umc.plantory.domain.chat.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -16,10 +17,7 @@ import umc.plantory.domain.chat.service.ChatCommandUseCase;
 import umc.plantory.domain.chat.service.ChatQueryUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
-import javax.validation.constraints.Min;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /** 심현민 & 박형진 공동 작업 **/
 @RestController
@@ -66,7 +64,7 @@ public class ChatRestController {
     public ResponseEntity<ApiResponse<ChatResponseDTO.ChatsResponse>> getChats(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestParam(value = "cursor", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime cursor,
-            @RequestParam(value = "size", defaultValue = "6") @Min(value = 1, message = "size는 1 이상이어야 합니다.") int size
+            @RequestParam(value = "size", defaultValue = "6") @Parameter(description = "페이지 크기 (1 이상)", schema = @Schema(minimum = "1")) int size
     ) {
         ChatResponseDTO.ChatsResponse chatList = chatQueryUseCase.findChatList(authorization, cursor, size);
         return ResponseEntity.ok(ApiResponse.onSuccess(chatList));

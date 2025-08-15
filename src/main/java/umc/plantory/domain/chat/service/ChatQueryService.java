@@ -29,6 +29,8 @@ public class ChatQueryService implements ChatQueryUseCase {
 
     @Override
     public ChatResponseDTO.ChatsResponse findChatList(String authorization, LocalDateTime cursor, int size) {
+        // 페이지는 1 이상
+        if (size < 1) throw new PaginationHandler(ErrorStatus.INVALID_PAGINATION_SIZE);
         
         // 인증 토큰을 통해 현재 로그인한 사용자 정보 조회
         Member loginedMember = getLoginedMember(authorization);
