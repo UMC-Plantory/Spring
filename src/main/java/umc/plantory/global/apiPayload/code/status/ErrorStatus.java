@@ -15,6 +15,9 @@ public enum ErrorStatus implements BaseErrorCode {
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401", "인증이 필요합니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
+    // 페이징 관련
+    INVALID_PAGINATION_SIZE(HttpStatus.BAD_REQUEST, "PAGINATION4001", "페이지 크기는 1 이상이어야 합니다."),
+
     // 멤버 관련
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "존재하지 않는 회원입니다."),
     INVALID_MEMBER_INFO(HttpStatus.BAD_REQUEST, "MEMBER4002", "회원 필수 정보가 누락되었습니다."),
