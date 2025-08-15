@@ -219,11 +219,6 @@ public class MemberCommandService implements MemberCommandUseCase {
             findMember.updateProfileImgUrl(request.getProfileImgUrl());
         }
 
-        // 이메일 처리
-        if (request.getEmail() != null) {
-            findMember.updateEmail(request.getEmail());
-        }
-
         memberRepository.save(findMember);
 
         // 응답 반환

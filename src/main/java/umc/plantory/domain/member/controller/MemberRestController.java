@@ -37,12 +37,6 @@ public class MemberRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.getProfile(authorization)));
     }
 
-    @GetMapping("/myprofile")
-    @Operation(summary = "마이프로필 조회 API", description = "회원의 상세 프로필 정보를 조회하는 API입니다.")
-    public ResponseEntity<ApiResponse<MemberResponseDTO.MyProfileResponse>> getMyProfile(
-            @RequestHeader("Authorization") String authorization) {
-        return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.getMyProfile(authorization)));
-    }
 
     @PatchMapping("/myprofile")
     @Operation(summary = "프로필 수정 API", description = "회원의 프로필 정보(닉네임, 사용자 커스텀 ID, 성별, 생년월일, 프로필 이미지, 이메일)를 수정하는 API입니다.")

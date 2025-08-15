@@ -66,19 +66,6 @@ public class MemberConverter {
                 .build();
     }
 
-    public static MemberResponseDTO.MyProfileResponse toMyProfileResponse(Member member) {
-        return MemberResponseDTO.MyProfileResponse.builder()
-                .memberId(member.getId())
-                .nickname(member.getNickname())
-                .userCustomId(member.getUserCustomId())
-                .gender(member.getGender() != null ? member.getGender().name().toLowerCase() : null)
-                .birth(member.getBirth() != null ? member.getBirth().toString() : null)
-                .profileImgUrl(member.getProfileImgUrl() != null ? member.getProfileImgUrl() : DEFAULT_PROFILE_IMG_URL)
-                .message("마이프로필 조회가 완료되었습니다.")
-                .email(member.getEmail())
-                .build();
-    }
-
     public static MemberTerm toMemberTerm(Member member, Term term, Boolean isAgree) {
         return MemberTerm.builder()
                 .member(member)
@@ -116,8 +103,8 @@ public class MemberConverter {
         if (wateringCount == null || wateringCount <= 0) {
             return 0;
         }
-        // 테이블에서 진행도 가져오기 (최대 6단계)
-        int index = Math.min(wateringCount, 6);
+        // 테이블에서 진행도 가져오기 (최대 8단계)
+        int index = Math.min(wateringCount, 8);
         return PROGRESS_TABLE[index];
     }
 
