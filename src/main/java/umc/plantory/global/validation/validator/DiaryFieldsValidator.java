@@ -19,6 +19,7 @@ public class DiaryFieldsValidator implements ConstraintValidator<ValidDiaryField
         // 일반 저장일때만 체크
         if ("NORMAL".equals(request.getStatus())) {
             if (request.getEmotion() == null) missingFields.add("emotion");
+            if (request.getContent() == null) missingFields.add("content");
             if (request.getSleepStartTime() == null) missingFields.add("sleepStartTime");
             if (request.getSleepEndTime() == null) missingFields.add("sleepEndTime");
         }
