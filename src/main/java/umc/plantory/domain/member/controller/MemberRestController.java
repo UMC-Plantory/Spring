@@ -37,8 +37,7 @@ public class MemberRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(memberQueryUseCase.getProfile(authorization)));
     }
 
-
-    @PatchMapping("/myprofile")
+    @PatchMapping("/profile")
     @Operation(summary = "프로필 수정 API", description = "회원의 프로필 정보(닉네임, 사용자 커스텀 ID, 성별, 생년월일, 프로필 이미지, 이메일)를 수정하는 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.ProfileUpdateResponse>> updateProfile(
             @RequestHeader("Authorization") String authorization,
