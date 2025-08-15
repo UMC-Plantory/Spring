@@ -58,16 +58,6 @@ public class ChatQueryService implements ChatQueryUseCase {
         return ChatConverter.toChatsResponse(chatsDetailList, hasNext, nextCursor);
     }
 
-    /**
-     * 페이징 파라미터 유효성 검증
-     */
-    private void validatePaginationParameters(int size) {
-        // 최소값 검증: 1 이상이어야 함
-        if (size <= 0) {
-            throw new PaginationHandler(ErrorStatus.INVALID_PAGINATION_SIZE);
-        }
-    }
-
     // 로그인한 사용자 정보 받아오기
     private Member getLoginedMember(String authorization) {
         String token = jwtProvider.resolveToken(authorization);
