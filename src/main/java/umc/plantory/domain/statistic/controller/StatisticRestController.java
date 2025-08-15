@@ -5,9 +5,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +33,8 @@ public class StatisticRestController {
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4001", description = "수면 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4001", description = "수면 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4003", description = "현재를 포함한 이전의 날짜를 입력해주세요", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
     @GetMapping("/sleep/weekly")
     public ResponseEntity<ApiResponse<StatisticResponseDTO.WeeklySleepStatisticDTO>> getWeeklySleepStatistic(
@@ -54,7 +52,8 @@ public class StatisticRestController {
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4001", description = "수면 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4001", description = "수면 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4003", description = "현재를 포함한 이전의 날짜를 입력해주세요", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
     @GetMapping("/sleep/monthly")
     public ResponseEntity<ApiResponse<StatisticResponseDTO.MonthlySleepStatisticDTO>> getMonthlySleepStatistic(
@@ -72,7 +71,8 @@ public class StatisticRestController {
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4002", description = "감정 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4002", description = "감정 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4003", description = "현재를 포함한 이전의 날짜를 입력해주세요", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
     @GetMapping("/emotion/weekly")
     public ResponseEntity<ApiResponse<StatisticResponseDTO.EmotionStatisticDTO>> getWeeklyEmotionStatistic(
@@ -90,7 +90,8 @@ public class StatisticRestController {
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4002", description = "감정 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4002", description = "감정 통계 기록이 존재하지 않습니다", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "STATISTIC4003", description = "현재를 포함한 이전의 날짜를 입력해주세요", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
     @GetMapping("/emotion/monthly")
     public ResponseEntity<ApiResponse<StatisticResponseDTO.EmotionStatisticDTO>> getMonthlyEmotionStatistic(
