@@ -4,73 +4,68 @@ on:
   push:
     branches: [ develop ]
 
+env:
+  IMAGE_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/plantory
+  IMAGE_TAG: ${{ github.sha }} # 커밋 SHA 불변 태그
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up JDK 17  # Java 개발 킷 설정
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Make application.yml  # application.yml 파일 생성
-        run: |
-          mkdir -p src/main/resources
-          cd ./src/main/resources
-          echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
-        shell: bash
-
-      - name: Grant execute permission for gradlew  # gradlew 실행 권한 부여
-        run: chmod +x gradlew
-
-      - name: Build Spring Boot App
-        run: ./gradlew clean build -x test
+      - uses: actions/checkout@v4
 
       - name: Log in to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build and Push Docker image
-        uses: docker/build-push-action@v4
+      - name: Build and Push Docker image (no cache)
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/plantory:latest
+          no-cache: true
+          tags: |
+            ${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG }}
+            ${{ env.IMAGE_REPO }}:latest
 
   deploy:
-    needs: build  # build 작업이 성공적으로 완료된 후 실행
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to EC2  # EC2에 배포
-        uses: appleboy/ssh-action@master
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: IMAGE_REPO,IMAGE_TAG
           script: |
-            echo "💡 컨테이너 중지 및 삭제 시도 중..."
-            CONTAINER_ID=$(docker ps -q --filter "name=plantory-app")
+            set -euo pipefail
 
-            if [ -n "$CONTAINER_ID" ]; then
-              echo "🔴 기존 컨테이너를 중지하고 제거합니다."
-              docker stop $CONTAINER_ID
-              docker rm $CONTAINER_ID
-            else
-              echo "🟢 중지할 기존 컨테이너 없음."
+            echo "🔐 DockerHub login"
+            echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            echo "🧹 Remove old container if exists"
+            if docker ps -a --format '{{.Names}}' | grep -q '^plantory-app$'; then
+              docker rm -f plantory-app || true
             fi
 
-            echo "📦 최신 Docker 이미지 pull 중..."
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/plantory:latest
+            echo "📦 Pull exact image tag: ${IMAGE_REPO}:${IMAGE_TAG}"
+            docker pull "${IMAGE_REPO}:${IMAGE_TAG}"
 
-            echo "🚀 새 컨테이너 실행 중..."
-            docker run -dp 8080:8080 \
+            echo "🚀 Run container"
+            docker run -d \
               --name plantory-app \
-              -e JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul \
-              ${{ secrets.DOCKERHUB_USERNAME }}/plantory:latest
+              --restart unless-stopped \
+              -p 8080:8080 \
+              -e JAVA_TOOL_OPTIONS="-Duser.timezone=Asia/Seoul" \
+              "${IMAGE_REPO}:${IMAGE_TAG}"
+
+            echo "🧽 Prune dangling images"
+            docker image prune -f
+
+            echo "✅ Deployed ${IMAGE_REPO}:${IMAGE_TAG}"
