@@ -1,12 +1,9 @@
 package umc.plantory.domain.member.converter;
 
-import umc.plantory.domain.diary.dto.DiaryResponseDTO;
 import umc.plantory.domain.diary.entity.Diary;
-import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
 import umc.plantory.domain.member.entity.Member;
-import umc.plantory.global.enums.Emotion;
 import umc.plantory.global.enums.Gender;
 import umc.plantory.global.enums.MemberRole;
 import umc.plantory.global.enums.MemberStatus;
@@ -14,7 +11,6 @@ import umc.plantory.global.enums.Provider;
 import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.term.entity.Term;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +25,6 @@ public class MemberConverter {
 
     public static MemberResponseDTO.TermAgreementResponse toTermAgreementResponse(Member member) {
         return MemberResponseDTO.TermAgreementResponse.builder()
-                .memberId(member.getId())
                 .message("약관 동의가 완료되었습니다.")
                 .status(MemberStatus.AGREE)
                 .build();
@@ -37,7 +32,6 @@ public class MemberConverter {
 
     public static MemberResponseDTO.MemberSignupResponse toMemberSignupResponse(Member member) {
         return MemberResponseDTO.MemberSignupResponse.builder()
-                .memberId(member.getId())
                 .nickname(member.getNickname())
                 .userCustomId(member.getUserCustomId())
                 .profileImgUrl(member.getProfileImgUrl() != null ? member.getProfileImgUrl() : DEFAULT_PROFILE_IMG_URL)
@@ -59,7 +53,6 @@ public class MemberConverter {
 
     public static MemberResponseDTO.ProfileUpdateResponse toProfileUpdateResponse(Member member) {
         return MemberResponseDTO.ProfileUpdateResponse.builder()
-                .memberId(member.getId())
                 .nickname(member.getNickname())
                 .userCustomId(member.getUserCustomId())
                 .gender(member.getGender() != null ? member.getGender().name().toLowerCase() : null)
@@ -106,8 +99,8 @@ public class MemberConverter {
         if (wateringCount == null || wateringCount <= 0) {
             return 0;
         }
-        // 테이블에서 진행도 가져오기 (최대 6단계)
-        int index = Math.min(wateringCount, 6);
+        // 테이블에서 진행도 가져오기 (최대 8단계)
+        int index = Math.min(wateringCount, 8);
         return PROGRESS_TABLE[index];
     }
 

@@ -8,13 +8,12 @@ import umc.plantory.domain.diary.repository.DiaryRepository;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.statistic.converter.StatisticConverter;
-import umc.plantory.domain.statistic.dto.response.StatisticResponseDTO;
+import umc.plantory.domain.statistic.dto.StatisticResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.StatisticHandler;
-import umc.plantory.global.enums.DiaryStatus;
 import umc.plantory.global.enums.Emotion;
 
 import java.time.Duration;

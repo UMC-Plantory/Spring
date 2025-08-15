@@ -28,7 +28,6 @@ public class MemberRequestDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class MemberSignupRequest {
-        private Long memberId;
         @NotNull(message = "닉네임은 필수입니다.")
         @Size(max = 25, message = "닉네임은 최대 25자입니다.")
         private String nickname;

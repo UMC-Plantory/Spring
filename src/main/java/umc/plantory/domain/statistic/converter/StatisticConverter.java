@@ -1,7 +1,7 @@
 package umc.plantory.domain.statistic.converter;
 
 import umc.plantory.domain.diary.entity.Diary;
-import umc.plantory.domain.statistic.dto.response.StatisticResponseDTO;
+import umc.plantory.domain.statistic.dto.StatisticResponseDTO;
 import umc.plantory.global.enums.Emotion;
 
 import java.time.LocalDate;

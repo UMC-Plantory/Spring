@@ -21,7 +21,6 @@ import umc.plantory.global.enums.DiaryStatus;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 일기 조회 비즈니스 로직을 처리하는 서비스

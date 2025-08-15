@@ -4,10 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Fetch;
 import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.member.entity.Member;
-import umc.plantory.global.baseEntity.BaseEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -58,5 +56,9 @@ public class Terrarium {
         this.thirdStepDate = thirdStepDate;
         this.bloomAt = bloomAt;
         this.isBloom = true;
+    }
+
+    public void updateFlower (Flower flower) {
+        this.flower = flower;
     }
 }

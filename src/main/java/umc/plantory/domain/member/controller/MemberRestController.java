@@ -15,11 +15,6 @@ import umc.plantory.domain.member.service.MemberCommandUseCase;
 import umc.plantory.domain.member.service.MemberQueryUseCase;
 import umc.plantory.domain.token.service.MemberTokenCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
-import umc.plantory.global.apiPayload.code.status.ErrorStatus;
-import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
-
-import java.time.LocalDate;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/plantory/members")
@@ -39,7 +34,7 @@ public class MemberRestController {
     }
 
     @PatchMapping("/profile")
-    @Operation(summary = "프로필 수정 API", description = "회원의 프로필 정보(닉네임, 사용자 커스텀 ID, 성별, 생년월일, 프로필 이미지)를 수정하는 API입니다.")
+    @Operation(summary = "프로필 수정 API", description = "회원의 프로필 정보(닉네임, 사용자 커스텀 ID, 성별, 생년월일, 프로필 이미지, 이메일)를 수정하는 API입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.ProfileUpdateResponse>> updateProfile(
             @RequestHeader("Authorization") String authorization,
             @Valid @RequestBody MemberRequestDTO.ProfileUpdateRequest request) {

@@ -23,7 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/plantory/terrariums")
 @Slf4j
-@Tag(name = "테라리움 API", description = "테라리움 관련 API")
+@Tag(name = "Terrarium", description = "테라리움 관련 API")
 public class TerrariumRestController {
     private final TerrariumCommandUseCase terrariumCommandUseCase;
     private final TerrariumQueryUseCase terrariumQueryUseCase;
@@ -97,11 +97,11 @@ public class TerrariumRestController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "테라리움 또는 물뿌리개 정보 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
     @GetMapping("/{terrarium-id}")
-    public ResponseEntity<ApiResponse<TerrariumResponseDto.CompletedTerrariumDetatilResponse>> getCompletedTerrariumDetail(
+    public ResponseEntity<ApiResponse<TerrariumResponseDto.CompletedTerrariumDetailResponse>> getCompletedTerrariumDetail(
             @Parameter(description = "테라리움 ID", example = "1") @PathVariable("terrarium-id") Long terrariumId) {
 
         log.info("완료된 테라리움 상세 조회 - terrariumId: {}", terrariumId);
-        TerrariumResponseDto.CompletedTerrariumDetatilResponse response = terrariumQueryUseCase.findCompletedTerrariumDetail(terrariumId);
+        TerrariumResponseDto.CompletedTerrariumDetailResponse response = terrariumQueryUseCase.findCompletedTerrariumDetail(terrariumId);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 }
