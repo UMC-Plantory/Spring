@@ -29,6 +29,7 @@ public class TerrariumResponseDto {
     @NoArgsConstructor
     @JsonInclude(JsonInclude.Include.NON_EMPTY) // 동적 응답을 위해 추가
     public static class WateringTerrariumResponse{
+        private String nickname;
         private Integer terrariumWateringCountAfterEvent;
         private Integer memberWateringCountAfterEvent;
         private Map<Emotion, Integer> emotionList;
@@ -42,16 +43,17 @@ public class TerrariumResponseDto {
     public static class CompletedTerrariumResponse{
         private Long terrariumId;
         private String nickname;
-        private LocalDateTime bloomAt;
+        private LocalDate bloomAt;
         private String flowerName;
     }
 
     @Builder
     @Getter
     @AllArgsConstructor
-    public static class CompletedTerrariumDetatilResponse{
-        private LocalDateTime startAt;
-        private LocalDateTime bloomAt;
+    public static class CompletedTerrariumDetailResponse {
+        private String flowerName;
+        private LocalDate startAt;
+        private LocalDate bloomAt;
         private Emotion mostEmotion;
         private List<LocalDate> usedDiaries;
         private LocalDate firstStepDate;

@@ -1,4 +1,4 @@
-package umc.plantory.domain.statistic.dto.response;
+package umc.plantory.domain.statistic.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

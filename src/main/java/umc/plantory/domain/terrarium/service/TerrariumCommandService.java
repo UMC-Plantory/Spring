@@ -73,7 +73,7 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
         currentWateringCnt++;
 
         // 사용한 물뿌리개 저장
-        saveNewWateringEvent(selectedWateringCan, terrarium);
+        WateringEvent newWateringEvent = saveNewWateringEvent(selectedWateringCan, terrarium);
 
         if (currentWateringCnt == secondStepComplete) {
             // 2번째 단계 시간 업데이트
@@ -86,6 +86,7 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
 
             // 꽃 피는 부분 데이터 가져오는 로직 필요
             List<WateringEvent> wateringEventList = wateringEventRepository.findAllByTerrarium(terrarium);
+            wateringEventList.add(newWateringEvent);
             // 7개인지 검증 (추후 변경 가능성 있음)
             if (wateringEventList.size() == thirdStepComplete) throw new TerrariumHandler(ErrorStatus.WATERING_CNT_INCORRECT);
 
@@ -111,11 +112,14 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
             // 해당 감정에 맞는 Flower 선택
             Flower flower = flowerRepository.findByEmotion(randomEmotion);
 
+            // flower 업데이트
+            terrarium.updateFlower(flower);
+
             // 새 테라리움 생성
             Flower defaultFlower = flowerRepository.findByEmotion(Emotion.DEFAULT);
             terrariumRepository.save(TerrariumConverter.toTerrarium(member, defaultFlower));
 
-            return TerrariumConverter.toBloomWateringTerrariumResponse(currentWateringCnt, member.getWateringCanCnt(), emotionList, flower);
+            return TerrariumConverter.toBloomWateringTerrariumResponse(currentWateringCnt, member.getWateringCanCnt(), emotionList, flower, member);
         } else {
             return TerrariumConverter.toDefaultWateringTerrariumResponse(currentWateringCnt, member.getWateringCanCnt());
         }

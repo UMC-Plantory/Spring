@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import umc.plantory.domain.statistic.dto.response.StatisticResponseDTO;
+import umc.plantory.domain.statistic.dto.StatisticResponseDTO;
 import umc.plantory.domain.statistic.service.StatisticQueryUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
