@@ -35,6 +35,8 @@ public class DiaryRestController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200",description = "성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON400", description = "잘못된 요청 형식",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4005", description = "미래의 일기는 작성할 수 없음",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4006", description = "해당 날짜에 이미 일기가 존재함",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "S34003", description = "이미지가 S3에 등록되지 않음",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
     })
     @PostMapping
@@ -54,6 +56,7 @@ public class DiaryRestController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4001", description = "일기를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4002", description = "필수 필드 미입력", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4003", description = "일기 작성자와 일치하지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DIARY4006", description = "해당 날짜에 이미 일기가 존재함",content = @Content(schema = @Schema(implementation = ApiResponse.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "S34003", description = "이미지가 S3에 등록되지 않음", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
     @PatchMapping("/{diaryId}")
