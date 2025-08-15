@@ -367,6 +367,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
     // 프롬프트 생성 및 AI 호출 후, 제목 응답 받기
     private String generateDiaryTitle(String content) {
+        if (content == null) return "임시 제목";
         Prompt prompt = PromptFactory.buildDiaryTitlePrompt(content);
         return aiClient.getResponse(prompt);
     }
