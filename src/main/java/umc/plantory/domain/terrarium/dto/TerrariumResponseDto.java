@@ -55,9 +55,18 @@ public class TerrariumResponseDto {
         private LocalDate startAt;
         private LocalDate bloomAt;
         private Emotion mostEmotion;
-        private List<LocalDate> usedDiaries;
+        private List<DiaryDataForTerrariumDetailResponse> usedDiaries;
         private LocalDate firstStepDate;
         private LocalDate secondStepDate;
         private LocalDate thirdStepDate;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DiaryDataForTerrariumDetailResponse {
+        private LocalDate diaryDate;
+        private Long diaryId;
     }
 }
