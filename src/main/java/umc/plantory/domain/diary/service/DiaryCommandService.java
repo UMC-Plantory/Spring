@@ -63,8 +63,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         LocalDate diaryDate = request.getDiaryDate();
         if (diaryRepository.existsByMemberAndDiaryDate(member, diaryDate)) throw new DiaryHandler(ErrorStatus.DUPLICATE_DIARY_DATE);
 
-        // 일기 날짜가 오늘 날짜보다 미래인지 확인
-        if (diaryDate.isAfter(LocalDate.now())) throw new DiaryHandler(ErrorStatus.CANNOT_UPLOAD_FUTURE_DIARY);
 
         // 일기 제목 생성
         String diaryTitle = generateDiaryTitle(request.getContent());
