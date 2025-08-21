@@ -74,14 +74,13 @@ public class TerrariumRestController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "JWT 인증 실패", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     })
     @GetMapping("/monthly")
-    public ResponseEntity<ApiResponse<List<TerrariumResponseDto.CompletedTerrariumResponse>>> getCompletedTerrariumsByMonth(
+    public ResponseEntity<ApiResponse<TerrariumResponseDto.TerrariumMonthlyListResponse>> getCompletedTerrariumsByMonth(
             @Parameter(description = "JWT 토큰")
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "조회할 날짜 (yyyy-MM)") @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM") YearMonth date) {
 
         log.info("월별 개화 완료 테라리움 조회");
-        List<TerrariumResponseDto.CompletedTerrariumResponse> responseList = terrariumQueryUseCase.findCompletedTerrariumsByMonth(authorization, date);
-        return ResponseEntity.ok(ApiResponse.onSuccess(responseList));
+        return ResponseEntity.ok(ApiResponse.onSuccess(terrariumQueryUseCase.findCompletedTerrariumsByMonth(authorization, date)));
     }
 
 

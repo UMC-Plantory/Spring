@@ -16,7 +16,6 @@ import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TerrariumHandler;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -74,7 +73,7 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
      * @return 지정한 회원이 해당 연도와 월에 개화가 완료된 테라리움 정보를 담은 CompletedTerrariumResponse 리스트
      */
     @Override
-    public List<TerrariumResponseDto.CompletedTerrariumResponse> findCompletedTerrariumsByMonth(
+    public TerrariumResponseDto.TerrariumMonthlyListResponse findCompletedTerrariumsByMonth(
             String authorization, YearMonth date) {
         String token = jwtProvider.resolveToken(authorization);
         if (token == null) {
@@ -87,15 +86,7 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
 
         List<Terrarium> terrariumList = terrariumRepository.findAllByMemberIdAndIsBloomTrueAndBloomAtYearAndMonth(memberId, date.getYear(), date.getMonthValue());
 
-        return terrariumList
-                .stream()
-                .map(terrarium -> TerrariumConverter.toCompletedTerrariumResponse(
-                        terrarium.getId(),
-                        terrarium.getBloomAt(),
-                        nickname,
-                        terrarium.getFlower().getName()
-                ))
-                .collect(Collectors.toList());
+        return TerrariumConverter.toTerrariumMonthlyListResponse(nickname, terrariumList);
     }
 
     /**
