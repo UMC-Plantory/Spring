@@ -15,7 +15,6 @@ import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
-import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
@@ -284,6 +283,11 @@ public class MemberCommandService implements MemberCommandUseCase {
                     Flower defaultFlower = flowerRepository.findByEmotion(Emotion.DEFAULT);
                     // 새 테라리움 생성
                     terrariumRepository.save(TerrariumConverter.toTerrarium(createdMember, defaultFlower));
+
+                    // 더미데이터 생성
+
+
+
                     return createdMember;
                 });
     }
