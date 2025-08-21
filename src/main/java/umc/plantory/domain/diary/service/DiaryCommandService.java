@@ -59,6 +59,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public DiaryResponseDTO.DiaryInfoDTO saveDiary(String authorization, DiaryRequestDTO.DiaryUploadDTO request) {
         Member member = getLoginMember(authorization);
 
+        // 요청으로 들어온 날짜에 이미 작성된 일기가 있는지 확인
+        LocalDate diaryDate = request.getDiaryDate();
+        if (diaryRepository.existsByMemberAndDiaryDate(member, diaryDate)) throw new DiaryHandler(ErrorStatus.DUPLICATE_DIARY_DATE);
+
+
         // 일기 제목 생성
         String diaryTitle = generateDiaryTitle(request.getContent());
 

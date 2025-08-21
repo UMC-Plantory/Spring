@@ -3,6 +3,7 @@ package umc.plantory.domain.diary.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class DiaryRequestDTO {
 
         @Schema(description = "일기 날짜", example = "2025-07-18", type = "string")
         @NotNull(message = "diaryDate 항목은 필수입니다.")
+        @PastOrPresent
         @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDate diaryDate;
 

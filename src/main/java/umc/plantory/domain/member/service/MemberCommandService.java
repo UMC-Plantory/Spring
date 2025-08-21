@@ -3,6 +3,7 @@ package umc.plantory.domain.member.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.flower.repository.FlowerRepository;
 import umc.plantory.domain.member.converter.MemberConverter;
 import umc.plantory.domain.member.dto.MemberDataDTO;
@@ -14,6 +15,7 @@ import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
+import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
@@ -134,9 +136,6 @@ public class MemberCommandService implements MemberCommandUseCase {
         // 회원가입 처리
         processMemberSignup(findMember, request);
 
-        // 초기 테라리움 생성
-        createInitialTerrarium(findMember);
-
         // 응답 반환
         return MemberConverter.toMemberSignupResponse(findMember);
     }
@@ -176,14 +175,6 @@ public class MemberCommandService implements MemberCommandUseCase {
             // 기본 프로필 이미지 설정
             member.updateProfileImgUrl(DEFAULT_PROFILE_IMG_URL);
         }
-    }
-
-    /**
-     * 초기 테라리움을 생성하는 메서드
-     */
-    private void createInitialTerrarium(Member member) {
-        terrariumRepository.save(TerrariumConverter.toTerrarium(member,
-                flowerRepository.findByEmotion(Emotion.DEFAULT)));
     }
 
     @Override
@@ -286,9 +277,14 @@ public class MemberCommandService implements MemberCommandUseCase {
     @Override
     @Transactional
     public Member findOrCreateMember(MemberDataDTO.KakaoMemberData kakaoMemberData) {
-        Member findOrNewMember = memberRepository.findByProviderId(kakaoMemberData.getSub())
-                .orElseGet(() -> MemberConverter.toMember(kakaoMemberData));
-
-        return memberRepository.save(findOrNewMember);
+        return memberRepository.findByProviderId(kakaoMemberData.getSub())
+                .orElseGet(() -> {
+                    // 새 멤버 생성
+                    Member createdMember = memberRepository.save(MemberConverter.toMember(kakaoMemberData));
+                    Flower defaultFlower = flowerRepository.findByEmotion(Emotion.DEFAULT);
+                    // 새 테라리움 생성
+                    terrariumRepository.save(TerrariumConverter.toTerrarium(createdMember, defaultFlower));
+                    return createdMember;
+                });
     }
 }

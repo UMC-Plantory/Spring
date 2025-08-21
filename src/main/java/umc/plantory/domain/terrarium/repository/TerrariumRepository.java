@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public interface TerrariumRepository extends JpaRepository<Terrarium, Long> {
     Optional<Terrarium> findByMemberAndIsBloomFalse(Member member);
-
     Terrarium findByMemberIdAndIsBloomFalse(Long memberId);
     Optional<Terrarium> findByIdAndIsBloomTrue(Long terrariumId);
     @Query("SELECT t FROM Terrarium t " +
