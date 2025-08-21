@@ -39,10 +39,18 @@ public class TerrariumResponseDto {
 
     @Builder
     @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class TerrariumMonthlyListResponse {
+        private String nickname;
+        private List<CompletedTerrariumResponse> terrariumList;
+    }
+
+    @Builder
+    @Getter
     @AllArgsConstructor
     public static class CompletedTerrariumResponse{
         private Long terrariumId;
-        private String nickname;
         private LocalDate bloomAt;
         private String flowerName;
     }

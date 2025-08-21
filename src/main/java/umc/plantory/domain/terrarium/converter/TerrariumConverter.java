@@ -56,15 +56,20 @@ public class TerrariumConverter {
                 .build();
     }
 
-    public static TerrariumResponseDto.CompletedTerrariumResponse toCompletedTerrariumResponse(Long terrariumId,
-                                                                                               LocalDateTime bloomAt,
-                                                                                               String nickname,
-                                                                                               String flowerName) {
-        return TerrariumResponseDto.CompletedTerrariumResponse.builder()
-                .terrariumId(terrariumId)
-                .bloomAt(bloomAt.toLocalDate())
+    public static TerrariumResponseDto.TerrariumMonthlyListResponse toTerrariumMonthlyListResponse (String nickname, List<Terrarium> terrariumList) {
+        List<TerrariumResponseDto.CompletedTerrariumResponse> completedTerrariumResponseList = terrariumList.stream().map(
+                terrarium -> {
+                    return TerrariumResponseDto.CompletedTerrariumResponse.builder()
+                            .terrariumId(terrarium.getId())
+                            .bloomAt(terrarium.getBloomAt().toLocalDate())
+                            .flowerName(terrarium.getFlower().getName())
+                            .build();
+                }
+        ).toList();
+
+        return TerrariumResponseDto.TerrariumMonthlyListResponse.builder()
                 .nickname(nickname)
-                .flowerName(flowerName)
+                .terrariumList(completedTerrariumResponseList)
                 .build();
     }
 
