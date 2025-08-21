@@ -22,4 +22,6 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
             List<Member> members, List<DiaryStatus> statuses, LocalDate start, LocalDate end
     );
     boolean existsByMemberAndDiaryDate(Member member, LocalDate diaryDate);
+    // 데모데이용 - 삭제 예정
+    int countByMember(Member member);
 }
