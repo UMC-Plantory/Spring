@@ -137,4 +137,11 @@ public class Member extends BaseEntity {
     public void updateAvgSleepTime(int minutes) {
         this.avgSleepTime = minutes;
     }
+
+    // 데모데이용 - 삭제 예정
+    public void updateMemberDataForDemoDay() {
+        this.continuousRecordCnt = 30;
+        this.wateringCanCnt = 30;
+        this.totalRecordCnt = 30;
+    }
 }
