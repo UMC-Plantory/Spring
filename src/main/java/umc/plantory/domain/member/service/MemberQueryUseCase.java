@@ -7,4 +7,5 @@ import java.time.YearMonth;
 public interface MemberQueryUseCase {
     MemberResponseDTO.ProfileResponse getProfile(String authorization);
     MemberResponseDTO.HomeResponse getHome(String authorization, YearMonth yearMonth);
+    MemberResponseDTO.MyProfileResponse getMyProfile(String authorization);
 }

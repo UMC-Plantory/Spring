@@ -64,6 +64,20 @@ public class MemberResponseDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class MyProfileResponse {
+        private Long memberId;
+        private String nickname;
+        private String userCustomId;
+        private String gender;
+        private String birth;
+        private String profileImgUrl;
+        private String email;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class KkoOAuth2LoginResponse {
         private String accessToken;
         private String refreshToken;
