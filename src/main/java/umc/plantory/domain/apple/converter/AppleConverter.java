@@ -1,4 +1,4 @@
-package umc.plantory.domain.kakao.converter;
+package umc.plantory.domain.apple.converter;
 
 import io.jsonwebtoken.Claims;
 import umc.plantory.domain.member.dto.MemberDataDTO;
@@ -7,17 +7,17 @@ import umc.plantory.domain.member.entity.Member;
 
 import java.time.LocalDateTime;
 
-public class KakaoConverter {
+public class AppleConverter {
 
-    public static MemberDataDTO.MemberData toKakaoMemberData(Claims claims) {
+    public static MemberDataDTO.MemberData toAppleMemberData(Claims claims) {
         return MemberDataDTO.MemberData.builder()
                 .sub(claims.getSubject())
-                .email(claims.get("email", String.class))
+                .email(claims.get("email", String.class) != null ? claims.get("email", String.class) : "NONE")
                 .build();
     }
 
-    public static MemberResponseDTO.KkoOAuth2LoginResponse toKkoOAuth2LoginResponse(Member member, String accessToken, String refreshToken, LocalDateTime accessTokenExpireAt) {
-        return MemberResponseDTO.KkoOAuth2LoginResponse.builder()
+    public static MemberResponseDTO.AppleOauth2LoginResponse toAppleOauth2LoginResponse(Member member, String accessToken, String refreshToken, LocalDateTime accessTokenExpireAt) {
+        return MemberResponseDTO.AppleOauth2LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .accessTokenExpireAt(accessTokenExpireAt)

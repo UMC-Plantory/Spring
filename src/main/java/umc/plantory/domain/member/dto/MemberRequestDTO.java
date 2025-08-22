@@ -74,6 +74,15 @@ public class MemberRequestDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class AppleOAuth2LoginRequest {
+        @NotNull(message = "identityToken 은 필수입니다.")
+        private String identityToken;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class RefreshAccessTokenRequest {
         @NotNull(message = "refreshToken 은 필수입니다.")
         private String refreshToken;

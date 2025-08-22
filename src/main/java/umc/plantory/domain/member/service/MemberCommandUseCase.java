@@ -11,5 +11,5 @@ public interface MemberCommandUseCase {
     MemberResponseDTO.ProfileUpdateResponse updateProfile(String authorization, MemberRequestDTO.ProfileUpdateRequest request);
     void logout(String authorization);
     void delete(String authorization);
-    Member findOrCreateMember(MemberDataDTO.KakaoMemberData kakaoMemberData);
+    Member findOrCreateMember(MemberDataDTO.MemberData memberData);
 }

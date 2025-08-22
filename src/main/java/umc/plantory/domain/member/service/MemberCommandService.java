@@ -299,11 +299,11 @@ public class MemberCommandService implements MemberCommandUseCase {
      */
     @Override
     @Transactional
-    public Member findOrCreateMember(MemberDataDTO.KakaoMemberData kakaoMemberData) {
-        return memberRepository.findByProviderId(kakaoMemberData.getSub())
+    public Member findOrCreateMember(MemberDataDTO.MemberData memberData) {
+        return memberRepository.findByProviderId(memberData.getSub())
                 .orElseGet(() -> {
                     // 새 멤버 생성
-                    Member createdMember = memberRepository.save(MemberConverter.toMember(kakaoMemberData));
+                    Member createdMember = memberRepository.save(MemberConverter.toMember(memberData));
                     Flower defaultFlower = flowerRepository.findByEmotion(Emotion.DEFAULT);
                     // 새 테라리움 생성
                     terrariumRepository.save(TerrariumConverter.toTerrarium(createdMember, defaultFlower));
