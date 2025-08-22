@@ -81,6 +81,9 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         // 7일 평균 수면 시간 계산 (단위: 분)
         Integer averageSleepMinutes = calculateAverageSleepMinutes(diaries);
 
+        // 데모데이용
+        log.info("[7일 수면 통계 API] ( MemberId = {} ) 7일 수면 통계 API 진행완료", member.getId());
+
         return StatisticConverter.toWeeklyStatisticDTO(startDate, endDate, averageSleepMinutes, dailySleepDataList);
     }
 
@@ -148,6 +151,9 @@ public class StatisticQueryService implements StatisticQueryUseCase {
         // 30일 평균 수면 시간 계산 (단위: 분)
         Integer averageSleepMinutes = calculateAverageSleepMinutes(diaries);
 
+        // 데모데이용
+        log.info("[30일 수면 통계 API] ( MemberId = {} ) 30일 수면 통계 API 진행완료", member.getId());
+
         return StatisticConverter.toMonthlySleepStatisticDTO(startDate, endDate, averageSleepMinutes, weeklySleepDataList);
     }
 
@@ -189,6 +195,9 @@ public class StatisticQueryService implements StatisticQueryUseCase {
 
         // 최다 감정 계산 (동률일 경우 랜덤으로 선택)
         Emotion mostFrequentEmotion = selectMostFrequentEmotion(emotionMap);
+
+        // 데모데이용
+        log.info("[{}일 감정 통계 API] ( MemberId = {} ) {}일 감정 통계 API 진행완료", range, member.getId(), range);
 
         return StatisticConverter.toEmotionStatisticDTO(startDate, endDate, mostFrequentEmotion, emotionMap);
     }

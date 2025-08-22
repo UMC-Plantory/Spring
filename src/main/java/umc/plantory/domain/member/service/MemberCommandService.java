@@ -1,6 +1,7 @@
 package umc.plantory.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ import umc.plantory.global.enums.MemberStatus;
 import java.util.List;
 import umc.plantory.domain.term.entity.Term;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberCommandService implements MemberCommandUseCase {
@@ -61,6 +63,9 @@ public class MemberCommandService implements MemberCommandUseCase {
         // 회원 상태 AGREE로 변경
         findMember.updateStatus(MemberStatus.AGREE);
         memberRepository.save(findMember);
+
+        // 데모데이용
+        log.info("[약관 동의 API] ( MemberId = {} ) 약관 동의 API 진행완료", findMember.getId());
 
         // 응답 반환
         return MemberConverter.toTermAgreementResponse(findMember);
@@ -99,6 +104,8 @@ public class MemberCommandService implements MemberCommandUseCase {
      * 미동의한 약관들을 처리하는 메서드
      */
     private void processDisagreedTerms(Member member, List<Long> disagreeTermIdList) {
+        // null 처리
+        if (disagreeTermIdList == null) return;
         for (Long termId : disagreeTermIdList) {
             Term term = getTermOrThrow(termId);
             updateMemberTermAgreement(member, term, false);
@@ -139,6 +146,9 @@ public class MemberCommandService implements MemberCommandUseCase {
 
         // 회원가입 처리
         processMemberSignup(findMember, request);
+
+        // 데모데이용
+        log.info("[회원가입 완료 API] ( MemberId = {} ) 회원가입 완료 API 진행완료", findMember.getId());
 
         // 응답 반환
         return MemberConverter.toMemberSignupResponse(findMember);
@@ -216,6 +226,9 @@ public class MemberCommandService implements MemberCommandUseCase {
 
         memberRepository.save(findMember);
 
+        // 데모데이용
+        log.info("[프로필 업데이트 API] ( MemberId = {} ) 프로필 업데이트 API 진행완료", findMember.getId());
+
         // 응답 반환
         return MemberConverter.toProfileUpdateResponse(findMember);
     }
@@ -229,6 +242,9 @@ public class MemberCommandService implements MemberCommandUseCase {
         // 회원 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // 데모데이용
+        log.info("[로그아웃 API] ( MemberId = {} ) 로그아웃 API 진행완료", member.getId());
 
         // 해당 멤버의 토큰 정보 삭제
         memberTokenRepository.deleteByMember(member);
@@ -249,6 +265,9 @@ public class MemberCommandService implements MemberCommandUseCase {
         
         // 해당 멤버의 토큰 정보 삭제
         memberTokenRepository.deleteByMember(member);
+
+        // 데모데이용
+        log.info("[회원탈퇴 API] ( MemberId = {} ) 회원탈퇴 API 진행완료", member.getId());
     }
 
     // 추가 정보 필수 입력값 검증

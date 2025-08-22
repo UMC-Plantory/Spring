@@ -1,6 +1,7 @@
 package umc.plantory.domain.chat.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.chat.converter.ChatConverter;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
@@ -53,6 +55,9 @@ public class ChatQueryService implements ChatQueryUseCase {
         List<ChatResponseDTO.ChatsDetail> chatsDetailList = chats.stream()
                 .map(ChatConverter::toChatsDetail)
                 .collect(Collectors.toList());
+
+        // 데모데이용
+        log.info("[채팅 내역 조회 API] ( MemberId = {} ) 채팅 내역 조회 API 진행완료", loginedMember.getId());
 
         // 채팅 목록, 다음 페이지 존재 여부, 다음 커서를 포함한 응답 DTO 생성 및 반환
         return ChatConverter.toChatsResponse(chatsDetailList, hasNext, nextCursor);

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.plantory.domain.kakao.service.KakaoOidcService;
@@ -16,6 +17,7 @@ import umc.plantory.domain.member.service.MemberQueryUseCase;
 import umc.plantory.domain.token.service.MemberTokenCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
+@Slf4j
 @RestController
 @RequestMapping("/v1/plantory/members")
 @RequiredArgsConstructor
@@ -72,6 +74,9 @@ public class MemberRestController {
 
         // id_token 에서 추출한 데이터를 통해 멤버 조회 OR 생성
         Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(kakaoMemberData);
+
+        // 데모데이용
+        log.info("[KKO 로그인 API] ( MemberId = {} ) 카카오 로그인 API 진행완료", findOrCreateMember.getId());
 
         // 토큰 생성 및 응답
         return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateToken(findOrCreateMember)));

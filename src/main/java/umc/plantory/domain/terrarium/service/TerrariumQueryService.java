@@ -1,6 +1,7 @@
 package umc.plantory.domain.terrarium.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.member.entity.Member;
@@ -20,6 +21,7 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -58,6 +60,9 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
         Integer wateringCanCnt = member.getWateringCanCnt();
         int wateringEventCnt = wateringEventRepository.countByTerrariumId(currentTerrarium.getId());
 
+        // 데모데이용
+        log.info("[현재 키우는 테라리움 조회 API] ( MemberId = {} ) 현재 키우는 테라리움 조회 API 진행완료", member.getId());
+
         return TerrariumConverter.toTerrariumResponse(
                 currentTerrarium.getId(),
                 wateringEventCnt,
@@ -86,6 +91,9 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
 
         List<Terrarium> terrariumList = terrariumRepository.findAllByMemberIdAndIsBloomTrueAndBloomAtYearAndMonth(memberId, date.getYear(), date.getMonthValue());
 
+        // 데모데이용
+        log.info("[월별 테라리움 조회 API] ( MemberId = {} ) 월별 테라리움 조회 API 진행완료", memberId);
+
         return TerrariumConverter.toTerrariumMonthlyListResponse(nickname, terrariumList);
     }
 
@@ -96,7 +104,8 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
      * @return 해당 테라리움 상세 DTO (감정 집계 정보는 포함하지 않음)
      */
     @Override
-    public TerrariumResponseDto.CompletedTerrariumDetailResponse findCompletedTerrariumDetail(Long terrariumId) {
+    public TerrariumResponseDto.CompletedTerrariumDetailResponse findCompletedTerrariumDetail(String authorization, Long terrariumId) {
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
 
         Terrarium terrarium = terrariumRepository.findByIdAndIsBloomTrue(terrariumId)
                 .orElseThrow(() -> new TerrariumHandler(ErrorStatus.TERRARIUM_NOT_FOUND));
@@ -116,6 +125,8 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
                 })
                 .collect(Collectors.toList());
 
+        // 데모데이용
+        log.info("[테라리움 상세 조회 API] ( MemberId = {} ) 테라리움 상세 조회 API 진행완료", memberId);
 
         return TerrariumConverter.toCompletedTerrariumDetatilResponse(terrarium, usedDiaries);
     }

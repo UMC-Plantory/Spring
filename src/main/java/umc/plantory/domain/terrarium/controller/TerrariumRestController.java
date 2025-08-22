@@ -17,7 +17,6 @@ import umc.plantory.domain.terrarium.service.TerrariumQueryUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
 import java.time.YearMonth;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -43,8 +42,8 @@ public class TerrariumRestController {
             @Parameter(description = "테라리움 ID", example = "1") @PathVariable("terrarium-id") Long terrariumId,
             @Parameter(description = "JWT 토큰") @RequestHeader(value = "Authorization", required = false) String authorization) {
 
-        log.info("테라리움 물주기 요청 - terrariumId: {}", terrariumId);
         TerrariumResponseDto.WateringTerrariumResponse response = terrariumCommandUseCase.performTerrariumWatering(authorization, terrariumId);
+
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
@@ -62,7 +61,6 @@ public class TerrariumRestController {
             @Parameter(description = "JWT 토큰")
             @RequestHeader(value = "Authorization", required = false) String authorization) {
 
-        log.info("현재 테라리움 조회 요청");
         TerrariumResponseDto.TerrariumResponse response = terrariumQueryUseCase.findCurrentTerrariumData(authorization);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
@@ -79,7 +77,6 @@ public class TerrariumRestController {
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "조회할 날짜 (yyyy-MM)") @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM") YearMonth date) {
 
-        log.info("월별 개화 완료 테라리움 조회");
         return ResponseEntity.ok(ApiResponse.onSuccess(terrariumQueryUseCase.findCompletedTerrariumsByMonth(authorization, date)));
     }
 
@@ -97,10 +94,10 @@ public class TerrariumRestController {
     })
     @GetMapping("/{terrarium-id}")
     public ResponseEntity<ApiResponse<TerrariumResponseDto.CompletedTerrariumDetailResponse>> getCompletedTerrariumDetail(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "테라리움 ID", example = "1") @PathVariable("terrarium-id") Long terrariumId) {
 
-        log.info("완료된 테라리움 상세 조회 - terrariumId: {}", terrariumId);
-        TerrariumResponseDto.CompletedTerrariumDetailResponse response = terrariumQueryUseCase.findCompletedTerrariumDetail(terrariumId);
+        TerrariumResponseDto.CompletedTerrariumDetailResponse response = terrariumQueryUseCase.findCompletedTerrariumDetail(authorization, terrariumId);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 }
