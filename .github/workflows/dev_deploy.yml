@@ -1,8 +1,8 @@
-name: PLANTORY DEV CI/CD
+name: PLANTORY CI/CD
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ main ]
 
 jobs:
   build:
