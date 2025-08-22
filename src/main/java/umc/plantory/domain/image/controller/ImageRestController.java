@@ -8,10 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import umc.plantory.domain.image.service.ImageUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 import umc.plantory.domain.image.dto.PresignedUrlRequestDTO;
@@ -40,9 +37,10 @@ public class ImageRestController {
     })
     @PostMapping("/presigned-url")
     public ResponseEntity<ApiResponse<PresignedUrlResponseDTO>> getPresignedUrl(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
             @Valid @RequestBody PresignedUrlRequestDTO request
     ) {
-        PresignedUrlResponseDTO response = imageUseCase.createPresignedUrl(request);
+        PresignedUrlResponseDTO response = imageUseCase.createPresignedUrl(authorization, request);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 }

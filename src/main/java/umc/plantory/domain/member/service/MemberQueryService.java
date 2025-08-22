@@ -1,6 +1,7 @@
 package umc.plantory.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.diary.entity.Diary;
@@ -22,8 +23,7 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
-
-
+@Slf4j
 @Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
@@ -42,7 +42,10 @@ public class MemberQueryService implements MemberQueryUseCase {
         // 회원 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
-        
+
+        // 데모데이용
+        log.info("[프로필 조회 API] ( MemberId = {} ) 프로필 조회 API 진행완료", member.getId());
+
         return MemberConverter.toProfileResponse(member);
     }
 
@@ -52,6 +55,9 @@ public class MemberQueryService implements MemberQueryUseCase {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // 데모데이용
+        log.info("[프로필 조회 2 API] ( MemberId = {} ) 프로필 조회 2 API 진행완료", member.getId());
 
         return MemberConverter.toMyProfileResponse(member);
     }
@@ -69,6 +75,9 @@ public class MemberQueryService implements MemberQueryUseCase {
         List<MemberResponseDTO.HomeResponse.DiaryDate> diaryDateList = getMonthlyDiaryDates(member, yearMonth);
         Integer continuousRecordCnt = member.getContinuousRecordCnt();
         Integer wateringCount = calculateWateringCount(member);
+
+        // 데모데이용
+        log.info("[홈화면 API] ( MemberId = {} ) 홈화면 API 진행완료", member.getId());
 
         return MemberConverter.toHomeResponse(member, yearMonth, diaryDateList, continuousRecordCnt, wateringCount);
     }

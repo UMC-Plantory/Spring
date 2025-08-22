@@ -1,6 +1,7 @@
 package umc.plantory.domain.token.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.kakao.converter.KakaoConverter;
@@ -16,6 +17,7 @@ import umc.plantory.global.apiPayload.exception.handler.JwtHandler;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberTokenCommandService implements MemberTokenCommandUseCase {
@@ -71,6 +73,9 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
 
         String newAccessToken = jwtProvider.generateAccessToken(findMemberToken.getMember());
         LocalDateTime accessTokenExpiredAt = jwtProvider.getExpiredAt(newAccessToken);
+
+        // 데모데이용
+        log.info("[토큰 재생성 API] ( MemberId = {} ) 토큰 재생성 API 진행완료", findMemberToken.getMember().getId());
 
         return MemberTokenConverter.toRefreshAccessTokenResponse(newAccessToken, accessTokenExpiredAt);
     }

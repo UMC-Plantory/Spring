@@ -4,9 +4,11 @@ import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import umc.plantory.domain.image.converter.ImageConverter;
+import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.ImageHandler;
 import umc.plantory.domain.image.dto.PresignedUrlRequestDTO;
@@ -20,11 +22,13 @@ import java.util.UUID;
 /**
  * S3 Presigned URL 생성 및 이미지 유효성 검사를 담당하는 서비스
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ImageService implements ImageUseCase {
 
     private final AmazonS3 amazonS3;
+    private final JwtProvider jwtProvider;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -46,7 +50,9 @@ public class ImageService implements ImageUseCase {
      * @return presigned URL과 접근 가능한 URL이 포함된 응답 DTO
      */
     @Override
-    public PresignedUrlResponseDTO createPresignedUrl(PresignedUrlRequestDTO request) {
+    public PresignedUrlResponseDTO createPresignedUrl(String authorization, PresignedUrlRequestDTO request) {
+        Long memberId = jwtProvider.getMemberIdAndValidateToken(authorization);
+
         String extension = extractAndValidateExtension(request.getFileName());
         String fileName = generateFileName(request.getType(), request.getFileName());
         String mimeType = EXTENSION_TO_MIME.get(extension);
@@ -58,6 +64,9 @@ public class ImageService implements ImageUseCase {
 
         URL presignedUrl = amazonS3.generatePresignedUrl(urlRequest);
         String accessUrl = buildAccessUrl(fileName);
+
+        // 데모데이용
+        log.info("[Presigned URL 발급 API] ( MemberId = {} ) Presigned URL 발급 API 진행완료", memberId);
 
         return ImageConverter.toPresignedUrlResponseDTO(presignedUrl.toString(), accessUrl);
     }
