@@ -11,7 +11,7 @@ public class MemberDataDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class KakaoMemberData {
+    public static class MemberData {
         private String email;
         private String sub; // provider_id
     }

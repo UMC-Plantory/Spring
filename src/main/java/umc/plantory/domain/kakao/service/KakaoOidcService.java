@@ -34,7 +34,7 @@ public class KakaoOidcService {
     /**
      * id_token을 검증하고 담겨있는 멤버 데이터 추출하는 메서드
      */
-    public MemberDataDTO.KakaoMemberData verifyAndParseIdToken(MemberRequestDTO.KkoOAuth2LoginRequest request) {
+    public MemberDataDTO.MemberData verifyAndParseIdToken(MemberRequestDTO.KkoOAuth2LoginRequest request) {
         try {
             // JWT 디코드 (헤더 추출)
             String[] parts = request.getIdToken().split("\\.");

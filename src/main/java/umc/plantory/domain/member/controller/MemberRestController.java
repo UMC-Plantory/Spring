@@ -4,8 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import umc.plantory.domain.apple.sevice.AppleOidcService;
 import umc.plantory.domain.kakao.service.KakaoOidcService;
 import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
@@ -16,12 +18,14 @@ import umc.plantory.domain.member.service.MemberQueryUseCase;
 import umc.plantory.domain.token.service.MemberTokenCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
 
+@Slf4j
 @RestController
 @RequestMapping("/v1/plantory/members")
 @RequiredArgsConstructor
 @Tag(name = "Member", description = "회원 관련 API")
 public class MemberRestController {
     private final KakaoOidcService kakaoOidcService;
+    private final AppleOidcService appleOidcService;
     private final MemberCommandUseCase memberCommandUseCase;
     private final MemberQueryUseCase memberQueryUseCase;
     private final MemberTokenCommandUseCase memberTokenService;
@@ -68,13 +72,28 @@ public class MemberRestController {
     @Operation(summary = "KAKAO OAuth2 로그인 API", description = "KAKAO OAuth2 로그인 API 입니다.")
     public ResponseEntity<ApiResponse<MemberResponseDTO.KkoOAuth2LoginResponse>> kkoOAuth2Login (@Valid @RequestBody MemberRequestDTO.KkoOAuth2LoginRequest request) {
         // id_token 검증 후 멤버 데이터 추출
-        MemberDataDTO.KakaoMemberData kakaoMemberData = kakaoOidcService.verifyAndParseIdToken(request);
+        MemberDataDTO.MemberData kakaoMemberData = kakaoOidcService.verifyAndParseIdToken(request);
 
         // id_token 에서 추출한 데이터를 통해 멤버 조회 OR 생성
         Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(kakaoMemberData);
 
         // 토큰 생성 및 응답
-        return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateToken(findOrCreateMember)));
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateKkoLoginToken(findOrCreateMember)));
+    }
+
+    @PatchMapping("/auth/apple")
+    @Operation(summary = "APPLE Oauth2 로그인 API", description = "APPLE OAuth2 로그인 API 입니다.")
+    public ResponseEntity<ApiResponse<MemberResponseDTO.AppleOauth2LoginResponse>> appleOauth2Login (@Valid @RequestBody MemberRequestDTO.AppleOAuth2LoginRequest request) {
+        // identity_token 검증 후 멤버 데이터 추출
+        MemberDataDTO.MemberData appleMemberData = appleOidcService.verifyAndParseIdToken(request);
+
+        // identity_token 에서 추출한 데이터를 통해 멤버 조회 OR 생성
+        Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(appleMemberData);
+
+        // 데모데이용
+        log.info("[애플 로그인 API] ( MemberId = {} ) 애플 로그인 API 진행완료", findOrCreateMember.getId());
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateAppleLoginToken(findOrCreateMember)));
     }
 
     @DeleteMapping("/auth")

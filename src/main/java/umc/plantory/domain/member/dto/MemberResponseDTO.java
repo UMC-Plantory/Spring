@@ -89,6 +89,17 @@ public class MemberResponseDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class AppleOauth2LoginResponse {
+        private String accessToken;
+        private String refreshToken;
+        private LocalDateTime accessTokenExpireAt;
+        private MemberStatus memberStatus;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class RefreshAccessTokenResponse {
         private String accessToken;
         private LocalDateTime accessTokenExpireAt;

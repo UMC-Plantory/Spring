@@ -82,7 +82,7 @@ public class MemberConverter {
                 .build();
     }
 
-    public static Member toMember (MemberDataDTO.KakaoMemberData kakaoMemberData) {
+    public static Member toMember (MemberDataDTO.MemberData kakaoMemberData) {
         return Member.builder()
                 .email(kakaoMemberData.getEmail())
                 .nickname(DEFAULT_NICKNAME)

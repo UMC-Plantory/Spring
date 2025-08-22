@@ -3,6 +3,7 @@ package umc.plantory.domain.token.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.apple.converter.AppleConverter;
 import umc.plantory.domain.kakao.converter.KakaoConverter;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
@@ -23,11 +24,11 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
     private final JwtProvider jwtProvider;
 
     /**
-     * 유저 데이터를 통해 Access/Refresh 토큰 생성하는 메서드
+     * KKO 유저 데이터를 통해 Access/Refresh 토큰 생성하는 메서드
      */
     @Override
     @Transactional
-    public MemberResponseDTO.KkoOAuth2LoginResponse generateToken(Member member) {
+    public MemberResponseDTO.KkoOAuth2LoginResponse generateKkoLoginToken(Member member) {
         MemberToken findMemberToken = memberTokenRepository.findByMember(member)
                 .orElse(null);
 
@@ -51,6 +52,37 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
         }
 
         return KakaoConverter.toKkoOAuth2LoginResponse(member, accessToken, refreshToken, accessTokenExpireAt);
+    }
+
+    /**
+     * APPLE 유저 데이터를 통해 Access/Refresh 토큰 생성하는 메서드
+     */
+    @Override
+    @Transactional
+    public MemberResponseDTO.AppleOauth2LoginResponse generateAppleLoginToken(Member member) {
+        MemberToken findMemberToken = memberTokenRepository.findByMember(member)
+                .orElse(null);
+
+        // Access Token 생성
+        String accessToken = jwtProvider.generateAccessToken(member);
+        // Refresh Token 생성
+        String refreshToken = jwtProvider.generateRefreshToken(member);
+        // Access Token 만료시간
+        LocalDateTime accessTokenExpireAt = jwtProvider.getExpiredAt(accessToken);
+        // Refresh Token 만료 시간
+        LocalDateTime refreshTokenExpireAt = jwtProvider.getExpiredAt(refreshToken);
+
+        // 이미 MemberToken 이 있다면 UPDATE, 없다면 INSERT
+        if (findMemberToken == null) {
+            // MemberToken 에 저장
+            memberTokenRepository.save(MemberTokenConverter.toMemberToken(member, refreshToken, refreshTokenExpireAt));
+        } else {
+            // MemberToken Update
+            findMemberToken.updateRefreshTokenAndExpireAt(refreshToken, refreshTokenExpireAt);
+            memberTokenRepository.save(findMemberToken);
+        }
+
+        return AppleConverter.toAppleOauth2LoginResponse(member, accessToken, refreshToken, accessTokenExpireAt);
     }
 
     /**
