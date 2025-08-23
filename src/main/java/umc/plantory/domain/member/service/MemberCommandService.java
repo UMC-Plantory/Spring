@@ -29,6 +29,7 @@ import umc.plantory.global.enums.MemberStatus;
 
 import java.util.List;
 import umc.plantory.domain.term.entity.Term;
+import umc.plantory.global.enums.Provider;
 
 @Slf4j
 @Service
@@ -294,16 +295,16 @@ public class MemberCommandService implements MemberCommandUseCase {
      * id_token 에서 추출한 멤버 데이터를 통해
      * 기존 회원이라면 조회해서 가져오고
      * 첫 로그인이면 데이터 저장하는 메서드
-     * @param kakaoMemberData : id_token 에서 추출한 멤버 데이터
+     * @param memberData : id_token 에서 추출한 멤버 데이터
      * @return : 추출한 멤버 데이터와 일치하는 멤버
      */
     @Override
     @Transactional
-    public Member findOrCreateMember(MemberDataDTO.MemberData memberData) {
+    public Member findOrCreateMember(MemberDataDTO.MemberData memberData, Provider provider) {
         return memberRepository.findByProviderId(memberData.getSub())
                 .orElseGet(() -> {
                     // 새 멤버 생성
-                    Member createdMember = memberRepository.save(MemberConverter.toMember(memberData));
+                    Member createdMember = memberRepository.save(MemberConverter.toMember(memberData, provider));
                     Flower defaultFlower = flowerRepository.findByEmotion(Emotion.DEFAULT);
                     // 새 테라리움 생성
                     terrariumRepository.save(TerrariumConverter.toTerrarium(createdMember, defaultFlower));
