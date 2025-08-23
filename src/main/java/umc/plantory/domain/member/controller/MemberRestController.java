@@ -17,6 +17,7 @@ import umc.plantory.domain.member.service.MemberCommandUseCase;
 import umc.plantory.domain.member.service.MemberQueryUseCase;
 import umc.plantory.domain.token.service.MemberTokenCommandUseCase;
 import umc.plantory.global.apiPayload.ApiResponse;
+import umc.plantory.global.enums.Provider;
 
 @Slf4j
 @RestController
@@ -75,7 +76,7 @@ public class MemberRestController {
         MemberDataDTO.MemberData kakaoMemberData = kakaoOidcService.verifyAndParseIdToken(request);
 
         // id_token 에서 추출한 데이터를 통해 멤버 조회 OR 생성
-        Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(kakaoMemberData);
+        Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(kakaoMemberData, Provider.KAKAO);
 
         // 데모데이용
         log.info("[KKO 로그인 API] ( MemberId = {} ) 카카오 로그인 API 진행완료", findOrCreateMember.getId());
@@ -91,7 +92,7 @@ public class MemberRestController {
         MemberDataDTO.MemberData appleMemberData = appleOidcService.verifyAndParseIdToken(request);
 
         // identity_token 에서 추출한 데이터를 통해 멤버 조회 OR 생성
-        Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(appleMemberData);
+        Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(appleMemberData, Provider.APPLE);
 
         // 데모데이용
         log.info("[애플 로그인 API] ( MemberId = {} ) 애플 로그인 API 진행완료", findOrCreateMember.getId());
