@@ -1,5 +1,6 @@
 package umc.plantory.domain.statistic.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,7 +36,9 @@ public class StatisticResponseDTO {
         private Integer day;
         private LocalDate date;
         private DayOfWeek weekday;
+        @JsonFormat(pattern = "HH:mm:ss")
         private LocalTime sleepStartTime;
+        @JsonFormat(pattern = "HH:mm:ss")
         private LocalTime sleepEndTime;
     }
 
