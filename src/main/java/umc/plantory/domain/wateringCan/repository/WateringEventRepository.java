@@ -15,4 +15,5 @@ public interface WateringEventRepository extends JpaRepository<WateringEvent, Lo
     List<WateringCan> findWateringCanListByTerrariumId(@Param("terrariumId") Long terrariumId);
     Integer countByTerrarium(Terrarium terrarium);
     List<WateringEvent> findAllByTerrarium(Terrarium terrarium);
+    List<WateringEvent> findAllByTerrariumIn(List<Terrarium> terrariumList);
 }
