@@ -37,7 +37,7 @@ public class MemberRequestDTO {
         private Gender gender;
         @NotNull(message = "생년월일은 필수입니다.")
         private LocalDate birth;
-        @NotNull(message = "프로필 이미지는 필수입니다.")
+        // null 가능
         private String profileImgUrl;
     }
 
