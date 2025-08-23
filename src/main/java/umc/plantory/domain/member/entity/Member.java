@@ -144,4 +144,8 @@ public class Member extends BaseEntity {
         this.wateringCanCnt = 30;
         this.totalRecordCnt = 30;
     }
+
+    public void updateMemberWateringCanCnt() {
+        this.wateringCanCnt = 30;
+    }
 }

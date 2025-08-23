@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.diary.entity.Diary;
+import umc.plantory.domain.diary.repository.DiaryRepository;
 import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.flower.repository.FlowerRepository;
 import umc.plantory.domain.member.converter.MemberConverter;
@@ -18,15 +20,19 @@ import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
+import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
+import umc.plantory.domain.wateringCan.entity.WateringEvent;
+import umc.plantory.domain.wateringCan.repository.WateringEventRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TermHandler;
 import umc.plantory.global.enums.Emotion;
 import umc.plantory.global.enums.MemberStatus;
 
+import java.time.LocalDate;
 import java.util.List;
 import umc.plantory.domain.term.entity.Term;
 import umc.plantory.global.enums.Provider;
@@ -42,6 +48,9 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final MemberTokenRepository memberTokenRepository;
     private final TerrariumRepository terrariumRepository;
     private final FlowerRepository flowerRepository;
+
+    private final WateringEventRepository wateringEventRepository;
+    private final DiaryRepository diaryRepository;
 
     // 데모데이용 - 삭제 예정
     private final ApplicationEventPublisher eventPublisher;
@@ -247,8 +256,24 @@ public class MemberCommandService implements MemberCommandUseCase {
         // 데모데이용
         log.info("[로그아웃 API] ( MemberId = {} ) 로그아웃 API 진행완료", member.getId());
 
+
         // 해당 멤버의 토큰 정보 삭제
         memberTokenRepository.deleteByMember(member);
+
+
+        List<Terrarium> terrariumList = terrariumRepository.findAllByMemberAndIsBloomTrue(member);
+        List<WateringEvent> wateringEventList = wateringEventRepository.findAllByTerrariumIn(terrariumList);
+        if (diaryRepository.findByMemberAndDiaryDate(member, LocalDate.now()).isPresent()) {
+            Diary diary = diaryRepository.findByMemberAndDiaryDate(member, LocalDate.now()).get();
+            terrariumRepository.deleteAll(terrariumList);
+            wateringEventRepository.deleteAll(wateringEventList);
+            diaryRepository.delete(diary);
+            member.updateMemberWateringCanCnt();
+        } else {
+            terrariumRepository.deleteAll(terrariumList);
+            wateringEventRepository.deleteAll(wateringEventList);
+            member.updateMemberWateringCanCnt();
+        }
     }
 
     @Override

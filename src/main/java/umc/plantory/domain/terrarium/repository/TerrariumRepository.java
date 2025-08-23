@@ -18,4 +18,5 @@ public interface TerrariumRepository extends JpaRepository<Terrarium, Long> {
             "AND FUNCTION('YEAR', t.bloomAt) = :year " +
             "AND FUNCTION('MONTH', t.bloomAt) = :month")
     List<Terrarium> findAllByMemberIdAndIsBloomTrueAndBloomAtYearAndMonth(@Param("memberId") Long memberId, @Param("year") int year, @Param("month") int month);
+    List<Terrarium> findAllByMemberAndIsBloomTrue(Member member);
 }
