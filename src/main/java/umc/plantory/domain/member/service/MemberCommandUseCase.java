@@ -4,6 +4,7 @@ import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
+import umc.plantory.global.enums.Provider;
 
 public interface MemberCommandUseCase {
     MemberResponseDTO.TermAgreementResponse termAgreement(String authorization, MemberRequestDTO.TermAgreementRequest request);
@@ -11,5 +12,5 @@ public interface MemberCommandUseCase {
     MemberResponseDTO.ProfileUpdateResponse updateProfile(String authorization, MemberRequestDTO.ProfileUpdateRequest request);
     void logout(String authorization);
     void delete(String authorization);
-    Member findOrCreateMember(MemberDataDTO.MemberData memberData);
+    Member findOrCreateMember(MemberDataDTO.MemberData memberData, Provider provider);
 }
