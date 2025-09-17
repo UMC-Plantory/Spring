@@ -56,9 +56,6 @@ public class ChatQueryService implements ChatQueryUseCase {
                 .map(ChatConverter::toChatsDetail)
                 .collect(Collectors.toList());
 
-        // 데모데이용
-        log.info("[채팅 내역 조회 API] ( MemberId = {} ) 채팅 내역 조회 API 진행완료", loginedMember.getId());
-
         // 채팅 목록, 다음 페이지 존재 여부, 다음 커서를 포함한 응답 DTO 생성 및 반환
         return ChatConverter.toChatsResponse(chatsDetailList, hasNext, nextCursor);
     }

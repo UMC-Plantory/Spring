@@ -43,9 +43,6 @@ public class MemberQueryService implements MemberQueryUseCase {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        // 데모데이용
-        log.info("[프로필 조회 API] ( MemberId = {} ) 프로필 조회 API 진행완료", member.getId());
-
         return MemberConverter.toProfileResponse(member);
     }
 
@@ -55,9 +52,6 @@ public class MemberQueryService implements MemberQueryUseCase {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
-
-        // 데모데이용
-        log.info("[프로필 조회 2 API] ( MemberId = {} ) 프로필 조회 2 API 진행완료", member.getId());
 
         return MemberConverter.toMyProfileResponse(member);
     }
@@ -75,9 +69,6 @@ public class MemberQueryService implements MemberQueryUseCase {
         List<MemberResponseDTO.HomeResponse.DiaryDate> diaryDateList = getMonthlyDiaryDates(member, yearMonth);
         Integer continuousRecordCnt = member.getContinuousRecordCnt();
         Integer wateringCount = calculateWateringCount(member);
-
-        // 데모데이용
-        log.info("[홈화면 API] ( MemberId = {} ) 홈화면 API 진행완료", member.getId());
 
         return MemberConverter.toHomeResponse(member, yearMonth, diaryDateList, continuousRecordCnt, wateringCount);
     }
