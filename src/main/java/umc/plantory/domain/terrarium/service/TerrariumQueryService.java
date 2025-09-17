@@ -60,9 +60,6 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
         Integer wateringCanCnt = member.getWateringCanCnt();
         int wateringEventCnt = wateringEventRepository.countByTerrariumId(currentTerrarium.getId());
 
-        // 데모데이용
-        log.info("[현재 키우는 테라리움 조회 API] ( MemberId = {} ) 현재 키우는 테라리움 조회 API 진행완료", member.getId());
-
         return TerrariumConverter.toTerrariumResponse(
                 currentTerrarium.getId(),
                 wateringEventCnt,
@@ -90,9 +87,6 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
         String nickname = memberRepository.findNicknameById(memberId);
 
         List<Terrarium> terrariumList = terrariumRepository.findAllByMemberIdAndIsBloomTrueAndBloomAtYearAndMonth(memberId, date.getYear(), date.getMonthValue());
-
-        // 데모데이용
-        log.info("[월별 테라리움 조회 API] ( MemberId = {} ) 월별 테라리움 조회 API 진행완료", memberId);
 
         return TerrariumConverter.toTerrariumMonthlyListResponse(nickname, terrariumList);
     }
@@ -124,9 +118,6 @@ public class TerrariumQueryService implements TerrariumQueryUseCase {
                             .build();
                 })
                 .collect(Collectors.toList());
-
-        // 데모데이용
-        log.info("[테라리움 상세 조회 API] ( MemberId = {} ) 테라리움 상세 조회 API 진행완료", memberId);
 
         return TerrariumConverter.toCompletedTerrariumDetatilResponse(terrarium, usedDiaries);
     }

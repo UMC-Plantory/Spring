@@ -65,9 +65,6 @@ public class ImageService implements ImageUseCase {
         URL presignedUrl = amazonS3.generatePresignedUrl(urlRequest);
         String accessUrl = buildAccessUrl(fileName);
 
-        // 데모데이용
-        log.info("[Presigned URL 발급 API] ( MemberId = {} ) Presigned URL 발급 API 진행완료", memberId);
-
         return ImageConverter.toPresignedUrlResponseDTO(presignedUrl.toString(), accessUrl);
     }
 

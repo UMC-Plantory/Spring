@@ -112,9 +112,6 @@ public class ChatCommandService implements ChatCommandUseCase {
         chatRepository.save(ChatConverter.toChat(request.getContent(), member, true, userSentAt, MessageType.USER));
         chatRepository.save(ChatConverter.toChat(response, member, false, assistantSentAt, MessageType.ASSISTANT));
 
-        // 데모데이용
-        log.info("[채팅 API] ( MemberId = {} ) 채팅 API 진행완료", member.getId());
-
         return ChatConverter.toChatResponseDTO(response, assistantSentAt, false);
     }
 

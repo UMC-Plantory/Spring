@@ -85,9 +85,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             diary.updateTempSavedAt(LocalDateTime.now());
         }
 
-        // 데모데이용
-        log.info("[일기 작성 API] ( MemberId = {} ) 일기 작성 API 진행완료", member.getId());
-
         return DiaryConverter.toDiaryInfoDTO(diary, imageUrl);
     }
 
@@ -143,9 +140,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             handleWateringCan(diary, member);
         }
 
-        // 데모데이용
-        log.info("[일기 수정 API] ( MemberId = {} ) 일기 수정 API 진행완료", member.getId());
-
         return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
     }
 
@@ -168,9 +162,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             throw new DiaryHandler(ErrorStatus.DIARY_INVALID_STATUS);
         }
 
-        // 데모데이용
-        log.info("[일기 스크랩 API] ( MemberId = {} ) 일기 스크랩 API 진행완료", member.getId());
-
         diary.updateStatus(DiaryStatus.SCRAP);
     }
 
@@ -192,9 +183,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         if (diary.getStatus() != DiaryStatus.SCRAP) {
             throw new DiaryHandler(ErrorStatus.DIARY_INVALID_STATUS);
         }
-
-        // 데모데이용
-        log.info("[일기 스크랩 취소 API] ( MemberId = {} ) 일기 스크랩 취소 API 진행완료", member.getId());
 
         diary.updateStatus(DiaryStatus.NORMAL);
     }
@@ -228,9 +216,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             // tempSavedAt 기록
             diary.updateTempSavedAt(LocalDateTime.now());
         }
-
-        // 데모데이용
-        log.info("[일기 임시 보관 API] ( MemberId = {} ) 일기 임시 보관 API 진행완료", member.getId());
     }
 
     /**
@@ -262,9 +247,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             // deletedAt 기록
             diary.updateDeletedAt(LocalDateTime.now());
         }
-
-        // 데모데이용
-        log.info("[일기 휴지통 이동 API] ( MemberId = {} ) 일기 휴지통 이동 API 진행완료", member.getId());
     }
 
     /**
@@ -295,9 +277,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
             diaryRepository.delete(diary);
         }
-
-        // 데모데이용
-        log.info("[일기 영구 삭제 API] ( MemberId = {} ) 일기 영구 삭제 API 진행완료", member.getId());
     }
 
     // 로그인한 사용자 반환

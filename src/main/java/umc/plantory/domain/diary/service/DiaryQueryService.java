@@ -54,9 +54,6 @@ public class DiaryQueryService implements DiaryQueryUseCase {
                 .map(DiaryImg::getDiaryImgUrl)
                 .orElse(null);
 
-        // 데모데이용
-        log.info("[단일 일기 조회 API] ( MemberId = {} ) 단일 일기 조회 API 진행완료", member.getId());
-
         return DiaryConverter.toDiaryInfoDTO(diary, imageUrl);
     }
 
@@ -76,9 +73,6 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         Diary diary = diaryRepository.findByMemberIdAndDiaryDateAndStatusIn(member.getId(), date, List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP))
                 .orElseThrow(() -> new DiaryHandler(ErrorStatus.DIARY_NOT_FOUND));
 
-        // 데모데이용
-        log.info("[홈용 일기 조회 API] ( MemberId = {} ) 홈용 일기 조회 API 진행완료", member.getId());
-
         return DiaryConverter.toDiarySimpleInfoDTO(diary);
     }
 
@@ -96,9 +90,6 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         // 해당 날짜의 TEMP 상태인 일기 확인
         boolean exists = diaryRepository.existsByMemberIdAndDiaryDateAndStatus(member.getId(), date, DiaryStatus.TEMP);
 
-        // 데모데이용
-        log.info("[임시 보관 일기 조회 API] ( MemberId = {} ) 임시 보관 일기 조회 API 진행완료", member.getId());
-
         return DiaryConverter.toTempDiaryExistsDTO(exists);
     }
 
@@ -113,9 +104,6 @@ public class DiaryQueryService implements DiaryQueryUseCase {
     public DiaryResponseDTO.CursorPaginationDTO<DiaryResponseDTO.DiaryListInfoDTO> getDiaryList(String authorization, DiaryRequestDTO.DiaryFilterDTO request) {
         Long memberId = getLoginMember(authorization).getId();
         List<Diary> diaries = diaryRepository.findFilteredDiaries(memberId, request);
-
-        // 데모데이용
-        log.info("[일기 리스트 필터 조회 API] ( MemberId = {} ) 일기 리스트 필터 조회 API 진행완료", memberId);
 
         return toCursorPagination(diaries, request.getSize());
     }
@@ -147,9 +135,6 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         // 검색된 일기 총 개수
         long total = diaryRepository.countDiariesByKeyword(memberId, keyword);
 
-        // 데모데이용
-        log.info("[일기 검색 API] ( MemberId = {} ) 일기 검색 API 진행완료", memberId);
-
         return DiaryConverter.toCursorPaginationWithTotalDTO(content, hasNext, nextCursor, total);
     }
 
@@ -167,9 +152,6 @@ public class DiaryQueryService implements DiaryQueryUseCase {
         Long memberId = getLoginMember(authorization).getId();
         List<Diary> diaries = diaryRepository.findScrappedDiaries(memberId, sort, cursor, size);
 
-        // 데모데이용
-        log.info("[스크랩 일기 리스트 조회 API] ( MemberId = {} ) 스크랩 일기 리스트 조회 API 진행완료", memberId);
-
         return toCursorPagination(diaries, size);
     }
 
@@ -184,9 +166,6 @@ public class DiaryQueryService implements DiaryQueryUseCase {
     public DiaryResponseDTO.DiaryListDTO getTempDiaryList(String authorization, String sort) {
         Member member = getLoginMember(authorization);
 
-        // 데모데이용
-        log.info("[임시 보관 일기 리스트 조회 API] ( MemberId = {} ) 임시 보관 일기 리스트 조회 API 진행완료", member.getId());
-
         return getDiaryListByStatus(member, DiaryStatus.TEMP, sort);
     }
 
@@ -200,9 +179,6 @@ public class DiaryQueryService implements DiaryQueryUseCase {
     @Override
     public DiaryResponseDTO.DiaryListDTO getDeletedDiaryList(String authorization, String sort) {
         Member member = getLoginMember(authorization);
-
-        // 데모데이용
-        log.info("[휴지통 일기 리스트 조회 API] ( MemberId = {} ) 휴지통 일기 리스트 조회 API 진행완료", member.getId());
 
         return getDiaryListByStatus(member, DiaryStatus.DELETE, sort);
     }
