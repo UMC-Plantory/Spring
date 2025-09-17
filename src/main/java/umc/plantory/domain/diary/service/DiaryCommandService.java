@@ -85,7 +85,10 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             diary.updateTempSavedAt(LocalDateTime.now());
         }
 
-        return DiaryConverter.toDiaryInfoDTO(diary, imageUrl);
+        // ai 코멘트 추가
+        String aiComment = "";
+
+        return DiaryConverter.toDiaryInfoDTO(diary, imageUrl, aiComment);
     }
 
     /**
@@ -140,7 +143,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             handleWateringCan(diary, member);
         }
 
-        return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
+        return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl, "");
     }
 
     /**

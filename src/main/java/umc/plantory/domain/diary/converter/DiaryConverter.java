@@ -33,7 +33,7 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.DiaryInfoDTO toDiaryInfoDTO(Diary diary, String imageUrl) {
+    public static DiaryResponseDTO.DiaryInfoDTO toDiaryInfoDTO(Diary diary, String imageUrl, String aiComment) {
         return DiaryResponseDTO.DiaryInfoDTO.builder()
                 .diaryId(diary.getId())
                 .diaryDate(diary.getDiaryDate())
@@ -42,6 +42,7 @@ public class DiaryConverter {
                 .content(diary.getContent())
                 .diaryImgUrl(imageUrl)
                 .status(diary.getStatus())
+                .aiComment(aiComment != null ? aiComment : "")
                 .build();
     }
 
