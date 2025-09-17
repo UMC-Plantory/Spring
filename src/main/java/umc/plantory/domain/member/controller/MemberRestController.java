@@ -78,9 +78,6 @@ public class MemberRestController {
         // id_token 에서 추출한 데이터를 통해 멤버 조회 OR 생성
         Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(kakaoMemberData, Provider.KAKAO);
 
-        // 데모데이용
-        log.info("[KKO 로그인 API] ( MemberId = {} ) 카카오 로그인 API 진행완료", findOrCreateMember.getId());
-
         // 토큰 생성 및 응답
         return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateKkoLoginToken(findOrCreateMember)));
     }
@@ -93,9 +90,6 @@ public class MemberRestController {
 
         // identity_token 에서 추출한 데이터를 통해 멤버 조회 OR 생성
         Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(appleMemberData, Provider.APPLE);
-
-        // 데모데이용
-        log.info("[애플 로그인 API] ( MemberId = {} ) 애플 로그인 API 진행완료", findOrCreateMember.getId());
 
         return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateAppleLoginToken(findOrCreateMember)));
     }

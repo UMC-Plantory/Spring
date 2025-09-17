@@ -79,9 +79,6 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
             // 2번째 단계 시간 업데이트
             terrarium.updateSecondStepDate(LocalDate.now());
 
-            // 데모데이용
-            log.info("[물주기 API] ( MemberId = {} ) 물주기 API 진행완료", member.getId());
-
             return TerrariumConverter.toDefaultWateringTerrariumResponse(currentWateringCnt, member.getWateringCanCnt());
         } else if (currentWateringCnt == thirdStepComplete) {
             // 3번째 단계 진입 시 업데이트 필요한 데이터 업데이트
@@ -123,16 +120,8 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
             Flower defaultFlower = flowerRepository.findByEmotion(Emotion.DEFAULT);
             terrariumRepository.save(TerrariumConverter.toTerrarium(member, defaultFlower));
 
-            // 데모데이용
-            log.info("[물주기 API] ( MemberId = {} ) 물주기 API 진행완료", member.getId());
-
             return TerrariumConverter.toBloomWateringTerrariumResponse(currentWateringCnt, member.getWateringCanCnt(), emotionList, flower, member);
-        } else {
-            // 데모데이용
-            log.info("[물주기 API] ( MemberId = {} ) 물주기 API 진행완료", member.getId());
-
-            return TerrariumConverter.toDefaultWateringTerrariumResponse(currentWateringCnt, member.getWateringCanCnt());
-        }
+        } else return TerrariumConverter.toDefaultWateringTerrariumResponse(currentWateringCnt, member.getWateringCanCnt());
     }
 
     /**

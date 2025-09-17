@@ -2,11 +2,8 @@ package umc.plantory.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import umc.plantory.domain.diary.entity.Diary;
-import umc.plantory.domain.diary.repository.DiaryRepository;
 import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.flower.repository.FlowerRepository;
 import umc.plantory.domain.member.converter.MemberConverter;
@@ -14,25 +11,20 @@ import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
 import umc.plantory.domain.member.entity.Member;
-import umc.plantory.domain.member.event.MemberEvent;
 import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
-import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
-import umc.plantory.domain.wateringCan.entity.WateringEvent;
-import umc.plantory.domain.wateringCan.repository.WateringEventRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TermHandler;
 import umc.plantory.global.enums.Emotion;
 import umc.plantory.global.enums.MemberStatus;
 
-import java.time.LocalDate;
 import java.util.List;
 import umc.plantory.domain.term.entity.Term;
 import umc.plantory.global.enums.Provider;
@@ -48,12 +40,6 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final MemberTokenRepository memberTokenRepository;
     private final TerrariumRepository terrariumRepository;
     private final FlowerRepository flowerRepository;
-
-    private final WateringEventRepository wateringEventRepository;
-    private final DiaryRepository diaryRepository;
-
-    // 데모데이용 - 삭제 예정
-    private final ApplicationEventPublisher eventPublisher;
 
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
@@ -73,9 +59,6 @@ public class MemberCommandService implements MemberCommandUseCase {
         // 회원 상태 AGREE로 변경
         findMember.updateStatus(MemberStatus.AGREE);
         memberRepository.save(findMember);
-
-        // 데모데이용
-        log.info("[약관 동의 API] ( MemberId = {} ) 약관 동의 API 진행완료", findMember.getId());
 
         // 응답 반환
         return MemberConverter.toTermAgreementResponse(findMember);
@@ -157,9 +140,6 @@ public class MemberCommandService implements MemberCommandUseCase {
         // 회원가입 처리
         processMemberSignup(findMember, request);
 
-        // 데모데이용
-        log.info("[회원가입 완료 API] ( MemberId = {} ) 회원가입 완료 API 진행완료", findMember.getId());
-
         // 응답 반환
         return MemberConverter.toMemberSignupResponse(findMember);
     }
@@ -236,9 +216,6 @@ public class MemberCommandService implements MemberCommandUseCase {
 
         memberRepository.save(findMember);
 
-        // 데모데이용
-        log.info("[프로필 업데이트 API] ( MemberId = {} ) 프로필 업데이트 API 진행완료", findMember.getId());
-
         // 응답 반환
         return MemberConverter.toProfileUpdateResponse(findMember);
     }
@@ -253,27 +230,8 @@ public class MemberCommandService implements MemberCommandUseCase {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        // 데모데이용
-        log.info("[로그아웃 API] ( MemberId = {} ) 로그아웃 API 진행완료", member.getId());
-
-
         // 해당 멤버의 토큰 정보 삭제
         memberTokenRepository.deleteByMember(member);
-
-
-        List<Terrarium> terrariumList = terrariumRepository.findAllByMemberAndIsBloomTrue(member);
-        List<WateringEvent> wateringEventList = wateringEventRepository.findAllByTerrariumIn(terrariumList);
-        if (diaryRepository.findByMemberAndDiaryDate(member, LocalDate.now()).isPresent()) {
-            Diary diary = diaryRepository.findByMemberAndDiaryDate(member, LocalDate.now()).get();
-            terrariumRepository.deleteAll(terrariumList);
-            wateringEventRepository.deleteAll(wateringEventList);
-            diaryRepository.delete(diary);
-            member.updateMemberWateringCanCnt();
-        } else {
-            terrariumRepository.deleteAll(terrariumList);
-            wateringEventRepository.deleteAll(wateringEventList);
-            member.updateMemberWateringCanCnt();
-        }
     }
 
     @Override
@@ -291,9 +249,6 @@ public class MemberCommandService implements MemberCommandUseCase {
         
         // 해당 멤버의 토큰 정보 삭제
         memberTokenRepository.deleteByMember(member);
-
-        // 데모데이용
-        log.info("[회원탈퇴 API] ( MemberId = {} ) 회원탈퇴 API 진행완료", member.getId());
     }
 
     // 추가 정보 필수 입력값 검증
@@ -331,11 +286,9 @@ public class MemberCommandService implements MemberCommandUseCase {
                     // 새 멤버 생성
                     Member createdMember = memberRepository.save(MemberConverter.toMember(memberData, provider));
                     Flower defaultFlower = flowerRepository.findByEmotion(Emotion.DEFAULT);
+
                     // 새 테라리움 생성
                     terrariumRepository.save(TerrariumConverter.toTerrarium(createdMember, defaultFlower));
-
-                    // 더미데이터 생성 (데모데이용 - 삭제 예정) -> AFTER_COMMIT 리스너가 처리
-                    eventPublisher.publishEvent(new MemberEvent(createdMember));
 
                     return createdMember;
                 });

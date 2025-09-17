@@ -106,9 +106,6 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
         String newAccessToken = jwtProvider.generateAccessToken(findMemberToken.getMember());
         LocalDateTime accessTokenExpiredAt = jwtProvider.getExpiredAt(newAccessToken);
 
-        // 데모데이용
-        log.info("[토큰 재생성 API] ( MemberId = {} ) 토큰 재생성 API 진행완료", findMemberToken.getMember().getId());
-
         return MemberTokenConverter.toRefreshAccessTokenResponse(newAccessToken, accessTokenExpiredAt);
     }
 }
