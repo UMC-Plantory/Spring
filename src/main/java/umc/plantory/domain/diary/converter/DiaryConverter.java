@@ -13,7 +13,7 @@ import java.util.List;
 
 public class DiaryConverter {
 
-    public static Diary toDiary(DiaryRequestDTO.DiaryUploadDTO request, Member member, String title) {
+    public static Diary toDiary(DiaryRequestDTO.DiaryUploadDTO request, Member member, String title, String aiComment) {
         return Diary.builder()
                 .title(title)
                 .diaryDate(request.getDiaryDate())
@@ -23,6 +23,7 @@ public class DiaryConverter {
                 .sleepEndTime(request.getSleepEndTime())
                 .status(DiaryStatus.valueOf(request.getStatus()))
                 .member(member)
+                .aiComment(aiComment)
                 .build();
     }
 
@@ -33,7 +34,7 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.DiaryInfoDTO toDiaryInfoDTO(Diary diary, String imageUrl, String aiComment) {
+    public static DiaryResponseDTO.DiaryInfoDTO toDiaryInfoDTO(Diary diary, String imageUrl) {
         return DiaryResponseDTO.DiaryInfoDTO.builder()
                 .diaryId(diary.getId())
                 .diaryDate(diary.getDiaryDate())
@@ -42,7 +43,7 @@ public class DiaryConverter {
                 .content(diary.getContent())
                 .diaryImgUrl(imageUrl)
                 .status(diary.getStatus())
-                .aiComment(aiComment != null ? aiComment : "")
+                .aiComment(diary.getAiComment())
                 .build();
     }
 

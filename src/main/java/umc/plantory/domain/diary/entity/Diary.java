@@ -68,7 +68,8 @@ public class Diary extends BaseEntity {
                        String content,
                        LocalDateTime sleepStartTime,
                        LocalDateTime sleepEndTime,
-                       DiaryStatus status) {
+                       DiaryStatus status,
+                       String aiComment) {
 
         this.emotion = emotion;
         this.title = title;
@@ -76,6 +77,7 @@ public class Diary extends BaseEntity {
         this.sleepStartTime = sleepStartTime;
         this.sleepEndTime = sleepEndTime;
         this.status = status;
+        this.aiComment = aiComment;
     }
 
     public void updateStatus(DiaryStatus status) {
