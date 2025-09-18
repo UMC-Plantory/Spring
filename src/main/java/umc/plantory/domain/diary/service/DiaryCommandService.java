@@ -68,8 +68,12 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 제목 생성
         String diaryTitle = generateDiaryTitle(request.getContent());
 
+        // 코멘트 추가
+        String aiComment = generateDiaryComment(request.getContent(), diaryTitle, request.getEmotion(),
+                request.getSleepStartTime(), request.getSleepEndTime());
+
         // 일기 & 이미지 엔티티 생성 및 저장
-        Diary diary = DiaryConverter.toDiary(request,member, diaryTitle);
+        Diary diary = DiaryConverter.toDiary(request,member, diaryTitle, aiComment);
         diaryRepository.save(diary);
         String imageUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), false);
 
@@ -85,10 +89,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             diary.updateTempSavedAt(LocalDateTime.now());
         }
 
-        // ai 코멘트 추가
-        String aiComment = "";
-
-        return DiaryConverter.toDiaryInfoDTO(diary, imageUrl, aiComment);
+        return DiaryConverter.toDiaryInfoDTO(diary, imageUrl);
     }
 
     /**
@@ -143,7 +144,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             handleWateringCan(diary, member);
         }
 
-        return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl, "");
+        return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
     }
 
     /**
@@ -416,6 +417,12 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     private String generateDiaryTitle(String content) {
         if (content == null) return "임시 제목";
         Prompt prompt = PromptFactory.buildDiaryTitlePrompt(content);
+        return aiClient.getResponse(prompt);
+    }
+
+    // 프롬프트 생성 및 AI 호출 후, 코멘트 응답 받기
+    private String generateDiaryComment(String content, String title, String emotion, LocalDateTime sleepStartTime, LocalDateTime sleepEndTime) {
+        Prompt prompt = PromptFactory.buildDiaryCommentPrompt(content, title, emotion, sleepStartTime, sleepEndTime);
         return aiClient.getResponse(prompt);
     }
 }
