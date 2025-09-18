@@ -45,6 +45,9 @@ public class Diary extends BaseEntity {
     @Column(length = 300)
     private String content;
 
+    @Column(length = 500)
+    private String aiComment;
+
     private LocalDateTime sleepEndTime;
 
     private LocalDateTime sleepStartTime;
