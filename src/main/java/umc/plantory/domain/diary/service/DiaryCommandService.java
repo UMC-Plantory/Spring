@@ -126,10 +126,14 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         }
 
         // 일기 본문 변경 시, 제목 다시 생성
-        String title = request.getContent() != null ? generateDiaryTitle(content) : diary.getTitle();
+        String diaryTitle = request.getContent() != null ? generateDiaryTitle(content) : diary.getTitle();
+
+        // 일기 본문 변경 시, 코멘트 재생성
+        String aiComment = generateDiaryComment(request.getContent(), diaryTitle, request.getEmotion(),
+                request.getSleepStartTime(), request.getSleepEndTime());
 
         // 일기, 이미지 업데이트 처리
-        diary.update(emotion, title, content, sleepStart, sleepEnd, status);
+        diary.update(emotion, diaryTitle, content, sleepStart, sleepEnd, status, aiComment);
         String diaryImgUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), Boolean.TRUE.equals(request.getIsImgDeleted()));
 
         // TEMP 상태일 경우 tempSavedAt 기록
