@@ -31,6 +31,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import static umc.plantory.global.enums.DiaryStatus.VALID_STATUSES;
 
@@ -68,9 +69,12 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 제목 생성
         String diaryTitle = generateDiaryTitle(request.getContent());
 
-        // 코멘트 추가
-        String aiComment = generateDiaryComment(request.getContent(), diaryTitle, request.getEmotion(),
-                request.getSleepStartTime(), request.getSleepEndTime());
+        // 코멘트 추가 (NORMAL 상태일 경우)
+        String aiComment = null;
+        if (DiaryStatus.valueOf(request.getStatus()) == DiaryStatus.NORMAL) {
+            aiComment = generateDiaryComment(request.getContent(), diaryTitle, request.getEmotion(),
+                    request.getSleepStartTime(), request.getSleepEndTime());
+        }
 
         // 일기 & 이미지 엔티티 생성 및 저장
         Diary diary = DiaryConverter.toDiary(request,member, diaryTitle, aiComment);
@@ -128,9 +132,8 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 일기 본문 변경 시, 제목 다시 생성
         String diaryTitle = request.getContent() != null ? generateDiaryTitle(content) : diary.getTitle();
 
-        // 일기 본문 변경 시, 코멘트 재생성
-        String aiComment = generateDiaryComment(request.getContent(), diaryTitle, request.getEmotion(),
-                request.getSleepStartTime(), request.getSleepEndTime());
+        // 필요 시 aiComment 재생성 혹은 신규 생성
+        String aiComment = updateAiCommentIfNeeded(diary, content, diaryTitle, emotion, sleepStart, sleepEnd, status, beforeStatus);
 
         // 일기, 이미지 업데이트 처리
         diary.update(emotion, diaryTitle, content, sleepStart, sleepEnd, status, aiComment);
@@ -428,5 +431,29 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     private String generateDiaryComment(String content, String title, String emotion, LocalDateTime sleepStartTime, LocalDateTime sleepEndTime) {
         Prompt prompt = PromptFactory.buildDiaryCommentPrompt(content, title, emotion, sleepStartTime, sleepEndTime);
         return aiClient.getResponse(prompt);
+    }
+
+    // AI 코멘트 업데이트 필요 여부 판단 및 필요 시 재생성 혹은 신규 생성
+    private String updateAiCommentIfNeeded(Diary diary, String newContent, String newTitle, Emotion newEmotion,
+                                           LocalDateTime newSleepStart, LocalDateTime newSleepEnd,
+                                           DiaryStatus newStatus, DiaryStatus beforeStatus) {
+        // TEMP에서 NORMAL로 변경될 때 (AI 코멘트 최초 생성)
+        if (beforeStatus == DiaryStatus.TEMP && newStatus == DiaryStatus.NORMAL) {
+            return generateDiaryComment(newContent, newTitle, newEmotion != null ? newEmotion.name() : null, newSleepStart, newSleepEnd);
+        }
+
+        // NORMAL 상태에서 내용이 변경될 때 AI 코멘트 재생성
+        if (newStatus == DiaryStatus.NORMAL) {
+            boolean isContentChanged = !Objects.equals(newContent, diary.getContent());
+            boolean isEmotionChanged = newEmotion != diary.getEmotion();
+            boolean isSleepStartChanged = !Objects.equals(newSleepStart, diary.getSleepStartTime());
+            boolean isSleepEndChanged = !Objects.equals(newSleepEnd, diary.getSleepEndTime());
+
+            if (isContentChanged || isEmotionChanged || isSleepStartChanged || isSleepEndChanged) {
+                return generateDiaryComment(newContent, newTitle, newEmotion != null ? newEmotion.name() : null, newSleepStart, newSleepEnd);
+            }
+        }
+        // 변경 필요 없을 시 기존 코멘트 반환
+        return diary.getAiComment();
     }
 }
