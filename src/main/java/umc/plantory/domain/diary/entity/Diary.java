@@ -91,4 +91,9 @@ public class Diary extends BaseEntity {
     public void updateDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
+
+    public void updateTitleAndComment(String title, String aiComment) {
+        this.title = title;
+        this.aiComment = aiComment;
+    }
 }
