@@ -135,7 +135,7 @@ public class PromptFactory {
 
         // 시스템 메시지와 유저 메시지를 포함한 Prompt 객체 생성 및 반환
         return Prompt.builder()
-                .messages(userMessage)
+                .messages(systemMessage, userMessage)
                 .chatOptions(options)
                 .build();
     }
