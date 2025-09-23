@@ -140,7 +140,12 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 1. TEMP -> NORMAL로 변경될 때
         if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {publishAiEvent = true;}
         // 2. NORMAL 상태에서 일기 관련 정보가 변경되었을 때
-        else if (status == DiaryStatus.NORMAL && contentChanged) {publishAiEvent = true;}
+        else if (status == DiaryStatus.NORMAL && contentChanged) {
+            publishAiEvent = true;
+            // 관련 정보가 변경되었을 시 제목, 코멘트 새로 생성
+            diaryTitle = "임시 제목";
+            aiComment = "임시 코멘트";
+        }
 
         // 일기, 이미지 업데이트 처리
         diary.update(emotion, diaryTitle, content, sleepStart, sleepEnd, status, aiComment);
