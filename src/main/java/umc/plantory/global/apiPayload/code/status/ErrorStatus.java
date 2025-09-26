@@ -71,6 +71,7 @@ public enum ErrorStatus implements BaseErrorCode {
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "CHAT4005", "서버 과부하"),
     CHAT_RESPONSE_NONE(HttpStatus.BAD_REQUEST, "CHAT4006", "챗봇 응답이 없습니다."),
     CHAT_RESPONSE_TOO_LONG(HttpStatus.BAD_REQUEST, "CHAT4007", "챗봇 응답이 허용 길이(500자)를 초과했습니다."),
+    CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT4008", "해당 키워드를 포함하는 채팅이 존재하지 않습니다."),
 
     // 테라리움 관련
     TERRARIUM_NOT_FOUND(HttpStatus.NOT_FOUND, "TERRARIUM404", "존재하지 않는 테라리움입니다."),

@@ -5,4 +5,5 @@ import umc.plantory.domain.chat.dto.ChatResponseDTO;
 
 public interface ChatCommandUseCase {
     ChatResponseDTO.ChatResponse ask(String authorization, ChatRequestDTO request);
+    void delete(String authorization);
 }
