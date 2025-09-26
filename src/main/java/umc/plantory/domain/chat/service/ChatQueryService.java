@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.chat.converter.ChatConverter;
 import umc.plantory.domain.chat.dto.ChatResponseDTO;
 import umc.plantory.domain.chat.entity.Chat;
+import umc.plantory.domain.chat.repository.ChatRepository;
 import umc.plantory.domain.chat.repository.ChatRepositoryCustom;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
@@ -28,6 +29,7 @@ public class ChatQueryService implements ChatQueryUseCase {
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
     private final ChatRepositoryCustom chatRepositoryCustom;
+    private final ChatRepository chatRepository;
 
     @Override
     public ChatResponseDTO.ChatsResponse findChatList(String authorization, LocalDateTime cursor, int size) {
@@ -58,6 +60,19 @@ public class ChatQueryService implements ChatQueryUseCase {
 
         // 채팅 목록, 다음 페이지 존재 여부, 다음 커서를 포함한 응답 DTO 생성 및 반환
         return ChatConverter.toChatsResponse(chatsDetailList, hasNext, nextCursor);
+    }
+
+    @Override
+    public ChatResponseDTO.ChatsIdListResponse getChatsByKeyword(String authorization, String keyword) {
+        Member member = getLoginedMember(authorization);
+
+        List<Chat> chats= chatRepository.findByMemberAndContentContainingIgnoreCaseOrderByCreatedAtDesc(member, keyword);
+        List<Long> chatIdList = chats.stream()
+                .map(Chat::getId)
+                .collect(Collectors.toList());
+
+
+        return ChatConverter.toChatsIdListResponse(chatIdList);
     }
 
     // 로그인한 사용자 정보 받아오기

@@ -50,4 +50,12 @@ public class ChatResponseDTO {
         @Schema(description = "사용자 요청인지 챗봇 응답인지", example = "false")
         private Boolean isMember;
     }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChatsIdListResponse {
+        private List<Long> chatsIdList;
+    }
 }

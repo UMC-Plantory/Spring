@@ -45,4 +45,10 @@ public class ChatConverter {
                 .isMember(isMember)
                 .build();
     }
+
+    public static ChatResponseDTO.ChatsIdListResponse toChatsIdListResponse(List<Long> chatIdList) {
+        return ChatResponseDTO.ChatsIdListResponse.builder()
+                .chatsIdList(chatIdList)
+                .build();
+    }
 }

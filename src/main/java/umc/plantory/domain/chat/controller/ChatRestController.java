@@ -72,8 +72,8 @@ public class ChatRestController {
 
     @DeleteMapping
     @Operation(
-            summary = "채팅 내역 초기화",
-            description = "현재까지의, 채팅 내역을 삭제"
+            summary = "채팅창 초기화",
+            description = "지금까지의 채팅 내역을 초기화"
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
@@ -85,4 +85,17 @@ public class ChatRestController {
         chatCommandUseCase.delete(authorization);
         return ResponseEntity.ok(ApiResponse.onSuccess(null));
     };
+
+    @GetMapping("/search")
+    @Operation(
+            summary = "채팅 검색",
+            description = "입력한 단어의 채팅 검색"
+    )
+    public ResponseEntity<ApiResponse<ChatResponseDTO.ChatsIdListResponse>> getChatsByKeyword(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestParam(value = "keyword") String keyword
+    ) {
+        ChatResponseDTO.ChatsIdListResponse result = chatQueryUseCase.getChatsByKeyword(authorization, keyword);
+        return ResponseEntity.ok(ApiResponse.onSuccess(result));
+    }
 }
