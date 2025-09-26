@@ -89,8 +89,12 @@ public class ChatRestController {
     @GetMapping("/search")
     @Operation(
             summary = "채팅 검색",
-            description = "입력한 단어의 채팅 검색"
-    )
+            description = "입력한 단어의 채팅 검색")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "MEMBER4001", description = "존재하지 않는 회원입니다", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHAT4008", description = "해당 키워드를 포함하는 채팅이 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiResponse.class))),
+    })
     public ResponseEntity<ApiResponse<ChatResponseDTO.ChatIdsResponse>> searchChatIdsByKeyword(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestParam(value = "keyword") String keyword

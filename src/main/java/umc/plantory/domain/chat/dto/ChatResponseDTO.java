@@ -56,6 +56,7 @@ public class ChatResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ChatIdsResponse {
+        @Schema(description = "채팅 아이디", example = "[14, 13, 12]")
         private List<Long> chatIdList;
     }
 }

@@ -115,6 +115,13 @@ public class ChatCommandService implements ChatCommandUseCase {
         return ChatConverter.toChatResponseDTO(response, assistantSentAt, false);
     }
 
+    /**
+     * 해당 사용자의 채팅을 초기화합니다.
+     *
+     * @implNote 메모리 및 DB의 정보를 모두 삭제합니다. 삭제는 하드 딜리트로 구현되어 있습니다.
+     *
+     * @param authorization 사용자 정보가 담긴 토큰
+     */
     @Override
     public void delete(String authorization) {
         Member member = getLoginedMember(authorization);
