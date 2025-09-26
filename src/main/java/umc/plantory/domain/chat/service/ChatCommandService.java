@@ -115,6 +115,14 @@ public class ChatCommandService implements ChatCommandUseCase {
         return ChatConverter.toChatResponseDTO(response, assistantSentAt, false);
     }
 
+    @Override
+    public void delete(String authorization) {
+        Member member = getLoginedMember(authorization);
+
+        chatMemory.clear(String.valueOf(member.getId()));
+        chatRepository.deleteByMember(member);
+    }
+
     // 챗봇 응답 에러 처리
     private void validationResponse(String response) {
         // 답변이 없는 경우
