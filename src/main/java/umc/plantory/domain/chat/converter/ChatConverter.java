@@ -46,9 +46,9 @@ public class ChatConverter {
                 .build();
     }
 
-    public static ChatResponseDTO.ChatsIdListResponse toChatsIdListResponse(List<Long> chatIdList) {
-        return ChatResponseDTO.ChatsIdListResponse.builder()
-                .chatsIdList(chatIdList)
+    public static ChatResponseDTO.ChatIdsResponse toChatIdsResponse(List<Long> chatIdList) {
+        return ChatResponseDTO.ChatIdsResponse.builder()
+                .chatIdList(chatIdList)
                 .build();
     }
 }

@@ -6,5 +6,5 @@ import java.time.LocalDateTime;
 
 public interface ChatQueryUseCase {
     ChatResponseDTO.ChatsResponse findChatList(String authorization, LocalDateTime cursor, int size);
-    ChatResponseDTO.ChatsIdListResponse getChatsByKeyword(String authorization, String keyword);
+    ChatResponseDTO.ChatIdsResponse searchChatIdsByKeyword(String authorization, String keyword);
 }

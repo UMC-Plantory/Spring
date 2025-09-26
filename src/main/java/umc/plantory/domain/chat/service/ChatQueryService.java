@@ -63,7 +63,7 @@ public class ChatQueryService implements ChatQueryUseCase {
     }
 
     @Override
-    public ChatResponseDTO.ChatsIdListResponse getChatsByKeyword(String authorization, String keyword) {
+    public ChatResponseDTO.ChatIdsResponse searchChatIdsByKeyword(String authorization, String keyword) {
         Member member = getLoginedMember(authorization);
 
         List<Chat> chats= chatRepository.findByMemberAndContentContainingIgnoreCaseOrderByCreatedAtDesc(member, keyword);
@@ -71,8 +71,7 @@ public class ChatQueryService implements ChatQueryUseCase {
                 .map(Chat::getId)
                 .collect(Collectors.toList());
 
-
-        return ChatConverter.toChatsIdListResponse(chatIdList);
+        return ChatConverter.toChatIdsResponse(chatIdList);
     }
 
     // 로그인한 사용자 정보 받아오기

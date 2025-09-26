@@ -91,11 +91,11 @@ public class ChatRestController {
             summary = "채팅 검색",
             description = "입력한 단어의 채팅 검색"
     )
-    public ResponseEntity<ApiResponse<ChatResponseDTO.ChatsIdListResponse>> getChatsByKeyword(
+    public ResponseEntity<ApiResponse<ChatResponseDTO.ChatIdsResponse>> searchChatIdsByKeyword(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestParam(value = "keyword") String keyword
     ) {
-        ChatResponseDTO.ChatsIdListResponse result = chatQueryUseCase.getChatsByKeyword(authorization, keyword);
+        ChatResponseDTO.ChatIdsResponse result = chatQueryUseCase.searchChatIdsByKeyword(authorization, keyword);
         return ResponseEntity.ok(ApiResponse.onSuccess(result));
     }
 }

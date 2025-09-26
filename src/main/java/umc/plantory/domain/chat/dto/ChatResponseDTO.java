@@ -55,7 +55,7 @@ public class ChatResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ChatsIdListResponse {
-        private List<Long> chatsIdList;
+    public static class ChatIdsResponse {
+        private List<Long> chatIdList;
     }
 }
