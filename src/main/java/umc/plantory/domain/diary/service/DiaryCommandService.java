@@ -67,7 +67,6 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         LocalDate diaryDate = request.getDiaryDate();
         if (diaryRepository.existsByMemberAndDiaryDate(member, diaryDate)) throw new DiaryHandler(ErrorStatus.DUPLICATE_DIARY_DATE);
 
-
         // 일기 제목 지정
         String diaryTitle = "임시 제목";
         // 일기 코멘트 지정
