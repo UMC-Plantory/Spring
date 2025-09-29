@@ -24,6 +24,7 @@ public class DiaryResponseDTO {
         private String content;
         private String diaryImgUrl;
         private DiaryStatus status;
+        private String aiComment;
     }
 
     @Builder

@@ -3,8 +3,10 @@ package umc.plantory.domain.diary.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.diary.event.DiaryAiEvent;
 import umc.plantory.global.ai.AIClient;
 import umc.plantory.global.ai.PromptFactory;
 import umc.plantory.domain.diary.converter.DiaryConverter;
@@ -31,6 +33,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import static umc.plantory.global.enums.DiaryStatus.VALID_STATUSES;
 
@@ -47,7 +50,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     private final WateringCanRepository wateringCanRepository;
     private final ImageUseCase imageUseCase;
     private final JwtProvider jwtProvider;
-    private final AIClient aiClient;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 일기 등록
@@ -65,11 +68,13 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         if (diaryRepository.existsByMemberAndDiaryDate(member, diaryDate)) throw new DiaryHandler(ErrorStatus.DUPLICATE_DIARY_DATE);
 
 
-        // 일기 제목 생성
-        String diaryTitle = generateDiaryTitle(request.getContent());
+        // 일기 제목 지정
+        String diaryTitle = "임시 제목";
+        // 일기 코멘트 지정
+        String aiComment = "임시 코멘트";
 
-        // 일기 & 이미지 엔티티 생성 및 저장
-        Diary diary = DiaryConverter.toDiary(request,member, diaryTitle);
+        // Diary 엔티티 생성 및 저장
+        Diary diary = DiaryConverter.toDiary(request,member, diaryTitle, aiComment);
         diaryRepository.save(diary);
         String imageUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), false);
 
@@ -83,6 +88,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // TEMP 상태일 경우 tempSavedAt 기록
         } else if (diary.getStatus() == DiaryStatus.TEMP) {
             diary.updateTempSavedAt(LocalDateTime.now());
+        }
+
+        // NORMAL 상태일 경우 AI 처리 이벤트 발행
+        if (diary.getStatus() == DiaryStatus.NORMAL) {
+            eventPublisher.publishEvent(new DiaryAiEvent(diary.getId()));
         }
 
         return DiaryConverter.toDiaryInfoDTO(diary, imageUrl);
@@ -107,7 +117,7 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         // 변경 전 상태
         DiaryStatus beforeStatus = diary.getStatus();
-
+        boolean contentChanged = hasContentChanged(diary, request);
         // 일기 내용 업데이트
         Emotion emotion = request.getEmotion() != null ? Emotion.valueOf(request.getEmotion()) : diary.getEmotion();
         String content = request.getContent() != null ? request.getContent() : diary.getContent();
@@ -121,11 +131,24 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             throw new DiaryHandler(ErrorStatus.DIARY_MISSING_FIELDS);
         }
 
-        // 일기 본문 변경 시, 제목 다시 생성
-        String title = request.getContent() != null ? generateDiaryTitle(content) : diary.getTitle();
+        // AI 처리 이전에 diaryTitle, aiComment의 경우 기본적으로 기존 값 유지
+        String diaryTitle = diary.getTitle();
+        String aiComment = diary.getAiComment();
+
+        // AI 이벤트 발행 유무 체크
+        boolean publishAiEvent = false;
+        // 1. TEMP -> NORMAL로 변경될 때
+        if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {publishAiEvent = true;}
+        // 2. NORMAL 상태에서 일기 관련 정보가 변경되었을 때
+        else if (status == DiaryStatus.NORMAL && contentChanged) {
+            publishAiEvent = true;
+            // 관련 정보가 변경되었을 시 제목, 코멘트 새로 생성
+            diaryTitle = "임시 제목";
+            aiComment = "임시 코멘트";
+        }
 
         // 일기, 이미지 업데이트 처리
-        diary.update(emotion, title, content, sleepStart, sleepEnd, status);
+        diary.update(emotion, diaryTitle, content, sleepStart, sleepEnd, status, aiComment);
         String diaryImgUrl = handleDiaryImage(diary, request.getDiaryImgUrl(), Boolean.TRUE.equals(request.getIsImgDeleted()));
 
         // TEMP 상태일 경우 tempSavedAt 기록
@@ -139,6 +162,9 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             handleAvgSleepTime(member, diary.getDiaryDate());
             handleWateringCan(diary, member);
         }
+
+        // AI 이벤트 발행
+        if (publishAiEvent){eventPublisher.publishEvent(new DiaryAiEvent(diary.getId()));}
 
         return DiaryConverter.toDiaryInfoDTO(diary, diaryImgUrl);
     }
@@ -409,10 +435,11 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         }
     }
 
-    // 프롬프트 생성 및 AI 호출 후, 제목 응답 받기
-    private String generateDiaryTitle(String content) {
-        if (content == null) return "임시 제목";
-        Prompt prompt = PromptFactory.buildDiaryTitlePrompt(content);
-        return aiClient.getResponse(prompt);
-    }
+    // 내용 변경 감지를 위한 헬퍼 메서드
+   private boolean hasContentChanged(Diary diary, DiaryRequestDTO.DiaryUpdateDTO request) {
+        return (request.getContent() != null && !request.getContent().equals(diary.getContent())) ||
+        (request.getEmotion() != null && !Emotion.valueOf(request.getEmotion()).equals(diary.getEmotion())) ||
+        (request.getSleepStartTime() != null && !request.getSleepStartTime().equals(diary.getSleepStartTime())) ||
+        (request.getSleepEndTime() != null && !request.getSleepEndTime().equals(diary.getSleepEndTime()));
+   }
 }
