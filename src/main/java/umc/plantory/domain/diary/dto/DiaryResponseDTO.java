@@ -42,7 +42,7 @@ public class DiaryResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class TempDiaryExistsDTO {
+    public static class DiaryExistsDTO {
         private boolean isExist;
     }
 

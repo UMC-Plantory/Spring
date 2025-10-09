@@ -84,13 +84,30 @@ public class DiaryQueryService implements DiaryQueryUseCase {
      * @return TempDiaryExistsDTO 존재 여부
      */
     @Override
-    public DiaryResponseDTO.TempDiaryExistsDTO checkTempDiaryExistence(String authorization, LocalDate date) {
+    public DiaryResponseDTO.DiaryExistsDTO checkTempDiaryExistence(String authorization, LocalDate date) {
         Member member = getLoginMember(authorization);
 
         // 해당 날짜의 TEMP 상태인 일기 확인
         boolean exists = diaryRepository.existsByMemberIdAndDiaryDateAndStatus(member.getId(), date, DiaryStatus.TEMP);
 
-        return DiaryConverter.toTempDiaryExistsDTO(exists);
+        return DiaryConverter.toDiaryExistsDTO(exists);
+    }
+
+    /**
+     * 특정 날짜에 NORMAL 상태 일기가 존재하는지 확인
+     *
+     * @param authorization 요청 헤더의 JWT 토큰
+     * @param date 확인할 날짜
+     * @return DiaryExistsDTO 존재 여부
+     */
+    @Override
+    public DiaryResponseDTO.DiaryExistsDTO checkNormalDiaryExistence(String authorization, LocalDate date) {
+        Member member = getLoginMember(authorization);
+
+        // 해당 날짜의 NORMAL 상태인 일기 확인
+        boolean exists = diaryRepository.existsByMemberIdAndDiaryDateAndStatus(member.getId(), date, DiaryStatus.NORMAL);
+
+        return DiaryConverter.toDiaryExistsDTO(exists);
     }
 
     /**
