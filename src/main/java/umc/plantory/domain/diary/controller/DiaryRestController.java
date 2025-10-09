@@ -214,12 +214,12 @@ public class DiaryRestController {
             description = "yyyy-MM-dd 형식의 날짜를 받아 해당 날짜에 NORMAL 상태의 일기가 존재하는지 확인합니다."
     )
     @GetMapping("/normal-status/exists")
-    public ApiResponse<DiaryResponseDTO.DiaryExistsDTO> checkNormalDiaryExistence(
+    public ResponseEntity<ApiResponse<DiaryResponseDTO.DiaryExistsDTO>> checkNormalDiaryExistence(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "조회할 날짜 (yyyy-MM-dd)") @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         DiaryResponseDTO.DiaryExistsDTO response = diaryQueryUseCase.checkNormalDiaryExistence(authorization, date);
-        return ApiResponse.onSuccess(response);
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
     @Operation(summary = "일기 목록 필터 조회", description = "날짜, 감정, 정렬 기준 + 커서로 일기 리스트를 조회합니다.")
