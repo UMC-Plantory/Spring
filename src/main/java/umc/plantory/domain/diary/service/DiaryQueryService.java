@@ -104,8 +104,10 @@ public class DiaryQueryService implements DiaryQueryUseCase {
     public DiaryResponseDTO.DiaryExistsDTO checkNormalDiaryExistence(String authorization, LocalDate date) {
         Member member = getLoginMember(authorization);
 
-        // 해당 날짜의 NORMAL 상태인 일기 확인
-        boolean exists = diaryRepository.existsByMemberIdAndDiaryDateAndStatus(member.getId(), date, DiaryStatus.NORMAL);
+        // 해당 날짜의 NORMAL, SCRAP 상태인 일기 확인
+        boolean exists = diaryRepository.existsByMemberIdAndDiaryDateAndStatusIn(
+                member.getId(), date, List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP)
+        );
 
         return DiaryConverter.toDiaryExistsDTO(exists);
     }

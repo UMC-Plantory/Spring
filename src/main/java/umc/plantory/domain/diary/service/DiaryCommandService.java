@@ -65,8 +65,9 @@ public class DiaryCommandService implements DiaryCommandUseCase {
 
         LocalDate diaryDate = request.getDiaryDate();
 
-        // NORMAL 상태인 일기가 이미 존재하는지 확인
-        if (diaryRepository.existsByMemberIdAndDiaryDateAndStatus(member.getId(), diaryDate, DiaryStatus.NORMAL)) {
+        // NORMAL, SCRAP 상태인 일기가 이미 존재하는지 확인
+        if (diaryRepository.existsByMemberIdAndDiaryDateAndStatusIn(
+                member.getId(), diaryDate, List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP))) {
             throw new DiaryHandler(ErrorStatus.DUPLICATE_DIARY_DATE);
         }
 
@@ -128,10 +129,10 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         LocalDateTime sleepEnd = request.getSleepEndTime() != null ? request.getSleepEndTime() : diary.getSleepEndTime();
         DiaryStatus status = request.getStatus() != null ? DiaryStatus.valueOf(request.getStatus()) : diary.getStatus();
 
-        // TEMP → NORMAL 전환 시 NORMAL 상태인 일기가 이미 존재하는지 확인
+        // TEMP → NORMAL 전환 시 NORMAL, SCRAP 상태인 일기가 이미 존재하는지 확인
         if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {
-            if (diaryRepository.existsByMemberIdAndDiaryDateAndStatus(
-                    member.getId(), diary.getDiaryDate(), DiaryStatus.NORMAL)) {
+            if (diaryRepository.existsByMemberIdAndDiaryDateAndStatusIn(
+                    member.getId(), diary.getDiaryDate(), List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP))) {
                 throw new DiaryHandler(ErrorStatus.DUPLICATE_DIARY_DATE);
             }
         }
