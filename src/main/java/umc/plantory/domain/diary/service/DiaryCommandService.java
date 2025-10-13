@@ -63,10 +63,13 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public DiaryResponseDTO.DiaryInfoDTO saveDiary(String authorization, DiaryRequestDTO.DiaryUploadDTO request) {
         Member member = getLoginMember(authorization);
 
-        // 요청으로 들어온 날짜에 이미 작성된 일기가 있는지 확인
         LocalDate diaryDate = request.getDiaryDate();
-        if (diaryRepository.existsByMemberAndDiaryDate(member, diaryDate)) throw new DiaryHandler(ErrorStatus.DUPLICATE_DIARY_DATE);
 
+        // NORMAL, SCRAP 상태인 일기가 이미 존재하는지 확인
+        if (diaryRepository.existsByMemberIdAndDiaryDateAndStatusIn(
+                member.getId(), diaryDate, List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP))) {
+            throw new DiaryHandler(ErrorStatus.DUPLICATE_DIARY_DATE);
+        }
 
         // 일기 제목 지정
         String diaryTitle = "임시 제목";
@@ -118,12 +121,21 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 변경 전 상태
         DiaryStatus beforeStatus = diary.getStatus();
         boolean contentChanged = hasContentChanged(diary, request);
+
         // 일기 내용 업데이트
         Emotion emotion = request.getEmotion() != null ? Emotion.valueOf(request.getEmotion()) : diary.getEmotion();
         String content = request.getContent() != null ? request.getContent() : diary.getContent();
         LocalDateTime sleepStart = request.getSleepStartTime() != null ? request.getSleepStartTime() : diary.getSleepStartTime();
         LocalDateTime sleepEnd = request.getSleepEndTime() != null ? request.getSleepEndTime() : diary.getSleepEndTime();
         DiaryStatus status = request.getStatus() != null ? DiaryStatus.valueOf(request.getStatus()) : diary.getStatus();
+
+        // TEMP → NORMAL 전환 시 NORMAL, SCRAP 상태인 일기가 이미 존재하는지 확인
+        if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {
+            if (diaryRepository.existsByMemberIdAndDiaryDateAndStatusIn(
+                    member.getId(), diary.getDiaryDate(), List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP))) {
+                throw new DiaryHandler(ErrorStatus.DUPLICATE_DIARY_DATE);
+            }
+        }
 
         // NORMAL 저장일때 필수 필드 다 있는지 확인
         if (status == DiaryStatus.NORMAL &&

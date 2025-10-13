@@ -56,8 +56,8 @@ public class DiaryConverter {
                 .build();
     }
 
-    public static DiaryResponseDTO.TempDiaryExistsDTO toTempDiaryExistsDTO(boolean exists) {
-        return DiaryResponseDTO.TempDiaryExistsDTO.builder()
+    public static DiaryResponseDTO.DiaryExistsDTO toDiaryExistsDTO(boolean exists) {
+        return DiaryResponseDTO.DiaryExistsDTO.builder()
                 .isExist(exists)
                 .build();
     }
