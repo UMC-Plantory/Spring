@@ -7,11 +7,13 @@ import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.chat.converter.ChatConverter;
 import umc.plantory.domain.chat.dto.ChatResponseDTO;
 import umc.plantory.domain.chat.entity.Chat;
+import umc.plantory.domain.chat.repository.ChatRepository;
 import umc.plantory.domain.chat.repository.ChatRepositoryCustom;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.exception.handler.ChatHandler;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.PaginationHandler;
 
@@ -28,6 +30,7 @@ public class ChatQueryService implements ChatQueryUseCase {
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
     private final ChatRepositoryCustom chatRepositoryCustom;
+    private final ChatRepository chatRepository;
 
     @Override
     public ChatResponseDTO.ChatsResponse findChatList(String authorization, LocalDateTime cursor, int size) {
@@ -58,6 +61,33 @@ public class ChatQueryService implements ChatQueryUseCase {
 
         // 채팅 목록, 다음 페이지 존재 여부, 다음 커서를 포함한 응답 DTO 생성 및 반환
         return ChatConverter.toChatsResponse(chatsDetailList, hasNext, nextCursor);
+    }
+
+    /**
+     * 입력받은 키워드를 포함하는 ChatId들을 찾아 리스트로 반환합니다.
+     *
+     * @param authorization 사용자 정보가 담긴 토큰
+     * @param keyword 찾고싶은 채팅에 포함되는 키워드
+     *
+     * @throws ChatHandler if (chats == null || chats.isEmpty())
+     *
+     * @return {@code ChatResponseDTO.ChatIdsResponse} 키워드를 포함하는 ChatIdsList가 담긴 DTO
+     */
+    @Override
+    public ChatResponseDTO.ChatIdsResponse searchChatIdsByKeyword(String authorization, String keyword) {
+        Member member = getLoginedMember(authorization);
+
+        List<Chat> chats= chatRepository.findByMemberAndContentContainingIgnoreCaseOrderByCreatedAtDesc(member, keyword);
+
+        if (chats == null || chats.isEmpty()) {
+            throw new ChatHandler(ErrorStatus.CHAT_NOT_FOUND);
+        }
+
+        List<Long> chatIdList = chats.stream()
+                .map(Chat::getId)
+                .collect(Collectors.toList());
+
+        return ChatConverter.toChatIdsResponse(chatIdList);
     }
 
     // 로그인한 사용자 정보 받아오기
