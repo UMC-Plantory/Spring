@@ -307,4 +307,16 @@ public class MemberCommandService implements MemberCommandUseCase {
 
         return findMember;
     }
+
+    /**
+     * 사용자 푸시알림 시간 설정용 메서드
+     */
+    @Override
+    @Transactional
+    public void modifyMemberAlarmTime(String authorization, MemberRequestDTO.ModifyMemberAlarmTime request) {
+        Member findMember = memberRepository.findById(jwtProvider.getMemberIdAndValidateToken(authorization))
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        findMember.updateAlarmTime(request.getAlarmTime());
+    }
 }

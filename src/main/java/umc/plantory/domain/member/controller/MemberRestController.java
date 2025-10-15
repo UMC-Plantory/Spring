@@ -110,5 +110,12 @@ public class MemberRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
 
-
+    @PatchMapping
+    @Operation(summary = "사용자 푸시알림 시간 설정 API", description = "사용자 푸시알림 시간 설정 API입니다.")
+    public ResponseEntity<ApiResponse<Void>> modifyMemberAlarmTime(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @Valid @RequestBody MemberRequestDTO.ModifyMemberAlarmTime request) {
+        memberCommandUseCase.modifyMemberAlarmTime(authorization, request);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
+    }
 }

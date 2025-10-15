@@ -83,6 +83,8 @@ public class Member extends BaseEntity {
 
     private LocalDate lastDiaryDate;
 
+    @Column(nullable = false)
+    @ColumnDefault("22")
     private Integer alarmTime;
 
     public void updateNickname(String nickname) {
@@ -139,4 +141,6 @@ public class Member extends BaseEntity {
     public void updateAvgSleepTime(int minutes) {
         this.avgSleepTime = minutes;
     }
+
+    public void updateAlarmTime(Integer alarmTime) { this.alarmTime = alarmTime; }
 }

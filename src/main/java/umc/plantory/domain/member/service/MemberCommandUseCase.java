@@ -13,4 +13,5 @@ public interface MemberCommandUseCase {
     void logout(String authorization);
     void delete(String authorization);
     Member findOrCreateMember(MemberDataDTO.MemberData memberData, Provider provider, String fcmToken);
+    void modifyMemberAlarmTime(String authorization, MemberRequestDTO.ModifyMemberAlarmTime request);
 }

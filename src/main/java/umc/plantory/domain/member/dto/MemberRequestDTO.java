@@ -91,4 +91,13 @@ public class MemberRequestDTO {
         @NotNull(message = "refreshToken 은 필수입니다.")
         private String refreshToken;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ModifyMemberAlarmTime {
+        @NotNull(message = "alarmTime 은 필수입니다.")
+        private Integer alarmTime;
+    }
 }
