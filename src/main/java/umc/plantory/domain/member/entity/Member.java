@@ -83,6 +83,8 @@ public class Member extends BaseEntity {
 
     private LocalDate lastDiaryDate;
 
+    private Integer alarmTime;
+
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
@@ -136,9 +138,5 @@ public class Member extends BaseEntity {
 
     public void updateAvgSleepTime(int minutes) {
         this.avgSleepTime = minutes;
-    }
-
-    public void updateMemberWateringCanCnt() {
-        this.wateringCanCnt = 30;
     }
 }

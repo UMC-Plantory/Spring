@@ -16,7 +16,7 @@ public class FirebaseConfig {
 
     @PostConstruct
     public void init() throws IOException {
-        String fileResourceURL = "security/Server-Security/fcm/plantory-firebase-adminsdk.json";
+        String fileResourceURL = "security/server-security/fcm/plantory-firebase-adminsdk.json";
         ClassPathResource resource = new ClassPathResource(fileResourceURL);
 
         FirebaseOptions options = FirebaseOptions.builder()

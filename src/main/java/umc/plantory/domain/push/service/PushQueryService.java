@@ -8,18 +8,16 @@ import umc.plantory.domain.push.dto.PushRequestDTO;
 @Service
 @Slf4j
 public class PushQueryService implements PushQueryUseCase{
-    public String sendIosAlertTest(PushRequestDTO.PushNotificationTestRequest request) throws Exception {
-        log.error("on");
-
+    public String sendPushNotification(PushRequestDTO.PushNotificationRequest request) throws Exception {
         Aps aps = Aps.builder()
                 .setAlert(
                         ApsAlert.builder()
-                                .setTitle(request.getTitle())
+                                .setTitle("플랜토리")
                                 .setBody(request.getBody())
                                 .build()
                 )
                 .setSound("default")
-                .setBadge(request.getBadge())
+                .setBadge(1)
                 .build();
 
         ApnsConfig apns = ApnsConfig.builder()
@@ -31,7 +29,7 @@ public class PushQueryService implements PushQueryUseCase{
                 .setApnsConfig(apns)
                 .setNotification(
                         Notification.builder()
-                                .setTitle(request.getTitle())
+                                .setTitle("플랜토리")
                                 .setBody(request.getBody())
                                 .build()
                 );

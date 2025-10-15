@@ -14,8 +14,8 @@ import umc.plantory.domain.push.service.PushQueryUseCase;
 public class PushRestController {
     private final PushQueryUseCase pushQueryService;
 
-    @PostMapping("/test")
-    public String alertTest(@RequestBody PushRequestDTO.PushNotificationTestRequest request) throws Exception {
-        return pushQueryService.sendIosAlertTest(request);
+    @PostMapping("/")
+    public String alarm(@RequestBody PushRequestDTO.PushNotificationRequest request) throws Exception {
+        return pushQueryService.sendPushNotification(request);
     }
 }

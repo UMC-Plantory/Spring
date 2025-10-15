@@ -1,18 +1,16 @@
 package umc.plantory.domain.push.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public class PushRequestDTO {
+public class PushDataDTO {
 
-    @Builder
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PushNotificationRequest {
-        String fcmToken;
-        String body;
+    public static class FcmTokenDateDiffDTO {
+        private String fcmToken;
+        private String dateDifference;
     }
 }
