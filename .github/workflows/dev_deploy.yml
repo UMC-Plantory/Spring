@@ -24,6 +24,12 @@ jobs:
           echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
         shell: bash
 
+      - name: Create Firebase JSON  # Firebase 서비스 계정 JSON 생성
+        run: |
+          mkdir -p src/main/resources/security/server-security/fcm
+          echo "${{ secrets.FIREBASE_JSON }}" > src/main/resources/security/server-security/fcm/plantory-firebase-adminsdk.json
+        shell: bash
+
       - name: Grant execute permission for gradlew  # gradlew 실행 권한 부여
         run: chmod +x gradlew
 

@@ -19,6 +19,9 @@ import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
+import umc.plantory.domain.push.converter.PushConverter;
+import umc.plantory.domain.push.entity.PushData;
+import umc.plantory.domain.push.repository.PushRepository;
 import umc.plantory.domain.term.repository.TermRepository;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
 import umc.plantory.domain.terrarium.entity.Terrarium;
@@ -29,6 +32,7 @@ import umc.plantory.domain.wateringCan.repository.WateringCanRepository;
 import umc.plantory.domain.wateringCan.repository.WateringEventRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
+import umc.plantory.global.apiPayload.exception.handler.PushHandler;
 import umc.plantory.global.apiPayload.exception.handler.TermHandler;
 import umc.plantory.global.enums.Emotion;
 import umc.plantory.global.enums.MemberStatus;
@@ -55,6 +59,7 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final WateringCanRepository wateringCanRepository;
 
     private final KakaoOidcService kakaoOidcService;
+    private final PushRepository pushRepository;
 
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
@@ -315,8 +320,8 @@ public class MemberCommandService implements MemberCommandUseCase {
      */
     @Override
     @Transactional
-    public Member findOrCreateMember(MemberDataDTO.MemberData memberData, Provider provider) {
-        return memberRepository.findByProviderId(memberData.getSub())
+    public Member findOrCreateMember(MemberDataDTO.MemberData memberData, Provider provider, String fcmToken) {
+        Member findMember = memberRepository.findByProviderId(memberData.getSub())
                 .orElseGet(() -> {
                     // 새 멤버 생성
                     Member createdMember = memberRepository.save(MemberConverter.toMember(memberData, provider));
@@ -325,7 +330,28 @@ public class MemberCommandService implements MemberCommandUseCase {
                     // 새 테라리움 생성
                     terrariumRepository.save(TerrariumConverter.toTerrarium(createdMember, defaultFlower));
 
+                    // 새 pushData 생성
+                    pushRepository.save(PushConverter.toPushData(fcmToken, createdMember));
+
                     return createdMember;
                 });
+
+        PushData findPushData = pushRepository.findByMember(findMember)
+                .orElseThrow(() -> new PushHandler(ErrorStatus.PUSH_NOT_FOUND));
+        if (!findPushData.getFcmToken().equals(fcmToken)) findPushData.updateFcmTokenAndStatus(fcmToken);
+
+        return findMember;
+    }
+
+    /**
+     * 사용자 푸시알림 시간 설정용 메서드
+     */
+    @Override
+    @Transactional
+    public void modifyMemberAlarmTime(String authorization, MemberRequestDTO.ModifyMemberAlarmTime request) {
+        Member findMember = memberRepository.findById(jwtProvider.getMemberIdAndValidateToken(authorization))
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        findMember.updateAlarmTime(request.getAlarmTime());
     }
 }

@@ -68,6 +68,8 @@ public class MemberRequestDTO {
     public static class KkoOAuth2LoginRequest {
         @NotNull(message = "idToken 은 필수입니다.")
         private String idToken;
+        @NotNull(message = "fcmToken 은 필수입니다.")
+        private String fcmToken;
     }
 
     @Builder
@@ -79,6 +81,8 @@ public class MemberRequestDTO {
         private String identityToken;
         @NotNull(message = "authorizationCode 는 필수입니다.")
         private String authorizationCode;
+        @NotNull(message = "fcmToken 은 필수입니다.")
+        private String fcmToken;
     }
 
     @Builder
@@ -88,5 +92,14 @@ public class MemberRequestDTO {
     public static class RefreshAccessTokenRequest {
         @NotNull(message = "refreshToken 은 필수입니다.")
         private String refreshToken;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ModifyMemberAlarmTime {
+        @NotNull(message = "alarmTime 은 필수입니다.")
+        private Integer alarmTime;
     }
 }
