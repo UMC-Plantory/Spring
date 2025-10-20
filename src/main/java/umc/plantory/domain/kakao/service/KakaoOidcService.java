@@ -7,7 +7,10 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import umc.plantory.domain.kakao.converter.KakaoConverter;
 import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
@@ -30,6 +33,11 @@ public class KakaoOidcService {
     private static final String JWK_URL = "https://kauth.kakao.com/.well-known/jwks.json";
     // ISSER 상수 -> id_token 안에 들어 있는 iss claim과 비교해 정품 Kakao 토큰인지 검증
     private static final String ISSUER = "https://kauth.kakao.com";
+
+    private final WebClient webClient;
+
+    @Value("${kakao.admin-key}")
+    private String kakaoAdminKey;
 
     /**
      * id_token을 검증하고 담겨있는 멤버 데이터 추출하는 메서드
@@ -81,5 +89,21 @@ public class KakaoOidcService {
             log.error("KakaoOidcService Error Occurred: {}", e.getMessage());
             throw new KakaoHandler(ErrorStatus.ERROR_ON_VERIFYING);
         }
+    }
+
+    /**
+     * 플랜토리-카카오 간 연동해제 메서드
+     */
+    public void unlinkUser(String providerId) {
+        webClient.post()
+                .uri("https://kapi.kakao.com/v1/user/unlink")
+                .header("Authorization", "KakaoAK " + kakaoAdminKey)
+                .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
+                .body(BodyInserters.fromFormData("target_id_type", "user_id")
+                        .with("target_id", providerId))
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnNext(System.out::println)
+                .block();
     }
 }

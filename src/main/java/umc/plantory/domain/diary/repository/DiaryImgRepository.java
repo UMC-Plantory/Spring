@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface DiaryImgRepository extends JpaRepository<DiaryImg, Long> {
     Optional<DiaryImg> findByDiary(Diary diary);
     List<DiaryImg> findByDiaryIn(List<Diary> diaryList);
-
+    void deleteAllByDiaryIn(List<Diary> diaryList);
 }

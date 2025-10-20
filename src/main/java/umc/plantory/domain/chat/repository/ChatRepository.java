@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {
     void deleteByMember(Member member);
-
+    void deleteAllByMember(Member member);
     List<Chat> findByMemberAndContentContainingIgnoreCaseOrderByCreatedAtDesc(Member member, String keyword);
 }

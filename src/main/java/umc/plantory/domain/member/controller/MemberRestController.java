@@ -102,7 +102,7 @@ public class MemberRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
 
-    @PatchMapping
+    @DeleteMapping
     @Operation(summary = "계정 탈퇴 API", description = "계정 탈퇴 API입니다.")
     public ResponseEntity<ApiResponse<Void>> deleteMember(
             @RequestHeader(value = "Authorization", required = false) String authorization) {

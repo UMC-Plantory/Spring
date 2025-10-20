@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import umc.plantory.domain.apple.converter.AppleConverter;
 import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
@@ -33,6 +36,9 @@ public class AppleOidcService {
     private static final String JWK_URL = "https://appleid.apple.com/auth/keys";
     // iss 검증 값
     private static final String ISSUER = "https://appleid.apple.com";
+
+    private final WebClient webClient;
+
     @Value("${apple.bundle-id}")
     private String BUNDLE_ID;
 
@@ -96,5 +102,22 @@ public class AppleOidcService {
         } catch (Exception e) {
             throw new AppleHandler(ErrorStatus.ERROR_ON_VERIFYING);
         }
+    }
+
+    /**
+     * Authorization Code 를 통해 apple refresh_token 값을 받아오는 메서드
+     */
+    public String createAppleRefreshToken(String authorizationCode, String clientSecretJwt) {
+        return webClient.post()
+                .uri("https://appleid.apple.com/auth/token")
+                .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
+                .body(BodyInserters.fromFormData("grant_type", "authorization_code")
+                        .with("code", authorizationCode)
+                        .with("client_id", BUNDLE_ID)
+                        .with("client_secret", clientSecretJwt))
+                .retrieve()
+                .bodyToMono(String.class)
+                .doOnNext(System.out::println)
+                .block();
     }
 }

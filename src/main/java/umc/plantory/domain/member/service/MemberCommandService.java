@@ -4,8 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.chat.repository.ChatRepository;
+import umc.plantory.domain.diary.entity.Diary;
+import umc.plantory.domain.diary.repository.DiaryImgRepository;
+import umc.plantory.domain.diary.repository.DiaryRepository;
 import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.flower.repository.FlowerRepository;
+import umc.plantory.domain.kakao.service.KakaoOidcService;
 import umc.plantory.domain.member.converter.MemberConverter;
 import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
@@ -16,9 +21,12 @@ import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
 import umc.plantory.domain.term.repository.TermRepository;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
+import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
+import umc.plantory.domain.wateringCan.repository.WateringCanRepository;
+import umc.plantory.domain.wateringCan.repository.WateringEventRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.apiPayload.exception.handler.TermHandler;
@@ -40,6 +48,13 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final MemberTokenRepository memberTokenRepository;
     private final TerrariumRepository terrariumRepository;
     private final FlowerRepository flowerRepository;
+    private final ChatRepository chatRepository;
+    private final DiaryRepository diaryRepository;
+    private final DiaryImgRepository diaryImgRepository;
+    private final WateringEventRepository wateringEventRepository;
+    private final WateringCanRepository wateringCanRepository;
+
+    private final KakaoOidcService kakaoOidcService;
 
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
@@ -244,11 +259,31 @@ public class MemberCommandService implements MemberCommandUseCase {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        // soft delete: status를 INACTIVE로 변경하고 inactiveAt 설정
-        member.updateStatus(MemberStatus.INACTIVE);
-        
-        // 해당 멤버의 토큰 정보 삭제
+//        // soft delete: status를 INACTIVE로 변경하고 inactiveAt 설정
+//        member.updateStatus(MemberStatus.INACTIVE);
+
+        // hard delete
+        List<Diary> diaryList = diaryRepository.findAllByMember(member);
+        List<Terrarium> terrariumList = terrariumRepository.findAllByMember(member);
+
+        chatRepository.deleteAllByMember(member);
+        memberTermRepository.deleteAllByMember(member);
+        diaryImgRepository.deleteAllByDiaryIn(diaryList);
+        wateringEventRepository.deleteAllByTerrariumIn(terrariumList);
+        terrariumRepository.deleteAllByMember(member);
+        wateringCanRepository.deleteAllByMember(member);
+        diaryRepository.deleteAllByMember(member);
         memberTokenRepository.deleteByMember(member);
+
+        if (member.getProvider().equals(Provider.KAKAO)) {
+            // 카카오 연동 해제
+            kakaoOidcService.unlinkUser(member.getProviderId());
+        } else {
+            // 애플 연동 해제
+
+        }
+
+        memberRepository.delete(member);
     }
 
     // 추가 정보 필수 입력값 검증
