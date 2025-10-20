@@ -32,8 +32,12 @@ public class MemberToken extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime expireAt;
 
-    public void updateRefreshTokenAndExpireAt (String refreshToken, LocalDateTime expireAt) {
+    @Column(length = 500)
+    private String appleRefreshToken;
+
+    public void updateRefreshTokenAndExpireAt (String refreshToken, LocalDateTime expireAt, String appleRefreshToken) {
         this.refreshToken = refreshToken;
         this.expireAt = expireAt;
+        this.appleRefreshToken = appleRefreshToken;
     }
 }

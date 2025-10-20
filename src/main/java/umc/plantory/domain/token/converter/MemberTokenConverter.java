@@ -8,11 +8,20 @@ import java.time.LocalDateTime;
 
 public class MemberTokenConverter {
 
-    public static MemberToken toMemberToken(Member member, String refreshToken, LocalDateTime expireAt) {
+    public static MemberToken toMemberTokenForKakao(Member member, String refreshToken, LocalDateTime expireAt) {
         return MemberToken.builder()
                 .member(member)
                 .refreshToken(refreshToken)
                 .expireAt(expireAt)
+                .build();
+    }
+
+    public static MemberToken toMemberTokenForApple(Member member, String refreshToken, LocalDateTime expireAt, String appleRefreshToken) {
+        return MemberToken.builder()
+                .member(member)
+                .refreshToken(refreshToken)
+                .expireAt(expireAt)
+                .appleRefreshToken(appleRefreshToken)
                 .build();
     }
 

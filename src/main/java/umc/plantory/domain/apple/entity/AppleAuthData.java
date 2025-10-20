@@ -2,6 +2,7 @@ package umc.plantory.domain.apple.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import umc.plantory.global.baseEntity.BaseEntity;
@@ -21,6 +22,10 @@ public class AppleAuthData extends BaseEntity {
 
     @Column(length = 255)
     private String clientSecret;
+
+    @Column(length = 10, nullable = false)
+    @ColumnDefault("'plantory'")
+    private String tag;
 
     public void updateClientSecret(String newClientSecret) {
         this.clientSecret = newClientSecret;

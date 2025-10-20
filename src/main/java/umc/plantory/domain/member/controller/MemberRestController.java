@@ -91,7 +91,7 @@ public class MemberRestController {
         // identity_token 에서 추출한 데이터를 통해 멤버 조회 OR 생성
         Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(appleMemberData, Provider.APPLE, request.getFcmToken());
 
-        return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateAppleLoginToken(findOrCreateMember)));
+        return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateAppleLoginToken(findOrCreateMember, request.getAuthorizationCode())));
     }
 
     @DeleteMapping("/auth")
@@ -110,7 +110,7 @@ public class MemberRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
 
-    @PatchMapping
+    @PatchMapping("/push-time")
     @Operation(summary = "사용자 푸시알림 시간 설정 API", description = "사용자 푸시알림 시간 설정 API입니다.")
     public ResponseEntity<ApiResponse<Void>> modifyMemberAlarmTime(
             @RequestHeader(value = "Authorization", required = false) String authorization,

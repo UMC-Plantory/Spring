@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.apple.entity.AppleAuthData;
+import umc.plantory.domain.apple.repository.AppleAuthDataRepository;
+import umc.plantory.domain.apple.sevice.AppleOidcService;
 import umc.plantory.domain.chat.repository.ChatRepository;
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.diary.repository.DiaryImgRepository;
@@ -26,20 +29,20 @@ import umc.plantory.domain.term.repository.TermRepository;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
 import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
+import umc.plantory.domain.token.entity.MemberToken;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
 import umc.plantory.domain.wateringCan.repository.WateringCanRepository;
 import umc.plantory.domain.wateringCan.repository.WateringEventRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
-import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
-import umc.plantory.global.apiPayload.exception.handler.PushHandler;
-import umc.plantory.global.apiPayload.exception.handler.TermHandler;
+import umc.plantory.global.apiPayload.exception.handler.*;
 import umc.plantory.global.enums.Emotion;
 import umc.plantory.global.enums.MemberStatus;
 
 import java.util.List;
 import umc.plantory.domain.term.entity.Term;
 import umc.plantory.global.enums.Provider;
+import umc.plantory.global.scheduler.SchedulerJob;
 
 @Slf4j
 @Service
@@ -57,9 +60,12 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final DiaryImgRepository diaryImgRepository;
     private final WateringEventRepository wateringEventRepository;
     private final WateringCanRepository wateringCanRepository;
+    private final PushRepository pushRepository;
+    private final AppleAuthDataRepository appleAuthDataRepository;
 
     private final KakaoOidcService kakaoOidcService;
-    private final PushRepository pushRepository;
+    private final AppleOidcService appleOidcService;
+    private final SchedulerJob schedulerJob;
 
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
@@ -278,16 +284,27 @@ public class MemberCommandService implements MemberCommandUseCase {
         terrariumRepository.deleteAllByMember(member);
         wateringCanRepository.deleteAllByMember(member);
         diaryRepository.deleteAllByMember(member);
-        memberTokenRepository.deleteByMember(member);
 
         if (member.getProvider().equals(Provider.KAKAO)) {
             // 카카오 연동 해제
             kakaoOidcService.unlinkUser(member.getProviderId());
         } else {
-            // 애플 연동 해제
+            AppleAuthData appleAuthData = appleAuthDataRepository.findByTag("plantory")
+                    .orElseThrow(() -> new AppleAuthDataHandler(ErrorStatus.NOT_FOUND_AUTH_DATA));
 
+            String appleClientSecret = appleAuthData.getClientSecret();
+            if (appleClientSecret == null) {
+                appleClientSecret = schedulerJob.refreshAppleClientSecret();
+            }
+
+            MemberToken memberToken = memberTokenRepository.findByMember(member)
+                    .orElseThrow(() -> new MemberTokenHandler(ErrorStatus.NOT_FOUND_MEMBER_TOKEN));
+
+            // 애플 연동 해제
+            appleOidcService.unlinkUser(memberToken.getAppleRefreshToken(), appleClientSecret);
         }
 
+        memberTokenRepository.deleteByMember(member);
         memberRepository.delete(member);
     }
 

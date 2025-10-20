@@ -97,6 +97,11 @@ public enum ErrorStatus implements BaseErrorCode {
     // 꽃 관련
     FLOWER_NOT_FOUND(HttpStatus.NOT_FOUND, "FLOWER404", "존재하지 않는 꽃입니다."),
 
+    // Apple Auth Data 관련
+    NOT_FOUND_AUTH_DATA(HttpStatus.NOT_FOUND, "APPLEAUTH404", "알 수 없는 문제 발생, 백엔드 문의 필요"),
+
+    // Member Token 관련
+    NOT_FOUND_MEMBER_TOKEN(HttpStatus.NOT_FOUND, "MEMBERTOKEN404", "해당 멤버의 토큰 데이터 누락. 백엔드 문의 필요"),
 
     ;
     private final HttpStatus httpStatus;
