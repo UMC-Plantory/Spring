@@ -38,7 +38,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/v1/plantory/members/auth/kko",
                                 "/v1/plantory/members/auth/apple",
-                                "/v1/plantory/auth/refresh"
+                                "/v1/plantory/auth/refresh",
+                                "/v1/plantory/push/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

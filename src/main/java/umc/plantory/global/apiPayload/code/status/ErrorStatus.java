@@ -1,5 +1,6 @@
 package umc.plantory.global.apiPayload.code.status;
 
+import com.google.api.Http;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,9 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 페이징 관련
     INVALID_PAGINATION_SIZE(HttpStatus.BAD_REQUEST, "PAGINATION4001", "페이지 크기는 1 이상이어야 합니다."),
+
+    // Push 관련
+    PUSH_NOT_FOUND(HttpStatus.NOT_FOUND, "PUSH4001", "푸시알림용 토큰 데이터를 찾을 수 없습니다."),
 
     // 멤버 관련
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "존재하지 않는 회원입니다."),

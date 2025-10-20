@@ -76,7 +76,7 @@ public class MemberRestController {
         MemberDataDTO.MemberData kakaoMemberData = kakaoOidcService.verifyAndParseIdToken(request);
 
         // id_token 에서 추출한 데이터를 통해 멤버 조회 OR 생성
-        Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(kakaoMemberData, Provider.KAKAO);
+        Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(kakaoMemberData, Provider.KAKAO, request.getFcmToken());
 
         // 토큰 생성 및 응답
         return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateKkoLoginToken(findOrCreateMember)));
@@ -89,7 +89,7 @@ public class MemberRestController {
         MemberDataDTO.MemberData appleMemberData = appleOidcService.verifyAndParseIdToken(request);
 
         // identity_token 에서 추출한 데이터를 통해 멤버 조회 OR 생성
-        Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(appleMemberData, Provider.APPLE);
+        Member findOrCreateMember = memberCommandUseCase.findOrCreateMember(appleMemberData, Provider.APPLE, request.getFcmToken());
 
         return ResponseEntity.ok(ApiResponse.onSuccess(memberTokenService.generateAppleLoginToken(findOrCreateMember)));
     }
@@ -110,5 +110,12 @@ public class MemberRestController {
         return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
 
-
+    @PatchMapping
+    @Operation(summary = "사용자 푸시알림 시간 설정 API", description = "사용자 푸시알림 시간 설정 API입니다.")
+    public ResponseEntity<ApiResponse<Void>> modifyMemberAlarmTime(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @Valid @RequestBody MemberRequestDTO.ModifyMemberAlarmTime request) {
+        memberCommandUseCase.modifyMemberAlarmTime(authorization, request);
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
+    }
 }

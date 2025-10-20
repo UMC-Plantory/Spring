@@ -2,13 +2,10 @@ package umc.plantory.domain.diary.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.diary.event.DiaryAiEvent;
-import umc.plantory.global.ai.AIClient;
-import umc.plantory.global.ai.PromptFactory;
 import umc.plantory.domain.diary.converter.DiaryConverter;
 import umc.plantory.domain.diary.dto.DiaryRequestDTO;
 import umc.plantory.domain.diary.dto.DiaryResponseDTO;
@@ -93,9 +90,10 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             diary.updateTempSavedAt(LocalDateTime.now());
         }
 
-        // NORMAL 상태일 경우 AI 처리 이벤트 발행
+        // NORMAL 상태일 경우 AI 처리 이벤트 발행 + LastDiaryDate Update
         if (diary.getStatus() == DiaryStatus.NORMAL) {
             eventPublisher.publishEvent(new DiaryAiEvent(diary.getId()));
+            member.updateLastDiaryDate(LocalDate.now());
         }
 
         return DiaryConverter.toDiaryInfoDTO(diary, imageUrl);
@@ -167,12 +165,13 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         if (status == DiaryStatus.TEMP) {
             diary.updateTempSavedAt(LocalDateTime.now());
 
-        // TEMP → NORMAL 상태일 경우 누적 감정 기록 횟수, 연속 기록, 평균 수면 시간, 물뿌리개 처리
+        // TEMP → NORMAL 상태일 경우 누적 감정 기록 횟수, 연속 기록, 평균 수면 시간, 물뿌리개 처리 + LastDiaryDate Update
         } else if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {
             member.increaseTotalRecordCnt();
             handleContinuousRecordCnt(diary, member);
             handleAvgSleepTime(member, diary.getDiaryDate());
             handleWateringCan(diary, member);
+            member.updateLastDiaryDate(LocalDate.now());
         }
 
         // AI 이벤트 발행
