@@ -2,6 +2,7 @@ package umc.plantory.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.apple.entity.AppleAuthData;
@@ -9,10 +10,13 @@ import umc.plantory.domain.apple.repository.AppleAuthDataRepository;
 import umc.plantory.domain.apple.sevice.AppleOidcService;
 import umc.plantory.domain.chat.repository.ChatRepository;
 import umc.plantory.domain.diary.entity.Diary;
+import umc.plantory.domain.diary.entity.DiaryImg;
 import umc.plantory.domain.diary.repository.DiaryImgRepository;
 import umc.plantory.domain.diary.repository.DiaryRepository;
+import umc.plantory.domain.event.entity.S3DeleteEvent;
 import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.flower.repository.FlowerRepository;
+import umc.plantory.domain.image.service.ImageUseCase;
 import umc.plantory.domain.kakao.service.KakaoOidcService;
 import umc.plantory.domain.member.converter.MemberConverter;
 import umc.plantory.domain.member.dto.MemberDataDTO;
@@ -39,6 +43,7 @@ import umc.plantory.global.apiPayload.exception.handler.*;
 import umc.plantory.global.enums.Emotion;
 import umc.plantory.global.enums.MemberStatus;
 
+import java.util.ArrayList;
 import java.util.List;
 import umc.plantory.domain.term.entity.Term;
 import umc.plantory.global.enums.Provider;
@@ -48,6 +53,8 @@ import umc.plantory.global.scheduler.SchedulerJob;
 @Service
 @RequiredArgsConstructor
 public class MemberCommandService implements MemberCommandUseCase {
+    private final ApplicationEventPublisher eventPublisher;
+
     private final MemberRepository memberRepository;
     private final MemberTermRepository memberTermRepository;
     private final TermRepository termRepository;
@@ -66,6 +73,7 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final KakaoOidcService kakaoOidcService;
     private final AppleOidcService appleOidcService;
     private final SchedulerJob schedulerJob;
+    private final ImageUseCase imageUseCase;
 
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
@@ -277,6 +285,15 @@ public class MemberCommandService implements MemberCommandUseCase {
         List<Diary> diaryList = diaryRepository.findAllByMember(member);
         List<Terrarium> terrariumList = terrariumRepository.findAllByMember(member);
 
+        // AWS S3 Img Delete (모두 끝나기 전 미리 삭제할 key 수집)
+        List<DiaryImg> diaryImgList = diaryImgRepository.findByDiaryIn(diaryList);
+        List<String> deleteImgUrlList = new ArrayList<>(diaryImgList.stream()
+                .map(DiaryImg::getDiaryImgUrl)
+                .filter(url -> url != null && !url.isBlank())
+                .toList());
+        // 유저 프로플 사진까지 미리 수집
+        deleteImgUrlList.add(member.getProfileImgUrl());
+
         chatRepository.deleteAllByMember(member);
         memberTermRepository.deleteAllByMember(member);
         diaryImgRepository.deleteAllByDiaryIn(diaryList);
@@ -306,6 +323,9 @@ public class MemberCommandService implements MemberCommandUseCase {
 
         memberTokenRepository.deleteByMember(member);
         memberRepository.delete(member);
+
+        // 트랜잭션 커밋 후 처리될 이벤트 발행
+        eventPublisher.publishEvent(new S3DeleteEvent(deleteImgUrlList));
     }
 
     // 추가 정보 필수 입력값 검증
