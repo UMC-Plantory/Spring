@@ -40,3 +40,4 @@ out/
 /src/main/resources/*.yml
 .DS_Store
 /src/main/resources/security/Server-Security/fcm/plantory-firebase-adminsdk.json
+/src/main/resources/security/Server-Security/apple/plantory-auth-key.p8
