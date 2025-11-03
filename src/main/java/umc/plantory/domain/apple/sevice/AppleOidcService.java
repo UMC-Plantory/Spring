@@ -46,7 +46,8 @@ public class AppleOidcService {
     private static final String JWK_URL = "https://appleid.apple.com/auth/keys";
     // iss 검증 값
     private static final String ISSUER = "https://appleid.apple.com";
-    private static final long MAX_EXP_SECONDS = 1L;
+    // 약 30일
+    private static final long MAX_EXP_SECONDS = 60L * 60L * 24L * 30L;
 
     private final WebClient webClient;
 
