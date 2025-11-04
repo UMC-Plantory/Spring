@@ -30,7 +30,7 @@ jobs:
           echo "${{ secrets.FIREBASE_JSON }}" > src/main/resources/security/server-security/fcm/plantory-firebase-adminsdk.json
         shell: bash
 
-      - name: Create Firebase JSON  # apple auth key 생성
+      - name: Create Apple Auth Key  # apple auth key 생성
         run: |
           mkdir -p src/main/resources/security/server-security/apple
           echo "${{ secrets.APPLE_AUTH_KEY_P8 }}" > src/main/resources/security/server-security/apple/plantory-auth-key.p8
