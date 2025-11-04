@@ -17,9 +17,7 @@ import umc.plantory.domain.member.dto.MemberRequestDTO;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
 import umc.plantory.global.apiPayload.exception.handler.AppleHandler;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -51,10 +49,13 @@ public class AppleOidcService {
 
     private final WebClient webClient;
 
+    // 실서버용
+    private static final String APPLE_P8_PATH = "/home/ubuntu/plantory-config/apple/plantory-auth-key.p8";
+    // 데브용
+//    private static final String APPLE_P8_PATH = "src/main/resources/security/server-security/apple/plantory-auth-key.p8";
+
     @Value("${apple.bundle-id}")
     private String BUNDLE_ID;
-    @Value("${apple.p8.location:}")
-    private Resource p8Resource;
     @Value("${apple.key-id}")
     private String KEY_ID;
     @Value("${apple.team-id}")
@@ -172,12 +173,14 @@ public class AppleOidcService {
      */
     private PrivateKey loadPrivateKeyFromPem() throws Exception {
         String pem;
-        if (p8Resource != null && p8Resource.exists()) {
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(p8Resource.getInputStream(), StandardCharsets.UTF_8))) {
-                pem = br.lines().collect(Collectors.joining("\n"));
-            }
-        } else {
-            throw new AppleHandler(ErrorStatus._INTERNAL_SERVER_ERROR);
+        File p8File = new File(APPLE_P8_PATH);
+
+        if (!p8File.exists()) {
+            throw new RuntimeException("Apple .p8 key file not found at: " + APPLE_P8_PATH);
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(p8File, StandardCharsets.UTF_8))) {
+            pem = br.lines().collect(Collectors.joining("\n"));
         }
 
         String normalized = pem
