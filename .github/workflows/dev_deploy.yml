@@ -27,12 +27,14 @@ jobs:
       - name: Create Firebase JSON  # Firebase 서비스 계정 JSON 생성
         run: |
           mkdir -p src/main/resources/security/server-security/fcm
+          cd ./src/main/resources
           echo "${{ secrets.FIREBASE_JSON }}" > ./security/server-security/fcm/plantory-firebase-adminsdk.json
         shell: bash
 
       - name: Create Apple Auth Key  # apple auth key 생성
         run: |
           mkdir -p src/main/resources/security/server-security/apple
+          cd ./src/main/resources
           echo "${{ secrets.APPLE_AUTH_KEY_P8 }}" > ./security/server-security/apple/plantory-auth-key.p8
         shell: bash
 
