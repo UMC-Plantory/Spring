@@ -1,5 +1,6 @@
 package umc.plantory.global.apiPayload.code.status;
 
+import com.google.api.Http;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,9 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 페이징 관련
     INVALID_PAGINATION_SIZE(HttpStatus.BAD_REQUEST, "PAGINATION4001", "페이지 크기는 1 이상이어야 합니다."),
+
+    // Push 관련
+    PUSH_NOT_FOUND(HttpStatus.NOT_FOUND, "PUSH4001", "푸시알림용 토큰 데이터를 찾을 수 없습니다."),
 
     // 멤버 관련
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "존재하지 않는 회원입니다."),
@@ -61,7 +65,7 @@ public enum ErrorStatus implements BaseErrorCode {
     DIARY_MISSING_FIELDS(HttpStatus.BAD_REQUEST, "DIARY4002", "일기의 필수 항목이 누락되었습니다."),
     DIARY_UNAUTHORIZED(HttpStatus.FORBIDDEN, "DIARY4003", "해당 일기에 대한 권한이 없습니다."),
     DIARY_INVALID_STATUS(HttpStatus.BAD_REQUEST, "DIARY4004", "현재 일기의 상태에서는 해당 작업을 수행할 수 없습니다."),
-    DUPLICATE_DIARY_DATE(HttpStatus.BAD_REQUEST, "DIARY4005", "해당 날짜에 이미 작성중이거나 작성된 일기가 존재합니다."),
+    DUPLICATE_DIARY_DATE(HttpStatus.BAD_REQUEST, "DIARY4005", "해당 날짜에 이미 작성된 일기가 존재합니다."),
 
     // 채팅 관련
     INVALID_API_KEY(HttpStatus.UNAUTHORIZED, "CHAT4001", "API 키가 잘못됐습니다."),
@@ -71,6 +75,7 @@ public enum ErrorStatus implements BaseErrorCode {
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "CHAT4005", "서버 과부하"),
     CHAT_RESPONSE_NONE(HttpStatus.BAD_REQUEST, "CHAT4006", "챗봇 응답이 없습니다."),
     CHAT_RESPONSE_TOO_LONG(HttpStatus.BAD_REQUEST, "CHAT4007", "챗봇 응답이 허용 길이(500자)를 초과했습니다."),
+    CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT4008", "해당 키워드를 포함하는 채팅이 존재하지 않습니다."),
 
     // 테라리움 관련
     TERRARIUM_NOT_FOUND(HttpStatus.NOT_FOUND, "TERRARIUM404", "존재하지 않는 테라리움입니다."),
@@ -92,6 +97,11 @@ public enum ErrorStatus implements BaseErrorCode {
     // 꽃 관련
     FLOWER_NOT_FOUND(HttpStatus.NOT_FOUND, "FLOWER404", "존재하지 않는 꽃입니다."),
 
+    // Apple Auth Data 관련
+    NOT_FOUND_AUTH_DATA(HttpStatus.NOT_FOUND, "APPLEAUTH404", "알 수 없는 문제 발생, 백엔드 문의 필요"),
+
+    // Member Token 관련
+    NOT_FOUND_MEMBER_TOKEN(HttpStatus.NOT_FOUND, "MEMBERTOKEN404", "해당 멤버의 토큰 데이터 누락. 백엔드 문의 필요"),
 
     ;
     private final HttpStatus httpStatus;

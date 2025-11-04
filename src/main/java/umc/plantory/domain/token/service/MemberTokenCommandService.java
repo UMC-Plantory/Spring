@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.apple.converter.AppleConverter;
+import umc.plantory.domain.apple.entity.AppleAuthData;
+import umc.plantory.domain.apple.repository.AppleAuthDataRepository;
+import umc.plantory.domain.apple.sevice.AppleOidcService;
 import umc.plantory.domain.kakao.converter.KakaoConverter;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
 import umc.plantory.domain.member.dto.MemberResponseDTO;
@@ -14,7 +17,9 @@ import umc.plantory.domain.token.entity.MemberToken;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.exception.handler.AppleAuthDataHandler;
 import umc.plantory.global.apiPayload.exception.handler.JwtHandler;
+import umc.plantory.global.scheduler.SchedulerJob;
 
 import java.time.LocalDateTime;
 
@@ -23,7 +28,10 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class MemberTokenCommandService implements MemberTokenCommandUseCase {
     private final MemberTokenRepository memberTokenRepository;
+    private final AppleAuthDataRepository appleAuthDataRepository;
+    private final SchedulerJob schedulerJob;
     private final JwtProvider jwtProvider;
+    private final AppleOidcService appleOidcService;
 
     /**
      * KKO 유저 데이터를 통해 Access/Refresh 토큰 생성하는 메서드
@@ -46,10 +54,10 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
         // 이미 MemberToken 이 있다면 UPDATE, 없다면 INSERT
         if (findMemberToken == null) {
             // MemberToken 에 저장
-            memberTokenRepository.save(MemberTokenConverter.toMemberToken(member, refreshToken, refreshTokenExpireAt));
+            memberTokenRepository.save(MemberTokenConverter.toMemberTokenForKakao(member, refreshToken, refreshTokenExpireAt));
         } else {
             // MemberToken Update
-            findMemberToken.updateRefreshTokenAndExpireAt(refreshToken, refreshTokenExpireAt);
+            findMemberToken.updateRefreshTokenAndExpireAt(refreshToken, refreshTokenExpireAt, "");
             memberTokenRepository.save(findMemberToken);
         }
 
@@ -61,9 +69,11 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
      */
     @Override
     @Transactional
-    public MemberResponseDTO.AppleOauth2LoginResponse generateAppleLoginToken(Member member) {
+    public MemberResponseDTO.AppleOauth2LoginResponse generateAppleLoginToken(Member member, String authorizationCode) {
         MemberToken findMemberToken = memberTokenRepository.findByMember(member)
                 .orElse(null);
+        AppleAuthData appleAuthData = appleAuthDataRepository.findByTag("plantory")
+                .orElseThrow(() -> new AppleAuthDataHandler(ErrorStatus.NOT_FOUND_AUTH_DATA));
 
         // Access Token 생성
         String accessToken = jwtProvider.generateAccessToken(member);
@@ -74,13 +84,20 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
         // Refresh Token 만료 시간
         LocalDateTime refreshTokenExpireAt = jwtProvider.getExpiredAt(refreshToken);
 
+        String appleClientSecret = appleAuthData.getClientSecret();
+        if (appleClientSecret == null) {
+            appleClientSecret = schedulerJob.refreshAppleClientSecret();
+        }
+        // Apple Refresh Token
+        String appleRefreshToken = appleOidcService.createAppleRefreshToken(authorizationCode, appleClientSecret);
+
         // 이미 MemberToken 이 있다면 UPDATE, 없다면 INSERT
         if (findMemberToken == null) {
             // MemberToken 에 저장
-            memberTokenRepository.save(MemberTokenConverter.toMemberToken(member, refreshToken, refreshTokenExpireAt));
+            memberTokenRepository.save(MemberTokenConverter.toMemberTokenForApple(member, refreshToken, refreshTokenExpireAt, appleRefreshToken));
         } else {
             // MemberToken Update
-            findMemberToken.updateRefreshTokenAndExpireAt(refreshToken, refreshTokenExpireAt);
+            findMemberToken.updateRefreshTokenAndExpireAt(refreshToken, refreshTokenExpireAt, appleRefreshToken);
             memberTokenRepository.save(findMemberToken);
         }
 

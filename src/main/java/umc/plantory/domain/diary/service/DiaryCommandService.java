@@ -2,13 +2,10 @@ package umc.plantory.domain.diary.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.plantory.domain.diary.event.DiaryAiEvent;
-import umc.plantory.global.ai.AIClient;
-import umc.plantory.global.ai.PromptFactory;
 import umc.plantory.domain.diary.converter.DiaryConverter;
 import umc.plantory.domain.diary.dto.DiaryRequestDTO;
 import umc.plantory.domain.diary.dto.DiaryResponseDTO;
@@ -63,9 +60,13 @@ public class DiaryCommandService implements DiaryCommandUseCase {
     public DiaryResponseDTO.DiaryInfoDTO saveDiary(String authorization, DiaryRequestDTO.DiaryUploadDTO request) {
         Member member = getLoginMember(authorization);
 
-        // 요청으로 들어온 날짜에 이미 작성된 일기가 있는지 확인
         LocalDate diaryDate = request.getDiaryDate();
-        if (diaryRepository.existsByMemberAndDiaryDate(member, diaryDate)) throw new DiaryHandler(ErrorStatus.DUPLICATE_DIARY_DATE);
+
+        // NORMAL, SCRAP 상태인 일기가 이미 존재하는지 확인
+        if (diaryRepository.existsByMemberIdAndDiaryDateAndStatusIn(
+                member.getId(), diaryDate, List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP))) {
+            throw new DiaryHandler(ErrorStatus.DUPLICATE_DIARY_DATE);
+        }
 
         // 일기 제목 지정
         String diaryTitle = "임시 제목";
@@ -89,9 +90,10 @@ public class DiaryCommandService implements DiaryCommandUseCase {
             diary.updateTempSavedAt(LocalDateTime.now());
         }
 
-        // NORMAL 상태일 경우 AI 처리 이벤트 발행
+        // NORMAL 상태일 경우 AI 처리 이벤트 발행 + LastDiaryDate Update
         if (diary.getStatus() == DiaryStatus.NORMAL) {
             eventPublisher.publishEvent(new DiaryAiEvent(diary.getId()));
+            member.updateLastDiaryDate(LocalDate.now());
         }
 
         return DiaryConverter.toDiaryInfoDTO(diary, imageUrl);
@@ -117,12 +119,21 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         // 변경 전 상태
         DiaryStatus beforeStatus = diary.getStatus();
         boolean contentChanged = hasContentChanged(diary, request);
+
         // 일기 내용 업데이트
         Emotion emotion = request.getEmotion() != null ? Emotion.valueOf(request.getEmotion()) : diary.getEmotion();
         String content = request.getContent() != null ? request.getContent() : diary.getContent();
         LocalDateTime sleepStart = request.getSleepStartTime() != null ? request.getSleepStartTime() : diary.getSleepStartTime();
         LocalDateTime sleepEnd = request.getSleepEndTime() != null ? request.getSleepEndTime() : diary.getSleepEndTime();
         DiaryStatus status = request.getStatus() != null ? DiaryStatus.valueOf(request.getStatus()) : diary.getStatus();
+
+        // TEMP → NORMAL 전환 시 NORMAL, SCRAP 상태인 일기가 이미 존재하는지 확인
+        if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {
+            if (diaryRepository.existsByMemberIdAndDiaryDateAndStatusIn(
+                    member.getId(), diary.getDiaryDate(), List.of(DiaryStatus.NORMAL, DiaryStatus.SCRAP))) {
+                throw new DiaryHandler(ErrorStatus.DUPLICATE_DIARY_DATE);
+            }
+        }
 
         // NORMAL 저장일때 필수 필드 다 있는지 확인
         if (status == DiaryStatus.NORMAL &&
@@ -154,12 +165,13 @@ public class DiaryCommandService implements DiaryCommandUseCase {
         if (status == DiaryStatus.TEMP) {
             diary.updateTempSavedAt(LocalDateTime.now());
 
-        // TEMP → NORMAL 상태일 경우 누적 감정 기록 횟수, 연속 기록, 평균 수면 시간, 물뿌리개 처리
+        // TEMP → NORMAL 상태일 경우 누적 감정 기록 횟수, 연속 기록, 평균 수면 시간, 물뿌리개 처리 + LastDiaryDate Update
         } else if (beforeStatus == DiaryStatus.TEMP && status == DiaryStatus.NORMAL) {
             member.increaseTotalRecordCnt();
             handleContinuousRecordCnt(diary, member);
             handleAvgSleepTime(member, diary.getDiaryDate());
             handleWateringCan(diary, member);
+            member.updateLastDiaryDate(LocalDate.now());
         }
 
         // AI 이벤트 발행

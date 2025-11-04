@@ -2,10 +2,22 @@ package umc.plantory.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.apple.entity.AppleAuthData;
+import umc.plantory.domain.apple.repository.AppleAuthDataRepository;
+import umc.plantory.domain.apple.sevice.AppleOidcService;
+import umc.plantory.domain.chat.repository.ChatRepository;
+import umc.plantory.domain.diary.entity.Diary;
+import umc.plantory.domain.diary.entity.DiaryImg;
+import umc.plantory.domain.diary.repository.DiaryImgRepository;
+import umc.plantory.domain.diary.repository.DiaryRepository;
+import umc.plantory.domain.event.entity.S3DeleteEvent;
 import umc.plantory.domain.flower.entity.Flower;
 import umc.plantory.domain.flower.repository.FlowerRepository;
+import umc.plantory.domain.image.service.ImageUseCase;
+import umc.plantory.domain.kakao.service.KakaoOidcService;
 import umc.plantory.domain.member.converter.MemberConverter;
 import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
@@ -14,25 +26,35 @@ import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.mapping.MemberTerm;
 import umc.plantory.domain.member.repository.MemberRepository;
 import umc.plantory.domain.member.repository.MemberTermRepository;
+import umc.plantory.domain.push.converter.PushConverter;
+import umc.plantory.domain.push.entity.PushData;
+import umc.plantory.domain.push.repository.PushRepository;
 import umc.plantory.domain.term.repository.TermRepository;
 import umc.plantory.domain.terrarium.converter.TerrariumConverter;
+import umc.plantory.domain.terrarium.entity.Terrarium;
 import umc.plantory.domain.terrarium.repository.TerrariumRepository;
+import umc.plantory.domain.token.entity.MemberToken;
 import umc.plantory.domain.token.provider.JwtProvider;
 import umc.plantory.domain.token.repository.MemberTokenRepository;
+import umc.plantory.domain.wateringCan.repository.WateringCanRepository;
+import umc.plantory.domain.wateringCan.repository.WateringEventRepository;
 import umc.plantory.global.apiPayload.code.status.ErrorStatus;
-import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
-import umc.plantory.global.apiPayload.exception.handler.TermHandler;
+import umc.plantory.global.apiPayload.exception.handler.*;
 import umc.plantory.global.enums.Emotion;
 import umc.plantory.global.enums.MemberStatus;
 
+import java.util.ArrayList;
 import java.util.List;
 import umc.plantory.domain.term.entity.Term;
 import umc.plantory.global.enums.Provider;
+import umc.plantory.global.scheduler.SchedulerJob;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberCommandService implements MemberCommandUseCase {
+    private final ApplicationEventPublisher eventPublisher;
+
     private final MemberRepository memberRepository;
     private final MemberTermRepository memberTermRepository;
     private final TermRepository termRepository;
@@ -40,6 +62,18 @@ public class MemberCommandService implements MemberCommandUseCase {
     private final MemberTokenRepository memberTokenRepository;
     private final TerrariumRepository terrariumRepository;
     private final FlowerRepository flowerRepository;
+    private final ChatRepository chatRepository;
+    private final DiaryRepository diaryRepository;
+    private final DiaryImgRepository diaryImgRepository;
+    private final WateringEventRepository wateringEventRepository;
+    private final WateringCanRepository wateringCanRepository;
+    private final PushRepository pushRepository;
+    private final AppleAuthDataRepository appleAuthDataRepository;
+
+    private final KakaoOidcService kakaoOidcService;
+    private final AppleOidcService appleOidcService;
+    private final SchedulerJob schedulerJob;
+    private final ImageUseCase imageUseCase;
 
     private static final String DEFAULT_PROFILE_IMG_URL = "https://plantory.s3.ap-northeast-2.amazonaws.com/profile/plantory_default_img.png";
 
@@ -244,11 +278,54 @@ public class MemberCommandService implements MemberCommandUseCase {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        // soft delete: status를 INACTIVE로 변경하고 inactiveAt 설정
-        member.updateStatus(MemberStatus.INACTIVE);
-        
-        // 해당 멤버의 토큰 정보 삭제
+//        // soft delete: status를 INACTIVE로 변경하고 inactiveAt 설정
+//        member.updateStatus(MemberStatus.INACTIVE);
+
+        // hard delete
+        List<Diary> diaryList = diaryRepository.findAllByMember(member);
+        List<Terrarium> terrariumList = terrariumRepository.findAllByMember(member);
+
+        // AWS S3 Img Delete (모두 끝나기 전 미리 삭제할 key 수집)
+        List<DiaryImg> diaryImgList = diaryImgRepository.findByDiaryIn(diaryList);
+        List<String> deleteImgUrlList = new ArrayList<>(diaryImgList.stream()
+                .map(DiaryImg::getDiaryImgUrl)
+                .filter(url -> url != null && !url.isBlank())
+                .toList());
+        // 유저 프로플 사진까지 미리 수집
+        deleteImgUrlList.add(member.getProfileImgUrl());
+
+        chatRepository.deleteAllByMember(member);
+        memberTermRepository.deleteAllByMember(member);
+        diaryImgRepository.deleteAllByDiaryIn(diaryList);
+        wateringEventRepository.deleteAllByTerrariumIn(terrariumList);
+        terrariumRepository.deleteAllByMember(member);
+        wateringCanRepository.deleteAllByMember(member);
+        diaryRepository.deleteAllByMember(member);
+
+        if (member.getProvider().equals(Provider.KAKAO)) {
+            // 카카오 연동 해제
+            kakaoOidcService.unlinkUser(member.getProviderId());
+        } else {
+            AppleAuthData appleAuthData = appleAuthDataRepository.findByTag("plantory")
+                    .orElseThrow(() -> new AppleAuthDataHandler(ErrorStatus.NOT_FOUND_AUTH_DATA));
+
+            String appleClientSecret = appleAuthData.getClientSecret();
+            if (appleClientSecret == null) {
+                appleClientSecret = schedulerJob.refreshAppleClientSecret();
+            }
+
+            MemberToken memberToken = memberTokenRepository.findByMember(member)
+                    .orElseThrow(() -> new MemberTokenHandler(ErrorStatus.NOT_FOUND_MEMBER_TOKEN));
+
+            // 애플 연동 해제
+            appleOidcService.unlinkUser(memberToken.getAppleRefreshToken(), appleClientSecret);
+        }
+
         memberTokenRepository.deleteByMember(member);
+        memberRepository.delete(member);
+
+        // 트랜잭션 커밋 후 처리될 이벤트 발행
+        eventPublisher.publishEvent(new S3DeleteEvent(deleteImgUrlList));
     }
 
     // 추가 정보 필수 입력값 검증
@@ -280,8 +357,8 @@ public class MemberCommandService implements MemberCommandUseCase {
      */
     @Override
     @Transactional
-    public Member findOrCreateMember(MemberDataDTO.MemberData memberData, Provider provider) {
-        return memberRepository.findByProviderId(memberData.getSub())
+    public Member findOrCreateMember(MemberDataDTO.MemberData memberData, Provider provider, String fcmToken) {
+        Member findMember = memberRepository.findByProviderId(memberData.getSub())
                 .orElseGet(() -> {
                     // 새 멤버 생성
                     Member createdMember = memberRepository.save(MemberConverter.toMember(memberData, provider));
@@ -290,7 +367,28 @@ public class MemberCommandService implements MemberCommandUseCase {
                     // 새 테라리움 생성
                     terrariumRepository.save(TerrariumConverter.toTerrarium(createdMember, defaultFlower));
 
+                    // 새 pushData 생성
+                    pushRepository.save(PushConverter.toPushData(fcmToken, createdMember));
+
                     return createdMember;
                 });
+
+        PushData findPushData = pushRepository.findByMember(findMember)
+                .orElseThrow(() -> new PushHandler(ErrorStatus.PUSH_NOT_FOUND));
+        if (!findPushData.getFcmToken().equals(fcmToken)) findPushData.updateFcmTokenAndStatus(fcmToken);
+
+        return findMember;
+    }
+
+    /**
+     * 사용자 푸시알림 시간 설정용 메서드
+     */
+    @Override
+    @Transactional
+    public void modifyMemberAlarmTime(String authorization, MemberRequestDTO.ModifyMemberAlarmTime request) {
+        Member findMember = memberRepository.findById(jwtProvider.getMemberIdAndValidateToken(authorization))
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        findMember.updateAlarmTime(request.getAlarmTime());
     }
 }

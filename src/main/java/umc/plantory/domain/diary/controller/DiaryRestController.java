@@ -201,11 +201,24 @@ public class DiaryRestController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "성공")
     })
     @GetMapping("/temp-status/exists")
-    public ResponseEntity<ApiResponse<DiaryResponseDTO.TempDiaryExistsDTO>> checkTempDiaryExistence(
+    public ResponseEntity<ApiResponse<DiaryResponseDTO.DiaryExistsDTO>> checkTempDiaryExistence(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @Parameter(description = "조회할 날짜 (yyyy-MM-dd)") @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        DiaryResponseDTO.TempDiaryExistsDTO response = diaryQueryUseCase.checkTempDiaryExistence(authorization, date);
+        DiaryResponseDTO.DiaryExistsDTO response = diaryQueryUseCase.checkTempDiaryExistence(authorization, date);
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
+    }
+
+    @Operation(
+            summary = "특정 날짜에 정식 저장 일기 존재 여부 확인",
+            description = "yyyy-MM-dd 형식의 날짜를 받아 해당 날짜에 NORMAL 상태의 일기가 존재하는지 확인합니다."
+    )
+    @GetMapping("/normal-status/exists")
+    public ResponseEntity<ApiResponse<DiaryResponseDTO.DiaryExistsDTO>> checkNormalDiaryExistence(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @Parameter(description = "조회할 날짜 (yyyy-MM-dd)") @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        DiaryResponseDTO.DiaryExistsDTO response = diaryQueryUseCase.checkNormalDiaryExistence(authorization, date);
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 

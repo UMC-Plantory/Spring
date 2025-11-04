@@ -1,9 +1,13 @@
 package umc.plantory.global.scheduler;
 
+import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.apple.entity.AppleAuthData;
+import umc.plantory.domain.apple.repository.AppleAuthDataRepository;
+import umc.plantory.domain.apple.sevice.AppleOidcService;
 import umc.plantory.domain.diary.dto.DiaryProjectionDTO;
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.diary.entity.DiaryImg;
@@ -12,17 +16,19 @@ import umc.plantory.domain.diary.repository.DiaryRepository;
 import umc.plantory.domain.image.service.ImageUseCase;
 import umc.plantory.domain.member.entity.Member;
 import umc.plantory.domain.member.repository.MemberRepository;
+import umc.plantory.domain.push.dto.PushDataDTO;
+import umc.plantory.domain.push.repository.PushRepository;
 import umc.plantory.domain.wateringCan.entity.WateringCan;
 import umc.plantory.domain.wateringCan.repository.WateringCanRepository;
+import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.exception.handler.AppleAuthDataHandler;
 import umc.plantory.global.enums.DiaryStatus;
 import umc.plantory.global.enums.MemberStatus;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static umc.plantory.global.enums.DiaryStatus.VALID_STATUSES;
@@ -30,13 +36,28 @@ import static umc.plantory.global.enums.DiaryStatus.VALID_STATUSES;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class SchedulerJob {
 
     private final DiaryRepository diaryRepository;
     private final DiaryImgRepository diaryImgRepository;
     private final WateringCanRepository wateringCanRepository;
     private final MemberRepository memberRepository;
+    private final PushRepository pushRepository;
+    private final AppleAuthDataRepository appleAuthDataRepository;
+
     private final ImageUseCase imageUseCase;
+    private final AppleOidcService appleOidcService;
+
+    private final static Integer DEFAULT_BADGE = 1;
+    private final static String DEFAULT_SOUND = "default";
+    private final static String DEFAULT_TITLE = "플랜토리";
+    private final static String DEFAULT_CONTENT = "오늘 하루 어땠나요? 오늘 하루를 기록해볼까요 \uFE0F";
+    private final static String THREE_DAYS_CONTENT = "잠깐 쉬어가도 괜찮아요\uD83D\uDE0A 오늘도 수고했어요!";
+    private final static String FIVE_DAYS_CONTENT = "요즘 몸과 마음이 조금 지치진 않으셨나요? 작은 기록이 위로가 될 수 있어요\uD83C\uDF75";
+    private final static String SEVEN_DAYS_CONTENT = "마지막 기록 이후 일주일이 지났어요! 다시 함께 식물을 키워볼까요\uD83C\uDF3C";
+    private final static String FOURTEEN_DAYS_CONTENT = "마지막 기록 이후 2주가 지났어요! 다시 함께 식물을 키워볼까요\uD83C\uDF3C";
+    private final static String THIRTY_DAYS_CONTENT = "마지막 기록 이후 한 달이 지났어요! 다시 함께 식물을 키워볼까요\uD83C\uDF3C";
 
     /**
      * 매일 자정 00:00에 TEMP 상태 중 30일 지난 일기를 DELETE 상태로 변경
@@ -161,5 +182,115 @@ public class SchedulerJob {
         } catch (Exception e) {
             log.error("[스케줄러] 최근 7일 평균 수면시간 갱신 실패", e);
         }
+    }
+
+    /**
+     * 정기 푸시알림 발송 메서드
+     */
+    public void sendRegularPushNotification() throws FirebaseMessagingException {
+        log.info("Regular Push-Notification Start");
+        List<String> targetFcmTokenList = pushRepository.findFcmTokenByAlarmTime(LocalDateTime.now().getHour());
+        List<Message> messageList = targetFcmTokenList.stream()
+                .map(fcmToken -> Message.builder()
+                        .setToken(fcmToken)
+                        .setApnsConfig(getApsConfigByContent(DEFAULT_CONTENT))
+                        .setNotification(
+                                Notification.builder()
+                                        .setTitle(DEFAULT_TITLE)
+                                        .setBody(DEFAULT_CONTENT)
+                                        .build())
+                        .build())
+                .toList();
+
+        BatchResponse response = FirebaseMessaging.getInstance().sendEach(messageList);
+
+        log.info("Regular Push-Notification Complete - Success : {}, Failed : {}", response.getSuccessCount(), response.getFailureCount());
+
+        log.info("Regular Push-Notification End");
+    }
+
+    /**
+     *  연속 일기 미작성 날짜에 따른 푸시알림 발송 메서드
+     */
+    public void sendPushNotificationByContinuousMissedDays() throws FirebaseMessagingException {
+        log.info("Missed Diary Date Push-Notification Start");
+        // 알림 대상 추출 작업
+        List<PushDataDTO.FcmTokenDateDiffDTO> targetFcmTokenListByDateDiff = pushRepository.findFcmTokenByLastDiaryDate();
+        // 일기 연속 미작성 날짜에 따른 리스트 생성을 위한 작업
+        Map<String, List<String>> fcmTokenMap = new HashMap<>();
+        for (PushDataDTO.FcmTokenDateDiffDTO targetFcmTokenByDateDiff : targetFcmTokenListByDateDiff) {
+            fcmTokenMap.computeIfAbsent(targetFcmTokenByDateDiff.getDateDifference(), k -> new ArrayList<>())
+                    .add(targetFcmTokenByDateDiff.getFcmToken());
+        }
+        // 푸시알림을 위한 Message List 생성
+        List<Message> messageListForThreeDaysAgo = getMessageListByDateDiff(
+                fcmTokenMap.getOrDefault("three", Collections.emptyList()), THREE_DAYS_CONTENT);
+        List<Message> messageListForFiveDaysAgo = getMessageListByDateDiff(
+                fcmTokenMap.getOrDefault("five", Collections.emptyList()), FIVE_DAYS_CONTENT);
+        List<Message> messageListForSevenDaysAgo = getMessageListByDateDiff(
+                fcmTokenMap.getOrDefault("seven", Collections.emptyList()), SEVEN_DAYS_CONTENT);
+        List<Message> messageListForFourteenDaysAgo = getMessageListByDateDiff(
+                fcmTokenMap.getOrDefault("fourteen", Collections.emptyList()), FOURTEEN_DAYS_CONTENT);
+        List<Message> messageListForThirtyDaysAgo = getMessageListByDateDiff(
+                fcmTokenMap.getOrDefault("thirty", Collections.emptyList()), THIRTY_DAYS_CONTENT);
+
+        BatchResponse responseByThree = FirebaseMessaging.getInstance().sendEach(messageListForThreeDaysAgo);
+        BatchResponse responseByFive = FirebaseMessaging.getInstance().sendEach(messageListForFiveDaysAgo);
+        BatchResponse responseBySeven = FirebaseMessaging.getInstance().sendEach(messageListForSevenDaysAgo);
+        BatchResponse responseByFourteen = FirebaseMessaging.getInstance().sendEach(messageListForFourteenDaysAgo);
+        BatchResponse responseByThirty = FirebaseMessaging.getInstance().sendEach(messageListForThirtyDaysAgo);
+
+        log.info("Three Missed Diary Date - Success : {}, Failed : {}", responseByThree.getSuccessCount(), responseByThree.getFailureCount());
+        log.info("Five Missed Diary Date - Success : {}, Failed : {}", responseByFive.getSuccessCount(), responseByFive.getFailureCount());
+        log.info("Seven Missed Diary Date - Success : {}, Failed : {}", responseBySeven.getSuccessCount(), responseBySeven.getFailureCount());
+        log.info("Fourteen Missed Diary Date - Success : {}, Failed : {}", responseByFourteen.getSuccessCount(), responseByFourteen.getFailureCount());
+        log.info("Thirty Missed Diary Date - Success : {}, Failed : {}", responseByThirty.getSuccessCount(), responseByThirty.getFailureCount());
+
+        log.info("Missed Diary Date Push-Notification End");
+    }
+
+    /**
+     * DB 에 저장된 client_secret을 갱신 (없으면 생성) 하는 메서드
+     */
+    @Transactional
+    public String refreshAppleClientSecret() {
+        AppleAuthData appleAuthData = appleAuthDataRepository.findByTag("plantory")
+                .orElseThrow(() -> new AppleAuthDataHandler(ErrorStatus.NOT_FOUND_AUTH_DATA));
+
+        String newClientSecret = appleOidcService.createAppleClientSecret();
+
+        appleAuthData.updateClientSecret(newClientSecret);
+        appleAuthDataRepository.save(appleAuthData);
+
+        return newClientSecret;
+    }
+
+    private List<Message> getMessageListByDateDiff (List<String> fcmTokenListThreeDaysAgo, String content) {
+        return fcmTokenListThreeDaysAgo.stream()
+                .map(fcmToken -> Message.builder()
+                        .setToken(fcmToken)
+                        .setApnsConfig(getApsConfigByContent(content))
+                        .setNotification(
+                                Notification.builder()
+                                        .setTitle(DEFAULT_TITLE)
+                                        .setBody(content)
+                                        .build())
+                        .build())
+                .toList();
+    }
+
+    private ApnsConfig getApsConfigByContent (String content) {
+        return ApnsConfig.builder()
+                .setAps(Aps.builder()
+                        .setAlert(
+                                ApsAlert.builder()
+                                        .setTitle(DEFAULT_TITLE)
+                                        .setBody(content)
+                                        .build()
+                        )
+                        .setSound(DEFAULT_SOUND)
+                        .setBadge(DEFAULT_BADGE)
+                        .build())
+                .build();
     }
 }

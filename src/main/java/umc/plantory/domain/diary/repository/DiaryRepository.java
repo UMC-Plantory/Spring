@@ -21,5 +21,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryReposi
     List<DiaryProjectionDTO.SleepIntervalDTO> findByMemberInAndStatusInAndDiaryDateBetween(
             List<Member> members, List<DiaryStatus> statuses, LocalDate start, LocalDate end
     );
-    boolean existsByMemberAndDiaryDate(Member member, LocalDate diaryDate);
+    boolean existsByMemberIdAndDiaryDateAndStatusIn(Long memberId, LocalDate diaryDate, List<DiaryStatus> statuses);
+    List<Diary> findAllByMember(Member member);
+    void deleteAllByMember(Member member);
 }
