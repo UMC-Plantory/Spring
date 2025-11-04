@@ -1,5 +1,5 @@
 # JAR 파일을 실행할 기본 이미지 선택
-FROM openjdk:17-jdk-alpine
+FROM eclipse-temurin:17-jdk-alpine
 
 # JAR 파일을 복사
 ARG JAR_FILE=build/libs/*.jar
