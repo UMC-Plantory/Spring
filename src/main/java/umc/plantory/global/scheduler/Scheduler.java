@@ -28,7 +28,14 @@ public class Scheduler {
     public void sendIosPushNotification() throws FirebaseMessagingException {
         log.info("Push-Notification Scheduler On");
         schedulerJob.sendRegularPushNotification();
-
         log.info("Push-Notification Scheduler Off");
+    }
+
+    // 2개월 간격 해당 월 1일 오전 4시에 실행
+    @Scheduled(cron = "0 0 4 1 */2 *", zone = "Asia/Seoul")
+    public void refreshAppleClientSecret() {
+        log.info("Refresh Apple-Client-Secret start");
+        schedulerJob.refreshAppleClientSecret();
+        log.info("Refresh Apple-Client-Secret finish");
     }
 }

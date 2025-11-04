@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import umc.plantory.domain.apple.entity.AppleAuthData;
+import umc.plantory.domain.apple.repository.AppleAuthDataRepository;
+import umc.plantory.domain.apple.sevice.AppleOidcService;
 import umc.plantory.domain.diary.dto.DiaryProjectionDTO;
 import umc.plantory.domain.diary.entity.Diary;
 import umc.plantory.domain.diary.entity.DiaryImg;
@@ -17,6 +20,8 @@ import umc.plantory.domain.push.dto.PushDataDTO;
 import umc.plantory.domain.push.repository.PushRepository;
 import umc.plantory.domain.wateringCan.entity.WateringCan;
 import umc.plantory.domain.wateringCan.repository.WateringCanRepository;
+import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.exception.handler.AppleAuthDataHandler;
 import umc.plantory.global.enums.DiaryStatus;
 import umc.plantory.global.enums.MemberStatus;
 
@@ -39,7 +44,10 @@ public class SchedulerJob {
     private final WateringCanRepository wateringCanRepository;
     private final MemberRepository memberRepository;
     private final PushRepository pushRepository;
+    private final AppleAuthDataRepository appleAuthDataRepository;
+
     private final ImageUseCase imageUseCase;
+    private final AppleOidcService appleOidcService;
 
     private final static Integer DEFAULT_BADGE = 1;
     private final static String DEFAULT_SOUND = "default";
@@ -239,6 +247,22 @@ public class SchedulerJob {
         log.info("Thirty Missed Diary Date - Success : {}, Failed : {}", responseByThirty.getSuccessCount(), responseByThirty.getFailureCount());
 
         log.info("Missed Diary Date Push-Notification End");
+    }
+
+    /**
+     * DB 에 저장된 client_secret을 갱신 (없으면 생성) 하는 메서드
+     */
+    @Transactional
+    public String refreshAppleClientSecret() {
+        AppleAuthData appleAuthData = appleAuthDataRepository.findByTag("plantory")
+                .orElseThrow(() -> new AppleAuthDataHandler(ErrorStatus.NOT_FOUND_AUTH_DATA));
+
+        String newClientSecret = appleOidcService.createAppleClientSecret();
+
+        appleAuthData.updateClientSecret(newClientSecret);
+        appleAuthDataRepository.save(appleAuthData);
+
+        return newClientSecret;
     }
 
     private List<Message> getMessageListByDateDiff (List<String> fcmTokenListThreeDaysAgo, String content) {

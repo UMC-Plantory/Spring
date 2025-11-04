@@ -79,6 +79,8 @@ public class MemberRequestDTO {
     public static class AppleOAuth2LoginRequest {
         @NotNull(message = "identityToken 은 필수입니다.")
         private String identityToken;
+        @NotNull(message = "authorizationCode 는 필수입니다.")
+        private String authorizationCode;
         @NotNull(message = "fcmToken 은 필수입니다.")
         private String fcmToken;
     }
