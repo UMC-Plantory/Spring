@@ -72,5 +72,8 @@ jobs:
             echo "🚀 새 컨테이너 실행 중..."
             docker run -dp 8080:8080 \
               --name plantory-app \
+              -v /home/ubuntu/plantory-config/fcm:/home/ubuntu/plantory-config/fcm \
+              -v /home/ubuntu/plantory-config/apple:/home/ubuntu/plantory-config/apple \
+              -e SPRING_PROFILES_ACTIVE=prod \
               -e JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul \
               ${{ secrets.DOCKERHUB_USERNAME }}/plantory:latest
