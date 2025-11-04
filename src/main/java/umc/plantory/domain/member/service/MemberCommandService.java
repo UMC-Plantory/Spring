@@ -373,10 +373,12 @@ public class MemberCommandService implements MemberCommandUseCase {
                     return createdMember;
                 });
 
-        PushData findPushData = pushRepository.findByMember(findMember)
-                .orElseThrow(() -> new PushHandler(ErrorStatus.PUSH_NOT_FOUND));
-        if (!findPushData.getFcmToken().equals(fcmToken)) findPushData.updateFcmTokenAndStatus(fcmToken);
+        PushData findOrCreatePushData = pushRepository.findByMember(findMember)
+                .orElseGet(() -> PushConverter.toPushData(fcmToken, findMember));
+//                .orElseThrow(() -> new PushHandler(ErrorStatus.PUSH_NOT_FOUND));
+        if (!findOrCreatePushData.getFcmToken().equals(fcmToken)) findOrCreatePushData.updateFcmTokenAndStatus(fcmToken);
 
+        pushRepository.save(findOrCreatePushData);
         return findMember;
     }
 
