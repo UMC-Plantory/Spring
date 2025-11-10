@@ -59,6 +59,11 @@ public class TerrariumCommandService implements TerrariumCommandUseCase {
         Terrarium terrarium = terrariumRepository.findById(terrariumId)
                 .orElseThrow(() -> new TerrariumHandler(ErrorStatus.TERRARIUM_NOT_FOUND));
 
+        // 멤버 물뿌리개 개수 0개면 바로 실패
+        if (member.getWateringCanCnt() <= 0) {
+            throw new MemberHandler(ErrorStatus.NO_AVAILABLE_WATERING_CAN);
+        }
+
         // 현재 테라리움에 준 물의 수
         Integer currentWateringCnt = wateringEventRepository.countByTerrarium(terrarium);
 
