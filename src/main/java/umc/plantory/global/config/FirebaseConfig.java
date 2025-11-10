@@ -17,9 +17,9 @@ public class FirebaseConfig {
     @PostConstruct
     public void init() throws IOException {
         // 실서버용
-        String fileResourceURL = "/home/ubuntu/plantory-config/fcm/plantory-firebase-adminsdk.json";
+//        String fileResourceURL = "/home/ubuntu/plantory-config/fcm/plantory-firebase-adminsdk.json";
         // 개발용
-//        String fileResourceURL = "src/main/resources/security/server-security/fcm/plantory-firebase-adminsdk.json";
+        String fileResourceURL = "src/main/resources/security/server-security/fcm/plantory-firebase-adminsdk.json";
         try (FileInputStream serviceAccount = new FileInputStream(fileResourceURL)) {
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))

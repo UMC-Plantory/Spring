@@ -190,22 +190,27 @@ public class SchedulerJob {
     public void sendRegularPushNotification() throws FirebaseMessagingException {
         log.info("Regular Push-Notification Start");
         List<String> targetFcmTokenList = pushRepository.findFcmTokenByAlarmTime(LocalDateTime.now().getHour());
-        List<Message> messageList = targetFcmTokenList.stream()
-                .map(fcmToken -> Message.builder()
-                        .setToken(fcmToken)
-                        .setApnsConfig(getApsConfigByContent(DEFAULT_CONTENT))
-                        .setNotification(
-                                Notification.builder()
-                                        .setTitle(DEFAULT_TITLE)
-                                        .setBody(DEFAULT_CONTENT)
-                                        .build())
-                        .build())
-                .toList();
 
-        BatchResponse response = FirebaseMessaging.getInstance().sendEach(messageList);
+        if (!targetFcmTokenList.isEmpty()) {
+            List<Message> messageList = targetFcmTokenList.stream()
+                    .map(fcmToken -> Message.builder()
+                            .setToken(fcmToken)
+                            .setApnsConfig(getApsConfigByContent(DEFAULT_CONTENT))
+                            .setNotification(
+                                    Notification.builder()
+                                            .setTitle(DEFAULT_TITLE)
+                                            .setBody(DEFAULT_CONTENT)
+                                            .build())
+                            .build())
+                    .toList();
 
-        log.info("Regular Push-Notification Complete - Success : {}, Failed : {}", response.getSuccessCount(), response.getFailureCount());
+            BatchResponse response = FirebaseMessaging.getInstance().sendEach(messageList);
 
+            log.info("Regular Push-Notification Complete - Success : {}, Failed : {}", response.getSuccessCount(), response.getFailureCount());
+        }
+        else {
+            log.info("Regular Push-Notification Complete - Success : 0, Failed : 0");
+        }
         log.info("Regular Push-Notification End");
     }
 
@@ -216,6 +221,11 @@ public class SchedulerJob {
         log.info("Missed Diary Date Push-Notification Start");
         // 알림 대상 추출 작업
         List<PushDataDTO.FcmTokenDateDiffDTO> targetFcmTokenListByDateDiff = pushRepository.findFcmTokenByLastDiaryDate();
+        // 대상 없을경우 종료
+        if (targetFcmTokenListByDateDiff.isEmpty()) {
+            log.info("Missed Diary Date Push-Notification End (No Target)");
+            return;
+        }
         // 일기 연속 미작성 날짜에 따른 리스트 생성을 위한 작업
         Map<String, List<String>> fcmTokenMap = new HashMap<>();
         for (PushDataDTO.FcmTokenDateDiffDTO targetFcmTokenByDateDiff : targetFcmTokenListByDateDiff) {
@@ -234,17 +244,26 @@ public class SchedulerJob {
         List<Message> messageListForThirtyDaysAgo = getMessageListByDateDiff(
                 fcmTokenMap.getOrDefault("thirty", Collections.emptyList()), THIRTY_DAYS_CONTENT);
 
-        BatchResponse responseByThree = FirebaseMessaging.getInstance().sendEach(messageListForThreeDaysAgo);
-        BatchResponse responseByFive = FirebaseMessaging.getInstance().sendEach(messageListForFiveDaysAgo);
-        BatchResponse responseBySeven = FirebaseMessaging.getInstance().sendEach(messageListForSevenDaysAgo);
-        BatchResponse responseByFourteen = FirebaseMessaging.getInstance().sendEach(messageListForFourteenDaysAgo);
-        BatchResponse responseByThirty = FirebaseMessaging.getInstance().sendEach(messageListForThirtyDaysAgo);
-
-        log.info("Three Missed Diary Date - Success : {}, Failed : {}", responseByThree.getSuccessCount(), responseByThree.getFailureCount());
-        log.info("Five Missed Diary Date - Success : {}, Failed : {}", responseByFive.getSuccessCount(), responseByFive.getFailureCount());
-        log.info("Seven Missed Diary Date - Success : {}, Failed : {}", responseBySeven.getSuccessCount(), responseBySeven.getFailureCount());
-        log.info("Fourteen Missed Diary Date - Success : {}, Failed : {}", responseByFourteen.getSuccessCount(), responseByFourteen.getFailureCount());
-        log.info("Thirty Missed Diary Date - Success : {}, Failed : {}", responseByThirty.getSuccessCount(), responseByThirty.getFailureCount());
+        if (!messageListForThreeDaysAgo.isEmpty()) {
+            BatchResponse responseByThree = FirebaseMessaging.getInstance().sendEach(messageListForThreeDaysAgo);
+            log.info("Three Missed Diary Date - Success : {}, Failed : {}", responseByThree.getSuccessCount(), responseByThree.getFailureCount());
+        }
+        if (!messageListForFiveDaysAgo.isEmpty()) {
+            BatchResponse responseByFive = FirebaseMessaging.getInstance().sendEach(messageListForFiveDaysAgo);
+            log.info("Five Missed Diary Date - Success : {}, Failed : {}", responseByFive.getSuccessCount(), responseByFive.getFailureCount());
+        }
+        if (!messageListForSevenDaysAgo.isEmpty()) {
+            BatchResponse responseBySeven = FirebaseMessaging.getInstance().sendEach(messageListForSevenDaysAgo);
+            log.info("Seven Missed Diary Date - Success : {}, Failed : {}", responseBySeven.getSuccessCount(), responseBySeven.getFailureCount());
+        }
+        if (!messageListForFourteenDaysAgo.isEmpty()) {
+            BatchResponse responseByFourteen = FirebaseMessaging.getInstance().sendEach(messageListForFourteenDaysAgo);
+            log.info("Fourteen Missed Diary Date - Success : {}, Failed : {}", responseByFourteen.getSuccessCount(), responseByFourteen.getFailureCount());
+        }
+        if (!messageListForThirtyDaysAgo.isEmpty()) {
+            BatchResponse responseByThirty = FirebaseMessaging.getInstance().sendEach(messageListForThirtyDaysAgo);
+            log.info("Thirty Missed Diary Date - Success : {}, Failed : {}", responseByThirty.getSuccessCount(), responseByThirty.getFailureCount());
+        }
 
         log.info("Missed Diary Date Push-Notification End");
     }
