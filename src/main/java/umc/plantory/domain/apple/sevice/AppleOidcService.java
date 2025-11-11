@@ -70,12 +70,6 @@ public class AppleOidcService {
     public MemberDataDTO.MemberData verifyAndParseIdToken(MemberRequestDTO.AppleOAuth2LoginRequest request) {
         try {
             String identityToken = request.getIdentityToken();
-
-            // 삭제 예정
-            String[] p = identityToken.split("\\.");
-            String payload = new String(Base64.getUrlDecoder().decode(p[1]), StandardCharsets.UTF_8);
-            log.error("id_token payload={}", payload); // 여기서 "aud": "<값>" 확인
-
             String[] parts = identityToken.split("\\.");
             if (parts.length != 3) throw new AppleHandler(ErrorStatus.INVALID_JWT_TOKEN);
 
@@ -141,13 +135,6 @@ public class AppleOidcService {
      * Authorization Code 를 통해 apple refresh_token 값을 받아오는 메서드
      */
     public String createAppleRefreshToken(String authorizationCode, String clientSecret) {
-        // 삭제 예정
-        log.error("APPLE client_id(BUNDLE_ID)={}, TEAM_ID={}, KEY_ID={}, ISSUER={}",
-                BUNDLE_ID, TEAM_ID, KEY_ID, ISSUER);
-        String[] parts = clientSecret.split("\\.");
-        String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
-        log.error("client_secret payload={}", payloadJson);
-
         return webClient.post()
                 .uri("https://appleid.apple.com/auth/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -171,7 +158,6 @@ public class AppleOidcService {
     public String createAppleClientSecret() {
         try {
             ECPrivateKey privateKey = (ECPrivateKey) loadPrivateKeyFromPem();
-            log.error("alg = {}", privateKey.getAlgorithm());
 
             Date iat = Date.from(Instant.now());
             Date exp = Date.from(Instant.now().plusSeconds(MAX_EXP_SECONDS));
@@ -186,7 +172,6 @@ public class AppleOidcService {
                     .signWith(privateKey, SignatureAlgorithm.ES256)
                     .compact();
 
-            log.error("jwt: {}", jwt);
             return jwt;
         } catch (Exception e) {
             log.error("Failed to Refresh Apple Client_Secret", e);

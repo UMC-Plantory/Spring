@@ -70,7 +70,6 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
     @Override
     @Transactional
     public MemberResponseDTO.AppleOauth2LoginResponse generateAppleLoginToken(Member member, String authorizationCode) {
-        log.error("authorizationCode: {}", authorizationCode);
         MemberToken findMemberToken = memberTokenRepository.findByMember(member)
                 .orElse(null);
         AppleAuthData appleAuthData = appleAuthDataRepository.findByTag("plantory")
@@ -90,7 +89,6 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
             log.error("appleClientSecret is Null");
             appleClientSecret = schedulerJob.refreshAppleClientSecret();
         }
-        log.error("appleClientSecret: {}", appleClientSecret);
         // Apple Refresh Token
         String appleRefreshToken = appleOidcService.createAppleRefreshToken(authorizationCode, appleClientSecret);
 
