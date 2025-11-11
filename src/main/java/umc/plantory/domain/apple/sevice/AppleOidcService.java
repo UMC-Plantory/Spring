@@ -123,6 +123,7 @@ public class AppleOidcService {
         } catch (ExpiredJwtException e) {
             throw new AppleHandler(ErrorStatus.EXPIRED_JWT_TOKEN);
         } catch (Exception e) {
+            log.error("AppleOidcService Error : {}", e.getMessage());
             throw new AppleHandler(ErrorStatus.ERROR_ON_VERIFYING);
         }
     }
