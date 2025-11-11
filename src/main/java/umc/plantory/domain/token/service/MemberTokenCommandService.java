@@ -70,6 +70,7 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
     @Override
     @Transactional
     public MemberResponseDTO.AppleOauth2LoginResponse generateAppleLoginToken(Member member, String authorizationCode) {
+        log.error("authorizationCode: {}", authorizationCode);
         MemberToken findMemberToken = memberTokenRepository.findByMember(member)
                 .orElse(null);
         AppleAuthData appleAuthData = appleAuthDataRepository.findByTag("plantory")
