@@ -166,6 +166,7 @@ public class AppleOidcService {
                     .signWith(privateKey, SignatureAlgorithm.ES256)
                     .compact();
 
+            log.error("jwt: {}", jwt);
             return jwt;
         } catch (Exception e) {
             log.error("Failed to Refresh Apple Client_Secret", e);
