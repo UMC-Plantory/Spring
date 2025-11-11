@@ -90,6 +90,7 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
             log.error("appleClientSecret is Null");
             appleClientSecret = schedulerJob.refreshAppleClientSecret();
         }
+        log.error("appleClientSecret: {}", appleClientSecret);
         // Apple Refresh Token
         String appleRefreshToken = appleOidcService.createAppleRefreshToken(authorizationCode, appleClientSecret);
 
