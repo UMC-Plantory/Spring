@@ -86,6 +86,7 @@ public class MemberTokenCommandService implements MemberTokenCommandUseCase {
 
         String appleClientSecret = appleAuthData.getClientSecret();
         if (appleClientSecret == null) {
+            log.error("appleClientSecret is Null");
             appleClientSecret = schedulerJob.refreshAppleClientSecret();
         }
         // Apple Refresh Token
