@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import umc.plantory.global.apiPayload.code.status.ErrorStatus;
+import umc.plantory.global.apiPayload.exception.handler.MemberHandler;
 import umc.plantory.global.baseEntity.BaseEntity;
 import umc.plantory.global.enums.Gender;
 import umc.plantory.global.enums.MemberRole;
@@ -107,7 +109,10 @@ public class Member extends BaseEntity {
         this.wateringCanCnt = this.wateringCanCnt + 1;
     }
 
-    public void decreaseWateringCan() {this.wateringCanCnt -= 1;}
+    public void decreaseWateringCan() {
+        if (wateringCanCnt == null || wateringCanCnt <= 0) throw new MemberHandler(ErrorStatus.NO_AVAILABLE_WATERING_CAN);
+        else this.wateringCanCnt -= 1;
+    }
 
     public void increaseTotalBloomCnt() {this.totalBloomCnt += 1;}
 
