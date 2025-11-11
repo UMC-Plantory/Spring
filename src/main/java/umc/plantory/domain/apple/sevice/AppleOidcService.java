@@ -144,9 +144,9 @@ public class AppleOidcService {
         // 삭제 예정
         log.error("APPLE client_id(BUNDLE_ID)={}, TEAM_ID={}, KEY_ID={}, ISSUER={}",
                 BUNDLE_ID, TEAM_ID, KEY_ID, ISSUER);
-        log.error("client_secret(sub)={}", Jwts.parserBuilder().build()
-                .parseClaimsJwt(clientSecret.split("\\.")[0]+".."+clientSecret.split("\\.")[2])
-                .getBody().getSubject());
+        String[] parts = clientSecret.split("\\.");
+        String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+        log.error("client_secret payload={}", payloadJson);
 
         return webClient.post()
                 .uri("https://appleid.apple.com/auth/token")
