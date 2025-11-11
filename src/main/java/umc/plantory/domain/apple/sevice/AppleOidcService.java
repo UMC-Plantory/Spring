@@ -86,6 +86,7 @@ public class AppleOidcService {
                     break;
                 }
             }
+            log.info("matchedKey: {}", matchedKey);
             if (matchedKey == null) {
                 log.error("AppleOicdService Error : matchedKey is NULL");
                 throw new AppleHandler(ErrorStatus.ERROR_ON_VERIFYING);
@@ -123,7 +124,7 @@ public class AppleOidcService {
         } catch (ExpiredJwtException e) {
             throw new AppleHandler(ErrorStatus.EXPIRED_JWT_TOKEN);
         } catch (Exception e) {
-            log.error("AppleOidcService Error : {}", e.getMessage());
+            log.error("AppleOidcService Error : ", e);
             throw new AppleHandler(ErrorStatus.ERROR_ON_VERIFYING);
         }
     }
