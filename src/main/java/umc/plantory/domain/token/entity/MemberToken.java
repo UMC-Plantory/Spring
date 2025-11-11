@@ -26,13 +26,13 @@ public class MemberToken extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(length = 500, nullable = false, updatable = false)
+    @Column(length = 1024, nullable = false, updatable = false)
     private String refreshToken;
 
     @Column(nullable = false)
     private LocalDateTime expireAt;
 
-    @Column(length = 500)
+    @Column(length = 1024)
     private String appleRefreshToken;
 
     public void updateRefreshTokenAndExpireAt (String refreshToken, LocalDateTime expireAt, String appleRefreshToken) {
