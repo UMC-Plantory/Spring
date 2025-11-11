@@ -70,6 +70,12 @@ public class AppleOidcService {
     public MemberDataDTO.MemberData verifyAndParseIdToken(MemberRequestDTO.AppleOAuth2LoginRequest request) {
         try {
             String identityToken = request.getIdentityToken();
+
+            // 삭제 예정
+            String[] p = identityToken.split("\\.");
+            String payload = new String(Base64.getUrlDecoder().decode(p[1]), StandardCharsets.UTF_8);
+            log.error("id_token payload={}", payload); // 여기서 "aud": "<값>" 확인
+
             String[] parts = identityToken.split("\\.");
             if (parts.length != 3) throw new AppleHandler(ErrorStatus.INVALID_JWT_TOKEN);
 
@@ -135,6 +141,13 @@ public class AppleOidcService {
      * Authorization Code 를 통해 apple refresh_token 값을 받아오는 메서드
      */
     public String createAppleRefreshToken(String authorizationCode, String clientSecret) {
+        // 삭제 예정
+        log.error("APPLE client_id(BUNDLE_ID)={}, TEAM_ID={}, KEY_ID={}, ISSUER={}",
+                BUNDLE_ID, TEAM_ID, KEY_ID, ISSUER);
+        log.error("client_secret(sub)={}", Jwts.parserBuilder().build()
+                .parseClaimsJwt(clientSecret.split("\\.")[0]+".."+clientSecret.split("\\.")[2])
+                .getBody().getSubject());
+
         return webClient.post()
                 .uri("https://appleid.apple.com/auth/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
