@@ -86,7 +86,10 @@ public class AppleOidcService {
                     break;
                 }
             }
-            if (matchedKey == null) throw new AppleHandler(ErrorStatus.ERROR_ON_VERIFYING);
+            if (matchedKey == null) {
+                log.error("AppleOicdService Error : matchedKey is NULL");
+                throw new AppleHandler(ErrorStatus.ERROR_ON_VERIFYING);
+            }
 
             // 공개키 생성 (n, e)
             String n = matchedKey.get("n").asText();
