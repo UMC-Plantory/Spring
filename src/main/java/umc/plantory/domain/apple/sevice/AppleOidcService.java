@@ -7,10 +7,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import umc.plantory.domain.apple.converter.AppleConverter;
 import umc.plantory.domain.member.dto.MemberDataDTO;
 import umc.plantory.domain.member.dto.MemberRequestDTO;
@@ -135,14 +137,18 @@ public class AppleOidcService {
     public String createAppleRefreshToken(String authorizationCode, String clientSecret) {
         return webClient.post()
                 .uri("https://appleid.apple.com/auth/token")
-                .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData("grant_type", "authorization_code")
                         .with("code", authorizationCode)
                         .with("client_id", BUNDLE_ID)
                         .with("client_secret", clientSecret))
-                .retrieve()
-                .bodyToMono(String.class)
-                .doOnNext(System.out::println)
+                .exchangeToMono(res ->
+                        res.bodyToMono(String.class).map(body -> {
+                            log.error("Apple /auth/token status={} body={}", res.statusCode(), body);
+                            if (res.statusCode().is2xxSuccessful()) return body;
+                            throw new AppleHandler(ErrorStatus.ERROR_ON_VERIFYING);
+                        })
+                )
                 .block();
     }
 
@@ -152,6 +158,7 @@ public class AppleOidcService {
     public String createAppleClientSecret() {
         try {
             ECPrivateKey privateKey = (ECPrivateKey) loadPrivateKeyFromPem();
+            log.error("alg = {}", privateKey.getAlgorithm());
 
             Date iat = Date.from(Instant.now());
             Date exp = Date.from(Instant.now().plusSeconds(MAX_EXP_SECONDS));
@@ -211,9 +218,13 @@ public class AppleOidcService {
                         .with("token", refreshToken)
                         .with("client_id", BUNDLE_ID)
                         .with("client_secret", clientSecret))
-                .retrieve()
-                .bodyToMono(String.class)
-                .doOnNext(System.out::println)
+                .exchangeToMono(res ->
+                        res.bodyToMono(String.class).map(body -> {
+                            log.error("Apple /auth/revoke status={} body={}", res.statusCode(), body);
+                            if (res.statusCode().is2xxSuccessful()) return body;
+                            throw new AppleHandler(ErrorStatus.ERROR_ON_VERIFYING);
+                        })
+                )
                 .block();
     }
 }
