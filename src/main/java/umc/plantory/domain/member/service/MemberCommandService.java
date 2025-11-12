@@ -321,6 +321,7 @@ public class MemberCommandService implements MemberCommandUseCase {
             appleOidcService.unlinkUser(memberToken.getAppleRefreshToken(), appleClientSecret);
         }
 
+        pushRepository.deleteAllByMember(member);
         memberTokenRepository.deleteByMember(member);
         memberRepository.delete(member);
 

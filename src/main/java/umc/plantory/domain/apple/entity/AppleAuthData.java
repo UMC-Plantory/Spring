@@ -20,7 +20,7 @@ public class AppleAuthData extends BaseEntity {
     @Column(name = "apple_auth_data_id")
     private Long id;
 
-    @Column(length = 1024)
+    @Column(length = 2048)
     private String clientSecret;
 
     @Column(length = 10, nullable = false)

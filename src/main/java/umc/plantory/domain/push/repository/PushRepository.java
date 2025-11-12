@@ -28,5 +28,6 @@ public interface PushRepository extends JpaRepository<PushData, Long> {
             "WHERE FUNCTION('DATEDIFF', CURRENT_DATE, m.lastDiaryDate) IN (3, 5, 7, 14, 30) " +
             "AND m.status = 'ACTIVE' AND p.tokenStatus = 'VALID'")
     List<PushDataDTO.FcmTokenDateDiffDTO> findFcmTokenByLastDiaryDate();
+    void deleteAllByMember(Member member);
 
 }
