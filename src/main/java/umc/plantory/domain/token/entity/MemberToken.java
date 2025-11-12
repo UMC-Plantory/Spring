@@ -32,7 +32,7 @@ public class MemberToken extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime expireAt;
 
-    @Column(length = 1024)
+    @Column(length = 2048)
     private String appleRefreshToken;
 
     public void updateRefreshTokenAndExpireAt (String refreshToken, LocalDateTime expireAt, String appleRefreshToken) {
