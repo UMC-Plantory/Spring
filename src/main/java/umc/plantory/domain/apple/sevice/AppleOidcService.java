@@ -209,7 +209,6 @@ public class AppleOidcService {
      * 플랜토리 - 애플 연동 해제 메서드
      */
     public void unlinkUser(String refreshToken, String clientSecret) {
-        log.error("apple unlink start. refreshToken: {}", refreshToken);
         webClient.post()
                 .uri("https://appleid.apple.com/auth/revoke")
                 .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
@@ -218,10 +217,12 @@ public class AppleOidcService {
                         .with("client_id", BUNDLE_ID)
                         .with("client_secret", clientSecret))
                 .exchangeToMono(res ->
-                        res.bodyToMono(String.class).map(body -> {
-                            log.error("Apple /auth/revoke status={} body={}", res.statusCode(), body);
-                            if (res.statusCode().is2xxSuccessful()) return body;
-                            throw new AppleHandler(ErrorStatus.ERROR_ON_VERIFYING);
+                        res.bodyToMono(String.class)
+                                .defaultIfEmpty("Apple 연동 해제 성공")
+                                .map(body -> {
+                                    log.error("Apple /auth/revoke status={} body={}", res.statusCode(), body);
+                                    if (res.statusCode().is2xxSuccessful()) return body;
+                                    throw new AppleHandler(ErrorStatus.ERROR_ON_VERIFYING);
                         })
                 )
                 .block();
