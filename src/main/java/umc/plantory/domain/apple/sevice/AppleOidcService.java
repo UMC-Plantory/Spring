@@ -217,10 +217,12 @@ public class AppleOidcService {
                         .with("client_id", BUNDLE_ID)
                         .with("client_secret", clientSecret))
                 .exchangeToMono(res ->
-                        res.bodyToMono(String.class).map(body -> {
-                            log.error("Apple /auth/revoke status={} body={}", res.statusCode(), body);
-                            if (res.statusCode().is2xxSuccessful()) return body;
-                            throw new AppleHandler(ErrorStatus.ERROR_ON_VERIFYING);
+                        res.bodyToMono(String.class)
+                                .defaultIfEmpty("Apple 연동 해제 성공")
+                                .map(body -> {
+                                    log.error("Apple /auth/revoke status={} body={}", res.statusCode(), body);
+                                    if (res.statusCode().is2xxSuccessful()) return body;
+                                    throw new AppleHandler(ErrorStatus.ERROR_ON_VERIFYING);
                         })
                 )
                 .block();
