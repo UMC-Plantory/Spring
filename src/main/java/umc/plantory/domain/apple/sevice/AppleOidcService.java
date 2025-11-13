@@ -209,6 +209,7 @@ public class AppleOidcService {
      * 플랜토리 - 애플 연동 해제 메서드
      */
     public void unlinkUser(String refreshToken, String clientSecret) {
+        log.error("apple unlink start. refreshToken: {}", refreshToken);
         webClient.post()
                 .uri("https://appleid.apple.com/auth/revoke")
                 .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")

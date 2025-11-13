@@ -291,9 +291,10 @@ public class MemberCommandService implements MemberCommandUseCase {
                 .map(DiaryImg::getDiaryImgUrl)
                 .filter(url -> url != null && !url.isBlank())
                 .toList());
-        // 유저 프로플 사진까지 미리 수집
-        deleteImgUrlList.add(member.getProfileImgUrl());
-
+        // 유저 프로플 사진까지 미리 수집 (기본 프사가 아닐 시)
+        if (member.getProfileImgUrl() != DEFAULT_PROFILE_IMG_URL) {
+            deleteImgUrlList.add(member.getProfileImgUrl());
+        }
         chatRepository.deleteAllByMember(member);
         memberTermRepository.deleteAllByMember(member);
         diaryImgRepository.deleteAllByDiaryIn(diaryList);
