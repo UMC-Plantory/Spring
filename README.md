@@ -11,7 +11,7 @@
 <br>
 
 ## 👥 멤버
-| 노먼/박승태 | 유즈/박유정 | 지니/박형진 | 메이/손가영 | 하루/심현민 - 중도 탈퇴 |
+| 노먼/박승태 | 유즈/박유정 | 지니/박형진 | 메이/손가영 | 하루/심현민 |
 |:------:|:------:|:------:|:------:|:------:|
 | <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/671e9737-20ab-45d5-b755-f5e9c84ed31f" /> | <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/c1241267-2aba-4e66-beaf-f1919841f765" /> | <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/7b8e410c-6ff6-4969-90c2-7c45906b2cbe" /> | <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/c6bf4d3e-46b6-4111-80e6-fbea97a3510e" /> | <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/03c4ae65-6f3d-44f0-aab7-7dad662c13af" /> |
 | PL | BE | BE | BE | BE |
